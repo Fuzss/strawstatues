@@ -1,5 +1,7 @@
 package fuzs.strawstatues.client;
 
+import com.mojang.authlib.minecraft.MinecraftProfileTexture;
+import fuzs.armorstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
 import fuzs.armorstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
 import fuzs.armorstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.client.core.ClientModConstructor;
@@ -14,6 +16,7 @@ import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class StrawStatuesClient implements ClientModConstructor {
 
@@ -21,6 +24,13 @@ public class StrawStatuesClient implements ClientModConstructor {
     public void onClientSetup() {
         ArmorStandScreenFactory.register(StrawStatue.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(StrawStatue.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueStyleScreen::new);
+        ArmorStandRotationsScreen.registerPosePartMutatorFilter(StrawStatue.CAPE_POSE_PART_MUTATOR, armorStand -> {
+            StrawStatue strawStatue = (StrawStatue) armorStand;
+            if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
+                return StrawStatueRenderer.getPlayerProfileTexture(strawStatue, MinecraftProfileTexture.Type.CAPE).isPresent();
+            }
+            return false;
+        });
     }
 
     @Override

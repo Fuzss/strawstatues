@@ -19,6 +19,7 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.style.slimArms", "Slim Arms");
         this.add("armorstatues.screen.rotations.pose.cape", "Cape");
         // armor statues keys
+        this.add("key.cycleStatueTabs", "Cycle Statue Tabs");
         this.add("armorstatues.screen.style.slimArms.description", "Makes the statue's arms a few pixels less wide, like Minecraft's Alex skin.");
         this.add("armorstatues.item.armor_stand.description", "Shift + right-click to open configuration screen when placed.");
         this.add("armorstatues.entity.armor_stand.pose.athena", "Athena");
@@ -77,7 +78,9 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.rotations.pose.rightArm", "Right Arm");
         this.add("armorstatues.screen.rotations.pose.leftLeg", "Left Leg");
         this.add("armorstatues.screen.rotations.pose.rightLeg", "Right Leg");
-        this.add("armorstatues.screen.rotations.tip", "Hold the Shift or Alt key to lock 2d-sliders to a single axis!");
+        this.add("armorstatues.screen.rotations.tip1", "Hold the Shift or Alt key to lock sliders to a single axis!");
+        this.add("armorstatues.screen.rotations.tip2", "Use the arrow keys to move sliders more precisely! Focus a slider first by clicking.");
+        this.add("armorstatues.screen.rotations.tip3", "Press the %s key (or Shift + %s) to quickly switch between tabs!");
         this.add("armorstatues.screen.rotations.reset", "Reset");
         this.add("armorstatues.screen.rotations.randomize", "Randomize");
         this.add("armorstatues.screen.rotations.limited", "Limited Rotations");

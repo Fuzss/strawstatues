@@ -2,8 +2,8 @@ package fuzs.armorstatues.api.client.gui.screens.armorstand;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.armorstatues.api.client.gui.components.NewTextureSliderButton;
 import fuzs.armorstatues.api.client.gui.components.NewTextureButton;
+import fuzs.armorstatues.api.client.gui.components.NewTextureSliderButton;
 import fuzs.armorstatues.api.network.client.data.DataSyncHandler;
 import fuzs.armorstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.armorstatues.api.world.inventory.data.ArmorStandPose;
@@ -42,6 +42,18 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
 
     public ArmorStandPositionScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(holder, inventory, component, dataSyncHandler);
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(true);
+    }
+
+    @Override
+    public void removed() {
+        super.removed();
+        this.minecraft.keyboardHandler.setSendRepeatsToGui(false);
     }
 
     @Override

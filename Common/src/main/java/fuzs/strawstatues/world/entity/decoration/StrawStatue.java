@@ -6,6 +6,7 @@ import fuzs.armorstatues.api.world.entity.decoration.ArmorStandDataProvider;
 import fuzs.armorstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.armorstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.armorstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.armorstatues.api.world.inventory.data.PosePartMutator;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -54,7 +55,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final ArmorStandStyleOption SLIM_ARMS_STYLE_OPTION = new ArmorStandStyleOption() {
 
         @Override
-        public String getName() {
+        public String getTranslationId() {
             return "slimArms";
         }
 
@@ -73,6 +74,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             tag.putBoolean(SLIM_ARMS_KEY, currentValue);
         }
     };
+    public static final PosePartMutator CAPE_POSE_PART_MUTATOR = new PosePartMutator("cape", ArmorStandPose::getBodyPose, ArmorStandPose::withBodyPose, PosePartMutator.PosePartAxisRange.range(0.0F, 120.0F), PosePartMutator.PosePartAxisRange.range(-60.0F, 60.0F), PosePartMutator.PosePartAxisRange.range(-120.0, 120.0));
 
     public StrawStatue(EntityType<? extends StrawStatue> entityType, Level level) {
         super(entityType, level);
@@ -299,12 +301,12 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public Component getBodyComponent() {
-        return Component.translatable("armorstatues.screen.rotations.pose.cape");
+    public PosePartMutator[] getPosePartMutators() {
+        return new PosePartMutator[]{PosePartMutator.HEAD, CAPE_POSE_PART_MUTATOR, PosePartMutator.LEFT_ARM, PosePartMutator.RIGHT_ARM, PosePartMutator.LEFT_LEG, PosePartMutator.RIGHT_LEG};
     }
 
     @Override
     public ArmorStandPose getRandomPose(boolean clampRotations) {
-        return ArmorStandPose.random(clampRotations);
+        return ArmorStandPose.random(this.getPosePartMutators(), clampRotations);
     }
 }
