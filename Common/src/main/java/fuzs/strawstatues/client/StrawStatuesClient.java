@@ -1,9 +1,9 @@
 package fuzs.strawstatues.client;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import fuzs.armorstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
-import fuzs.armorstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
-import fuzs.armorstatues.api.world.inventory.ArmorStandMenu;
+import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
+import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
+import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.client.core.ClientModConstructor;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueStyleScreen;

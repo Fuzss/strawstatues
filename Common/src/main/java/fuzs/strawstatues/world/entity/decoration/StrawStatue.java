@@ -1,12 +1,12 @@
 package fuzs.strawstatues.world.entity.decoration;
 
 import com.mojang.authlib.GameProfile;
-import fuzs.armorstatues.api.helper.ArmorStandInteractHelper;
-import fuzs.armorstatues.api.world.entity.decoration.ArmorStandDataProvider;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandPose;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandStyleOption;
-import fuzs.armorstatues.api.world.inventory.data.PosePartMutator;
+import fuzs.strawstatues.api.helper.ArmorStandInteractHelper;
+import fuzs.strawstatues.api.world.entity.decoration.ArmorStandDataProvider;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.strawstatues.api.world.inventory.data.PosePartMutator;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
 import net.minecraft.core.particles.BlockParticleOption;

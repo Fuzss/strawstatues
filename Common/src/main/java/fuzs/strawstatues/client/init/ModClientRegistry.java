@@ -1,6 +1,6 @@
 package fuzs.strawstatues.client.init;
 
-import fuzs.armorstatues.api.ArmorStatuesApi;
+import fuzs.strawstatues.api.ArmorStatuesApi;
 import fuzs.puzzleslib.client.core.ClientCoreServices;
 import fuzs.puzzleslib.client.model.geom.ModelLayerRegistry;
 import net.minecraft.client.model.geom.ModelLayerLocation;

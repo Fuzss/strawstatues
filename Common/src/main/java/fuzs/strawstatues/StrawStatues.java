@@ -1,7 +1,7 @@
 package fuzs.strawstatues;
 
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandPose;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.core.ModConstructor;
 import fuzs.puzzleslib.network.MessageDirection;

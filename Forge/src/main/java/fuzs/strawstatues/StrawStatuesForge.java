@@ -1,7 +1,7 @@
 package fuzs.strawstatues;
 
-import fuzs.armorstatues.api.ArmorStatuesApi;
 import fuzs.puzzleslib.core.CoreServices;
+import fuzs.strawstatues.api.ArmorStatuesApi;
 import fuzs.strawstatues.data.ModItemModelProvider;
 import fuzs.strawstatues.data.ModLanguageProvider;
 import fuzs.strawstatues.data.ModLootTableProvider;
@@ -19,9 +19,7 @@ public class StrawStatuesForge {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
-        if (!CoreServices.ENVIRONMENT.isModLoaded(ArmorStatuesApi.MOD_ID)) {
-            CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new ArmorStatuesApi());
-        }
+        CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new ArmorStatuesApi());
         CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new StrawStatues());
     }
 

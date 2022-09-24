@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
-import fuzs.armorstatues.api.ArmorStatuesApi;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.client.init.ModClientRegistry;
 import fuzs.strawstatues.client.model.StrawStatueArmorModel;

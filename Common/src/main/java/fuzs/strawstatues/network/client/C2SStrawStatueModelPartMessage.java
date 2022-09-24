@@ -1,7 +1,7 @@
 package fuzs.strawstatues.network.client;
 
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import fuzs.armorstatues.api.world.inventory.ArmorStandMenu;
+import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.network.Message;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;

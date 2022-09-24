@@ -1,7 +1,7 @@
 package fuzs.strawstatues.init;
 
 import com.mojang.authlib.GameProfile;
-import fuzs.armorstatues.api.world.inventory.ArmorStandMenu;
+import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.init.RegistryManager;
 import fuzs.puzzleslib.init.RegistryReference;

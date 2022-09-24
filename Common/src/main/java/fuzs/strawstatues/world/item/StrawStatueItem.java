@@ -1,7 +1,7 @@
 package fuzs.strawstatues.world.item;
 
-import fuzs.armorstatues.api.helper.ArmorStandInteractHelper;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.helper.ArmorStandInteractHelper;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;

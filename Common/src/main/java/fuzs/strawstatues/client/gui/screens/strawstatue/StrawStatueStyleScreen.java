@@ -1,11 +1,11 @@
 package fuzs.strawstatues.client.gui.screens.strawstatue;
 
-import fuzs.armorstatues.api.client.gui.screens.armorstand.ArmorStandStyleScreen;
-import fuzs.armorstatues.api.network.client.data.DataSyncHandler;
-import fuzs.armorstatues.api.world.inventory.ArmorStandHolder;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandStyleOption;
-import fuzs.armorstatues.api.world.inventory.data.ArmorStandStyleOptions;
+import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandStyleScreen;
+import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
+import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOptions;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
