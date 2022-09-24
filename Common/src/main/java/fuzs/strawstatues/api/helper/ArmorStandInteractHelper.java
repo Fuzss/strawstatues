@@ -1,7 +1,8 @@
 package fuzs.strawstatues.api.helper;
 
-import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.core.CoreServices;
+import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
+import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -29,6 +30,7 @@ public class ArmorStandInteractHelper {
             }, entity.getDisplayName()), (serverPlayer1, friendlyByteBuf) -> {
                 friendlyByteBuf.writeInt(entity.getId());
                 friendlyByteBuf.writeBoolean(entity.isInvulnerable());
+                friendlyByteBuf.writeInt(((ArmorStandAccessor) entity).getDisabledSlots());
             });
         }
     }
