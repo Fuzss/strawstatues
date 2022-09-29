@@ -2,7 +2,6 @@ package fuzs.strawstatues.api.client;
 
 import fuzs.puzzleslib.client.core.ClientModConstructor;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.*;
-import fuzs.strawstatues.api.client.init.ModClientRegistry;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.api.world.inventory.data.PosePartMutator;
@@ -26,10 +25,5 @@ public class ArmorStatuesApiClient implements ClientModConstructor {
     @Override
     public void onRegisterAtlasSprites(AtlasSpritesContext context) {
         context.registerAtlasSprite(InventoryMenu.BLOCK_ATLAS, ArmorStandMenu.EMPTY_ARMOR_SLOT_SWORD);
-    }
-
-    @Override
-    public void onRegisterKeyMappings(KeyMappingsContext context) {
-        context.registerKeyMappings(ModClientRegistry.CYCLE_TABS_KEY_MAPPING);
     }
 }
