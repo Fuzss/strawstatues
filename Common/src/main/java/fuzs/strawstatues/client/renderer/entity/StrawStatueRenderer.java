@@ -87,14 +87,17 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
         if (f < 5.0F) {
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(f / 1.5F * 3.1415927F) * 3.0F));
         }
-
+        if (isEntityUpsideDown(entityLiving)) {
+            matrixStack.translate(0.0, entityLiving.getBbHeight() - 0.0625F, 0.0);
+            matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180.0F));
+        }
     }
 
     @Override
     protected boolean shouldShowName(StrawStatue entity) {
         double d = this.entityRenderDispatcher.distanceToSqr(entity);
         float f = entity.isCrouching() ? 32.0F : 64.0F;
-        return d >= (double)(f * f) ? false : entity.isCustomNameVisible();
+        return !(d >= f * f) && entity.isCustomNameVisible();
     }
 
     @Override
