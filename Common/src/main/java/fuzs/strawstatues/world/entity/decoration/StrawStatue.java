@@ -126,7 +126,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, compound.getByte(MODEL_PARTS_KEY));
         }
         if (compound.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            this.setOwner(NbtUtils.readGameProfile(compound.getCompound(OWNER_KEY)));
+            this.verifyAndSetOwner(NbtUtils.readGameProfile(compound.getCompound(OWNER_KEY)));
         }
     }
 
@@ -141,8 +141,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         if (name == null) {
             this.setOwner(null);
         } else {
-            GameProfile gameprofile = new GameProfile(null, name.getString());
-            SkullBlockEntity.updateGameprofile(gameprofile, this::setOwner);
+            this.verifyAndSetOwner(new GameProfile(null, name.getString()));
         }
     }
 
@@ -161,8 +160,16 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         return this.entityData.get(DATA_OWNER).orElse(null);
     }
 
-    private void setOwner(@Nullable GameProfile value) {
-        this.entityData.set(DATA_OWNER, Optional.ofNullable(value));
+    private void verifyAndSetOwner(@Nullable GameProfile gameProfile) {
+        if (gameProfile != null && !gameProfile.isComplete()) {
+            SkullBlockEntity.updateGameprofile(gameProfile, this::setOwner);
+        } else {
+            this.setOwner(gameProfile);
+        }
+    }
+
+    private void setOwner(@Nullable GameProfile gameProfile) {
+        this.entityData.set(DATA_OWNER, Optional.ofNullable(gameProfile));
     }
 
     public boolean slimArms() {

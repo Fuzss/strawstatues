@@ -9,6 +9,7 @@ import fuzs.puzzleslib.init.builder.ExtendedModMenuSupplier;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.item.StrawStatueItem;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -20,6 +21,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 
 import java.util.Optional;
+import java.util.UUID;
 
 public class ModRegistry {
     private static final RegistryManager REGISTRY = CoreServices.FACTORIES.registration(StrawStatues.MOD_ID);
@@ -29,7 +31,13 @@ public class ModRegistry {
     });
     public static final RegistryReference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerExtendedMenuTypeSupplier("straw_statue", () -> getStrawStatueMenuTypeSupplier());
 
-    public static final EntityDataSerializer<Optional<GameProfile>> GAME_PROFILE_ENTITY_DATA_SERIALIZER = EntityDataSerializer.optional(FriendlyByteBuf::writeGameProfile, FriendlyByteBuf::readGameProfile);
+    public static final EntityDataSerializer<Optional<GameProfile>> GAME_PROFILE_ENTITY_DATA_SERIALIZER = EntityDataSerializer.optional((friendlyByteBuf, gameProfile) -> {
+        if (!gameProfile.isComplete()) {
+            UUID uuid = UUIDUtil.createOfflinePlayerUUID(gameProfile.getName());
+            gameProfile = new GameProfile(uuid, gameProfile.getName());
+        }
+        friendlyByteBuf.writeGameProfile(gameProfile);
+    }, FriendlyByteBuf::readGameProfile);
 
     public static void touch() {
         EntityDataSerializers.registerSerializer(GAME_PROFILE_ENTITY_DATA_SERIALIZER);

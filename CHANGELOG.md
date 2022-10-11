@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.1-1.19.2] - 2022-10-11
+### Fixed
+- Hopefully fixed occasional client crash when renaming straw statue on a server
+
 ## [v4.0.0-1.19.2] - 2022-09-22
 - Initial release
 
