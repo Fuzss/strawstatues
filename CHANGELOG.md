@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.3-1.19.2] - 2022-10-22
+### Fixed
+- Fixed crash on start-up when the [Armor Statues] mod is installed
+
 ## [v4.0.2-1.19.2] - 2022-10-19
 ### Changed
 - Any item can now be placed into the head slot on the equipment screen (thanks to [Mephodio])
@@ -18,3 +22,4 @@ The format is based on [Keep a Changelog].
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Mephodio]: https://github.com/Mephodio
+[Armor Statues]: https://www.curseforge.com/minecraft/mc-mods/armor-statues
