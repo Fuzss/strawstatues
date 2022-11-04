@@ -8,10 +8,10 @@ import fuzs.strawstatues.data.ModLootTableProvider;
 import fuzs.strawstatues.data.ModRecipeProvider;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
+import net.minecraftforge.forge.event.lifecycle.GatherDataEvent;
 
 @Mod(StrawStatues.MOD_ID)
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -27,9 +27,9 @@ public class StrawStatuesForge {
     public static void onGatherData(final GatherDataEvent evt) {
         DataGenerator generator = evt.getGenerator();
         final ExistingFileHelper existingFileHelper = evt.getExistingFileHelper();
-        generator.addProvider(true, new ModRecipeProvider(generator));
-        generator.addProvider(true, new ModLanguageProvider(generator, StrawStatues.MOD_ID));
-        generator.addProvider(true, new ModLootTableProvider(generator, StrawStatues.MOD_ID));
-        generator.addProvider(true, new ModItemModelProvider(generator, StrawStatues.MOD_ID, existingFileHelper));
+        generator.addProvider(new ModRecipeProvider(generator));
+        generator.addProvider(new ModLanguageProvider(generator, StrawStatues.MOD_ID));
+        generator.addProvider(new ModLootTableProvider(generator, StrawStatues.MOD_ID));
+        generator.addProvider(new ModItemModelProvider(generator, StrawStatues.MOD_ID, existingFileHelper));
     }
 }

@@ -235,7 +235,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                         long gameTime = this.level.getGameTime();
                         if (gameTime - this.lastHit > 5L && !bl) {
                             this.level.broadcastEntityEvent(this, EntityEvent.HURT);
-                            this.gameEvent(GameEvent.ENTITY_DAMAGE, source.getEntity());
+                            this.gameEvent(GameEvent.ENTITY_DAMAGED, source.getEntity());
                             this.lastHit = gameTime;
                             this.invulnerableTime = 20;
                             this.hurtDuration = 10;

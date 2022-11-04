@@ -3,22 +3,8 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
-## [v4.0.3-1.19.2] - 2022-10-22
-### Fixed
-- Fixed crash on start-up when the [Armor Statues] mod is installed
-
-## [v4.0.2-1.19.2] - 2022-10-19
-### Changed
-- Any item can now be placed into the head slot on the equipment screen (thanks to [Mephodio])
-- Tooltips on the rotations screen will no longer obstruct the armor stand model (thanks to [Mephodio])
-- Tooltips on the style screen are now split into multiple lines to prevent them from flowing off the screen
-
-## [v4.0.1-1.19.2] - 2022-10-11
-### Fixed
-- Hopefully fixed occasional client crash when renaming straw statue on a server
-
-## [v4.0.0-1.19.2] - 2022-09-22
-- Initial release
+## [v4.0.0-1.19.2] - 2022-11-04
+- Backported from 1.19
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Mephodio]: https://github.com/Mephodio

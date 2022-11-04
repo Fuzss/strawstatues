@@ -49,7 +49,7 @@ public class ModLootTableProvider extends LootTableProvider {
 
         @Override
         protected Iterable<EntityType<?>> getKnownEntities() {
-            return ForgeRegistries.ENTITY_TYPES.getEntries().stream()
+            return ForgeRegistries.ENTITIES.getEntries().stream()
                     .filter(e -> e.getKey().location().getNamespace().equals(ModLootTableProvider.this.modId))
                     .map(Map.Entry::getValue)
                     .collect(Collectors.toSet());

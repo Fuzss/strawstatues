@@ -34,11 +34,11 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
         super(context, new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE), false), 0.0F);
         this.addLayer(new HumanoidArmorLayer<>(this, new StrawStatueArmorModel<>(context.bakeLayer(ModClientRegistry.STRAW_STATUE_INNER_ARMOR)), new StrawStatueArmorModel<>(context.bakeLayer(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR))));
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemInHandRenderer()));
+        this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new ElytraLayer<>(this, context.getModelSet()));
         this.addLayer(new StrawStatueDeadmau5EarsLayer(this));
         this.addLayer(new StrawStatueCapeLayer(this));
-        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
+        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
     }
 
     @Override

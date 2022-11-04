@@ -8,11 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -29,9 +29,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Random;
 
 public class StrawStatueItem extends Item {
-    private static final Component TOOLTIP_DESCRIPTION = Component.translatable("strawstatues.item.straw_statue.description").withStyle(ChatFormatting.GRAY);
+    private static final Component TOOLTIP_DESCRIPTION = new TranslatableComponent("strawstatues.item.straw_statue.description").withStyle(ChatFormatting.GRAY);
 
     public StrawStatueItem(Properties properties) {
         super(properties);
@@ -77,7 +78,7 @@ public class StrawStatueItem extends Item {
         }
     }
 
-    private void randomizePose(ArmorStand armorStand, RandomSource random) {
+    private void randomizePose(ArmorStand armorStand, Random random) {
         Rotations rotations = armorStand.getHeadPose();
         float f = random.nextFloat() * 5.0F;
         float g = random.nextFloat() * 20.0F - 10.0F;

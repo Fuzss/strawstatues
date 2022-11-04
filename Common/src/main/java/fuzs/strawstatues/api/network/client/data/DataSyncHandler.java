@@ -1,11 +1,11 @@
 package fuzs.strawstatues.api.network.client.data;
 
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import net.minecraft.SharedConstants;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 
@@ -43,7 +43,7 @@ public interface DataSyncHandler extends ArmorStandHolder {
         String s = SharedConstants.filterText(name);
         if (s.length() <= 50) {
             boolean remove = s.isBlank() || s.equals(EntityType.ARMOR_STAND.getDescription().getString());
-            armorStand.setCustomName(remove ? null : Component.literal(s));
+            armorStand.setCustomName(remove ? null : new TextComponent(s));
         }
     }
 }
