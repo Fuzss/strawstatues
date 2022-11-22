@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.4-1.19.2] - 2022-11-22
+### Changed
+- New texture for Straw Statue item
+- Display name and statue skin are now independent, set a name using the text box on the style screen, on the model parts screen enter a player name for the statue to show their skin
+### Fixed
+- Fixed an issue where long player names (above 16 chars) would crash the game when trying to retrieve their skin
+
 ## [v4.0.3-1.19.2] - 2022-10-22
 ### Fixed
 - Fixed crash on start-up when the [Armor Statues] mod is installed

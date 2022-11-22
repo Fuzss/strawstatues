@@ -35,18 +35,15 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
 
     private void testNameInputChanged(boolean testEquality) {
         if (this.inputUpdateTicks == 0 || !testEquality && this.inputUpdateTicks != -1) {
-            this.onNameChanged(this.name.getValue());
+            String name = this.name.getValue().trim();
+            if (!name.equals(this.getNameDefaultValue())) {
+                this.syncNameChange(name);
+            }
             this.inputUpdateTicks = -1;
         }
     }
 
-    private void onNameChanged(String input) {
-        input = input.trim();
-        ArmorStand armorStand = this.holder.getArmorStand();
-        if (!input.equals(armorStand.getName().getString())) {
-            this.dataSyncHandler.sendName(input);
-        }
-    }
+    protected abstract void syncNameChange(String input);
 
     @Override
     protected void init() {
@@ -56,8 +53,8 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
         this.name = new EditBox(this.font, this.leftPos + 16, this.topPos + 32, 66, 9, EntityType.ARMOR_STAND.getDescription());
         this.name.setTextColor(16777215);
         this.name.setBordered(false);
-        this.name.setMaxLength(50);
-        this.name.setValue(armorStand.getName().getString());
+        this.name.setMaxLength(this.getNameMaxLength());
+        this.name.setValue(this.getNameDefaultValue());
         this.name.setResponder(input -> this.inputUpdateTicks = 20);
         this.addWidget(this.name);
         this.inputUpdateTicks = -1;
@@ -67,6 +64,10 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
             this.addRenderableWidget(this.makeTickBoxWidget(armorStand, buttonStartY, i, values[i]));
         }
     }
+
+    protected abstract int getNameMaxLength();
+
+    protected abstract String getNameDefaultValue();
 
     protected abstract T[] getAllTickBoxValues();
 

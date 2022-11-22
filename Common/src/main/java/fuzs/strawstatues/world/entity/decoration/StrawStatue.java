@@ -14,7 +14,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -136,16 +135,6 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public void setCustomName(@Nullable Component name) {
-        super.setCustomName(name);
-        if (name == null) {
-            this.setOwner(null);
-        } else {
-            this.verifyAndSetOwner(new GameProfile(null, name.getString()));
-        }
-    }
-
-    @Override
     public boolean isShowArms() {
         return true;
     }
@@ -155,13 +144,22 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         return true;
     }
 
-    @Nullable
-    public GameProfile getOwner() {
-        return this.entityData.get(DATA_OWNER).orElse(null);
+    public Optional<GameProfile> getOwner() {
+        return this.entityData.get(DATA_OWNER);
     }
 
-    private void verifyAndSetOwner(@Nullable GameProfile gameProfile) {
-        if (gameProfile != null && !gameProfile.isComplete()) {
+    public void verifyAndSetOwner(@Nullable GameProfile gameProfile) {
+        // check for max name length here as client will crash when value is exceeded
+        if (gameProfile != null && (!gameProfile.isComplete() || gameProfile.getName().length() > 16)) {
+            if (gameProfile.getName().length() > 16) {
+                if (gameProfile.getId() != null) {
+                    // will throw exception if both uuid and name are empty
+                    gameProfile = new GameProfile(gameProfile.getId(), "");
+                } else {
+                    this.setOwner(null);
+                    return;
+                }
+            }
             SkullBlockEntity.updateGameprofile(gameProfile, this::setOwner);
         } else {
             this.setOwner(gameProfile);

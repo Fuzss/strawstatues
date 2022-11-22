@@ -64,7 +64,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
     }
 
     public static Optional<ResourceLocation> getPlayerProfileTexture(StrawStatue entity, MinecraftProfileTexture.Type type) {
-        GameProfile gameProfile = entity.getOwner();
+        GameProfile gameProfile = entity.getOwner().orElse(null);
         if (gameProfile != null) {
             Minecraft minecraft = Minecraft.getInstance();
             Map<MinecraftProfileTexture.Type, MinecraftProfileTexture> map = minecraft.getSkinManager().getInsecureSkinInformation(gameProfile);

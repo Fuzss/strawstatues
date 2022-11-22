@@ -1,13 +1,14 @@
 package fuzs.strawstatues;
 
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.core.ModConstructor;
 import fuzs.puzzleslib.network.MessageDirection;
 import fuzs.puzzleslib.network.NetworkHandler;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
+import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
@@ -38,6 +39,7 @@ public class StrawStatues implements ModConstructor {
 
     private static void registerMessages() {
         NETWORK.register(C2SStrawStatueModelPartMessage.class, C2SStrawStatueModelPartMessage::new, MessageDirection.TO_SERVER);
+        NETWORK.register(C2SStrawStatueOwnerMessage.class, C2SStrawStatueOwnerMessage::new, MessageDirection.TO_SERVER);
     }
 
     @Override

@@ -2,11 +2,11 @@ package fuzs.strawstatues.api.client.gui.screens.armorstand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.strawstatues.api.client.gui.components.TickBoxButton;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOptions;
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOptions;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -35,6 +35,21 @@ public class ArmorStandStyleScreen extends ArmorStandTickBoxScreen<ArmorStandSty
         }, (Button button, PoseStack poseStack, int mouseX, int mouseY) -> {
             this.renderTooltip(poseStack, this.minecraft.font.split(option.getDescriptionComponent(), 175), mouseX, mouseY);
         });
+    }
+
+    @Override
+    protected void syncNameChange(String input) {
+        this.dataSyncHandler.sendName(input);
+    }
+
+    @Override
+    protected int getNameMaxLength() {
+        return 50;
+    }
+
+    @Override
+    protected String getNameDefaultValue() {
+        return this.holder.getArmorStand().getName().getString();
     }
 
     @Override
