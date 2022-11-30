@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.5-1.19.2] - 2022-11-30
+### Fixed
+- Fixed statue skin failing to save, therefore being reset upon every world reload
+
 ## [v4.0.4-1.19.2] - 2022-11-22
 ### Changed
 - New texture for Straw Statue item

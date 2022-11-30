@@ -104,28 +104,28 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
-        super.addAdditionalSaveData(compound);
-        compound.putBoolean(SLIM_ARMS_KEY, this.slimArms());
-        compound.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        tag.putBoolean(SLIM_ARMS_KEY, this.slimArms());
+        tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
         this.entityData.get(DATA_OWNER).ifPresent(owner -> {
-            CompoundTag compoundtag = new CompoundTag();
-            NbtUtils.writeGameProfile(compoundtag, owner);
-            compoundtag.put(OWNER_KEY, compoundtag);
+            CompoundTag gameProfileTag = new CompoundTag();
+            NbtUtils.writeGameProfile(gameProfileTag, owner);
+            tag.put(OWNER_KEY, gameProfileTag);
         });
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        if (compound.contains(SLIM_ARMS_KEY, Tag.TAG_BYTE)) {
-            this.setSlimArms(compound.getBoolean(SLIM_ARMS_KEY));
+    public void readAdditionalSaveData(CompoundTag tag) {
+        super.readAdditionalSaveData(tag);
+        if (tag.contains(SLIM_ARMS_KEY, Tag.TAG_BYTE)) {
+            this.setSlimArms(tag.getBoolean(SLIM_ARMS_KEY));
         }
-        if (compound.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
-            this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, compound.getByte(MODEL_PARTS_KEY));
+        if (tag.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
+            this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
-        if (compound.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            this.verifyAndSetOwner(NbtUtils.readGameProfile(compound.getCompound(OWNER_KEY)));
+        if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
+            this.verifyAndSetOwner(NbtUtils.readGameProfile(tag.getCompound(OWNER_KEY)));
         }
     }
 
