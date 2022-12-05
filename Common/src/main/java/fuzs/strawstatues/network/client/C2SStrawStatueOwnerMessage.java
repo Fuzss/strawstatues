@@ -44,7 +44,6 @@ public class C2SStrawStatueOwnerMessage implements Message<C2SStrawStatueOwnerMe
                         } else {
                             statue.verifyAndSetOwner(new GameProfile(null, message.name));
                         }
-
                     }
                 }
             }

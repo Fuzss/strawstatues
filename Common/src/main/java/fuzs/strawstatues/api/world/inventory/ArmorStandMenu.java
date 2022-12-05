@@ -32,7 +32,6 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
     private final ArmorStand armorStand;
 
     public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf) {
-        // not sure how likely it is for this to fail, in that case the menu should just close immediately
         ArmorStand entity = (ArmorStand) inventory.player.level.getEntity(buf.readInt());
         if (entity != null) {
             // vanilla doesn't sync these automatically, we need them for the menu
@@ -41,7 +40,9 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
             // also create the armor stand container client side, so that visual update instantly instead of having to wait for the server to resync data
             return create(menuType, containerId, inventory, entity);
         }
-        return new ArmorStandMenu(menuType, containerId, inventory, new SimpleContainer(6), null);
+        // exception is caught, so nothing will crash, only the screen will not open
+        // not sure how this is even possible, but there was a report about it
+        throw new IllegalStateException("trying to open invalid armor stand menu, entity was null");
     }
 
     public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, ArmorStand armorStand) {

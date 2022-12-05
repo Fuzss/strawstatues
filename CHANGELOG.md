@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.6-1.19.2] - 2022-12-05
+### Fixed
+- Prevent client crash when trying to open statue screen, but no statue entity is present
+- Instead, an exception will be thrown and caught immediately, and no screen will open
+- The cause for the entity missing is currently unknown, so this seems like the best work around right now
+
 ## [v4.0.5-1.19.2] - 2022-11-30
 ### Fixed
 - Fixed statue skin failing to save, therefore being reset upon every world reload
