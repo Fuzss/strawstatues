@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.8-1.19.2] - 2022-12-05
+### Changed
+- The statue menu no longer opens when a new statue is placed down to fix a rare issue where the menu would open on the remote before the statue entity itself was synced
+- Instead, statues are now placed down with a random pose, editing (opening the menu) is only possible via shift + right-clicking the placed statue afterwards
+- Hold shift while placing down the statue to prevent a random pose from being applied
+
+## [v4.0.7-1.19.2] - 2022-12-05
+### Changed
+- Improved exception message when no statue entity is found to create a screen for
+
 ## [v4.0.6-1.19.2] - 2022-12-05
 ### Fixed
 - Prevent client crash when trying to open statue screen, but no statue entity is present

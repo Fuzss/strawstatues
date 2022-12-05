@@ -32,7 +32,8 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
     private final ArmorStand armorStand;
 
     public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf) {
-        ArmorStand entity = (ArmorStand) inventory.player.level.getEntity(buf.readInt());
+        int entityId = buf.readInt();
+        ArmorStand entity = (ArmorStand) inventory.player.level.getEntity(entityId);
         if (entity != null) {
             // vanilla doesn't sync these automatically, we need them for the menu
             entity.setInvulnerable(buf.readBoolean());
@@ -42,7 +43,8 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
         }
         // exception is caught, so nothing will crash, only the screen will not open
         // not sure how this is even possible, but there was a report about it
-        throw new IllegalStateException("trying to open invalid armor stand menu, entity was null");
+        // report was concerning just placed statues, so maybe entity data arrived at remote after menu was opened
+        throw new IllegalStateException("trying to open invalid armor stand menu, entity for id %s was not found on client".formatted(entityId));
     }
 
     public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, ArmorStand armorStand) {

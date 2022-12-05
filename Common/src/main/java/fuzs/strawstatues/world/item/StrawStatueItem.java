@@ -1,6 +1,5 @@
 package fuzs.strawstatues.world.item;
 
-import fuzs.strawstatues.api.helper.ArmorStandInteractHelper;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.ChatFormatting;
@@ -63,8 +62,6 @@ public class StrawStatueItem extends Item {
                     level.playSound(null, armorStand.getX(), armorStand.getY(), armorStand.getZ(), SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                     armorStand.gameEvent(GameEvent.ENTITY_PLACE, player);
                     if (player != null && !player.isShiftKeyDown()) {
-                        ArmorStandInteractHelper.openArmorStatueMenu(player, armorStand, ModRegistry.STRAW_STATUE_MENU_TYPE.get());
-                    } else {
                         // don't apply random pose when opening menu, will lead to client desync as the menu still has old rotations and applies those to the entity client-side
                         ArmorStandPose.selectRandomPose().applyToEntity(armorStand);
                     }
