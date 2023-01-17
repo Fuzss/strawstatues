@@ -14,7 +14,7 @@ public class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         this.add(ModRegistry.STRAW_STATUE_ITEM.get(), "Straw Statue");
         this.add(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), "Straw Statue");
-        this.add("strawstatues.item.straw_statue.description", "Shift + right-click to open configuration screen when placed.");
+        this.add("strawstatues.item.straw_statue.description", "Shift + right-click holding a stick to open configuration screen after placing.");
         this.add("armorstatues.screen.type.modelParts", "Model Parts");
         this.add("armorstatues.screen.style.slimArms", "Slim Arms");
         this.add("armorstatues.screen.rotations.pose.cape", "Cape");

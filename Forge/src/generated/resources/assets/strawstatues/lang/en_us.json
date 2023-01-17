@@ -81,5 +81,5 @@
   "entity.strawstatues.straw_statue": "Straw Statue",
   "item.strawstatues.straw_statue": "Straw Statue",
   "key.cycleStatueTabs": "Cycle Statue Tabs",
-  "strawstatues.item.straw_statue.description": "Shift + right-click to open configuration screen when placed."
+  "strawstatues.item.straw_statue.description": "Shift + right-click holding a stick to open configuration screen after placing."
 }

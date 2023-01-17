@@ -6,9 +6,13 @@ import fuzs.strawstatues.data.ModItemModelProvider;
 import fuzs.strawstatues.data.ModLanguageProvider;
 import fuzs.strawstatues.data.ModLootTableProvider;
 import fuzs.strawstatues.data.ModRecipeProvider;
+import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.data.DataGenerator;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLConstructModEvent;
@@ -21,6 +25,17 @@ public class StrawStatuesForge {
     public static void onConstructMod(final FMLConstructModEvent evt) {
         CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new ArmorStatuesApi());
         CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new StrawStatues());
+        registerHandlers();
+    }
+
+    private static void registerHandlers() {
+        // high priority so we run before the Quark mod
+        MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, (final PlayerInteractEvent.EntityInteractSpecific evt) -> {
+            StrawStatue.onEntityInteract(evt.getEntity(), evt.getLevel(), evt.getHand(), evt.getTarget(), evt.getLocalPos()).ifPresent(result -> {
+                evt.setCancellationResult(result);
+                evt.setCanceled(true);
+            });
+        });
     }
 
     @SubscribeEvent

@@ -1,12 +1,10 @@
 package fuzs.strawstatues.client;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
-import fuzs.puzzleslib.core.CoreServices;
-import fuzs.strawstatues.api.ArmorStatuesApi;
+import fuzs.puzzleslib.client.core.ClientModConstructor;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
-import fuzs.puzzleslib.client.core.ClientModConstructor;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueStyleScreen;
 import fuzs.strawstatues.client.init.ModClientRegistry;
@@ -53,12 +51,5 @@ public class StrawStatuesClient implements ClientModConstructor {
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE, StrawStatueModel::createBodyLayer);
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_INNER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(new CubeDeformation(0.5F)));
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(new CubeDeformation(1.0F)));
-    }
-
-    @Override
-    public void onRegisterKeyMappings(KeyMappingsContext context) {
-        // must not register key binding twice
-        if (CoreServices.ENVIRONMENT.isModLoaded(ArmorStatuesApi.MOD_ID)) return;
-        context.registerKeyMappings(fuzs.strawstatues.api.client.init.ModClientRegistry.CYCLE_TABS_KEY_MAPPING);
     }
 }

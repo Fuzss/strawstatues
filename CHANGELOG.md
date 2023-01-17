@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.9-1.19.2] - 2023-01-17
+### Changed
+- Opening the statue menu now requires a stick to be held in addition to sneaking, this was changed to improve compatibility with the Quark mod
+- Removed the option to cycle through statue menu tabs using the tab key, it was conflicting with showing the vanilla server player list (at least on Fabric)
+- Instead, you can now scroll through the tabs when your cursor is hovering them
+
 ## [v4.0.8-1.19.2] - 2022-12-05
 ### Changed
 - The statue menu no longer opens when a new statue is placed down to fix a rare issue where the menu would open on the remote before the statue entity itself was synced

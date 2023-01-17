@@ -23,6 +23,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityEvent;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -129,9 +130,12 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         }
     }
 
-    @Override
-    public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
-        return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, this.level, this, ModRegistry.STRAW_STATUE_MENU_TYPE.get()).orElseGet(() -> super.interactAt(player, vec, hand));
+    public static Optional<InteractionResult> onEntityInteract(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
+        if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.get()) {
+            ItemStack stack = player.getItemInHand(interactionHand);
+            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, stack, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get());
+        }
+        return Optional.empty();
     }
 
     @Override
