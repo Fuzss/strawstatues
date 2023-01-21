@@ -11,6 +11,7 @@ import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
@@ -46,7 +47,8 @@ public class StrawStatues implements ModConstructor {
 
     @Override
     public void onCommonSetup() {
-        ArmorStandStyleOption.register(new ResourceLocation(MOD_ID, "slimarms"), StrawStatue.SLIM_ARMS_STYLE_OPTION);
+        ArmorStandStyleOption.register(id("slimarms"), StrawStatueData.SLIM_ARMS_STYLE_OPTION);
+        ArmorStandStyleOption.register(id("crouching"), StrawStatueData.CROUCHING_STYLE_OPTION);
         DispenserBlock.registerBehavior(ModRegistry.STRAW_STATUE_ITEM.get(), new DefaultDispenseItemBehavior() {
 
             @Override
@@ -68,5 +70,9 @@ public class StrawStatues implements ModConstructor {
     @Override
     public void onEntityAttributeCreation(EntityAttributesCreateContext context) {
         context.registerEntityAttributes(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), LivingEntity.createLivingAttributes());
+    }
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MOD_ID, path);
     }
 }

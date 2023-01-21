@@ -6,8 +6,9 @@ The format is based on [Keep a Changelog].
 ## [v4.0.10-1.19.2] - 2023-01-21
 ### Added
 - Added an option in the configuration screen to adjust the scale of statues
+- Added an option in the style screen to make the statue look as if it where crouching
 ### Changed
-- Refined the default statue texture
+- Refined the default straw statue texture
 
 ## [v4.0.9-1.19.2] - 2023-01-17
 ### Changed

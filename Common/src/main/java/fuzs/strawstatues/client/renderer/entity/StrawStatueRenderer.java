@@ -23,13 +23,14 @@ import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Optional;
 
 public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, StrawStatueModel> {
-    public static final ResourceLocation STRAW_STATUE_LOCATION = new ResourceLocation(StrawStatues.MOD_ID, "textures/entity/straw_statue.png");
+    public static final ResourceLocation STRAW_STATUE_LOCATION = StrawStatues.id("textures/entity/straw_statue.png");
 
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
         super(context, new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE), false), 0.0F);
@@ -47,6 +48,11 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
         super.render(entity, entityYaw, partialTicks, matrixStack, buffer, packedLight);
     }
 
+    @Override
+    public Vec3 getRenderOffset(StrawStatue entity, float partialTicks) {
+        return entity.isCrouching() ? new Vec3(0.0, -0.125, 0.0) : super.getRenderOffset(entity, partialTicks);
+    }
+
     private void setModelProperties(StrawStatue entity) {
         StrawStatueModel model = this.getModel();
         model.setAllVisible(true);
@@ -56,6 +62,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
         model.rightPants.visible = entity.isModelPartShown(PlayerModelPart.RIGHT_PANTS_LEG);
         model.leftSleeve.visible = model.slimLeftSleeve.visible = entity.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
         model.rightSleeve.visible = model.slimRightSleeve.visible = entity.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
+        model.crouching = entity.isCrouching();
     }
 
     @Override
@@ -86,6 +93,9 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
     @Override
     protected void setupRotations(StrawStatue entityLiving, PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - rotationYaw));
+//        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(entityLiving.getBodyPose().getZ()));
+//        matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityLiving.getBodyPose().getY()));
+//        matrixStack.mulPose(Vector3f.XP.rotationDegrees(entityLiving.getBodyPose().getX()));
         float f = (float)(entityLiving.level.getGameTime() - entityLiving.lastHit) + partialTicks;
         if (f < 5.0F) {
             matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(f / 1.5F * 3.1415927F) * 3.0F));

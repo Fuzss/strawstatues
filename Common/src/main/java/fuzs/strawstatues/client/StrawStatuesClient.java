@@ -14,6 +14,7 @@ import fuzs.strawstatues.client.model.StrawStatueModel;
 import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.network.chat.Component;
@@ -24,10 +25,10 @@ public class StrawStatuesClient implements ClientModConstructor {
 
     @Override
     public void onClientSetup() {
-        ArmorStandScreenFactory.register(StrawStatue.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
-        ArmorStandScreenFactory.register(StrawStatue.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueStyleScreen::new);
-        ArmorStandScreenFactory.register(StrawStatue.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
-        ArmorStandRotationsScreen.registerPosePartMutatorFilter(StrawStatue.CAPE_POSE_PART_MUTATOR, armorStand -> {
+        ArmorStandScreenFactory.register(StrawStatueData.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
+        ArmorStandScreenFactory.register(StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueStyleScreen::new);
+        ArmorStandScreenFactory.register(StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
+        ArmorStandRotationsScreen.registerPosePartMutatorFilter(StrawStatueData.CAPE_POSE_PART_MUTATOR, armorStand -> {
             StrawStatue strawStatue = (StrawStatue) armorStand;
             if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
                 return StrawStatueRenderer.getPlayerProfileTexture(strawStatue, MinecraftProfileTexture.Type.CAPE).isPresent();

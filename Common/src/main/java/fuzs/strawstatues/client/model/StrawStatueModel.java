@@ -58,10 +58,7 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
     public void setupAnim(StrawStatue entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
         setupPoseAnim(this, entity);
         this.setupSlimAnim(entity);
-        // use cloak instead of body, changing body rotations looks just weird
-        this.cloak.xRot = -0.017453292F * entity.getBodyPose().getX();
-        this.cloak.yRot = 0.017453292F * entity.getBodyPose().getY();
-        this.cloak.zRot = -0.017453292F * entity.getBodyPose().getZ();
+        this.setupCloakAnim(entity);
         this.hat.copyFrom(this.head);
         this.leftPants.copyFrom(this.leftLeg);
         this.rightPants.copyFrom(this.rightLeg);
@@ -70,21 +67,7 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         this.slimLeftSleeve.copyFrom(this.slimLeftArm);
         this.slimRightSleeve.copyFrom(this.slimRightArm);
         this.jacket.copyFrom(this.body);
-        if (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
-            if (entity.isCrouching()) {
-                this.cloak.z = 1.4F;
-                this.cloak.y = 1.85F;
-            } else {
-                this.cloak.z = 0.0F;
-                this.cloak.y = 0.0F;
-            }
-        } else if (entity.isCrouching()) {
-            this.cloak.z = 0.3F;
-            this.cloak.y = 0.8F;
-        } else {
-            this.cloak.z = -1.1F;
-            this.cloak.y = -0.85F;
-        }
+        this.setupCrouchingAnimCape(entity);
     }
 
     private void setupSlimAnim(StrawStatue entity) {
@@ -107,6 +90,31 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         } else {
             this.slimLeftArm.visible = this.slimLeftSleeve.visible = false;
             this.slimRightArm.visible = this.slimRightSleeve.visible = false;
+        }
+    }
+
+    private void setupCloakAnim(StrawStatue entity) {
+        // use cloak instead of body, changing body rotations looks just weird
+        this.cloak.xRot = -0.017453292F * entity.getBodyPose().getX();
+        this.cloak.yRot = 0.017453292F * entity.getBodyPose().getY();
+        this.cloak.zRot = -0.017453292F * entity.getBodyPose().getZ();
+    }
+
+    private void setupCrouchingAnimCape(StrawStatue entity) {
+        if (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
+            if (this.crouching) {
+                this.cloak.z = 1.4F;
+                this.cloak.y = 1.85F;
+            } else {
+                this.cloak.z = 0.0F;
+                this.cloak.y = 0.0F;
+            }
+        } else if (this.crouching) {
+            this.cloak.z = 0.3F;
+            this.cloak.y = 0.8F;
+        } else {
+            this.cloak.z = -1.1F;
+            this.cloak.y = -0.85F;
         }
     }
 
@@ -139,5 +147,32 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         model.rightLeg.xRot = 0.017453292F * entity.getRightLegPose().getX();
         model.rightLeg.yRot = 0.017453292F * entity.getRightLegPose().getY();
         model.rightLeg.zRot = 0.017453292F * entity.getRightLegPose().getZ();
+        setupCrouchingAnim(model);
+    }
+
+    private static <T extends ArmorStand> void setupCrouchingAnim(HumanoidModel<T> model) {
+        if (model.crouching) {
+            model.body.xRot = 0.5F;
+            model.rightArm.xRot += 0.4F;
+            model.leftArm.xRot += 0.4F;
+            model.rightLeg.z = 4.0F;
+            model.leftLeg.z = 4.0F;
+            model.rightLeg.y = 12.2F;
+            model.leftLeg.y = 12.2F;
+            model.head.y = 4.2F;
+            model.body.y = 3.2F;
+            model.leftArm.y = 5.2F;
+            model.rightArm.y = 5.2F;
+        } else {
+            model.body.xRot = 0.0F;
+            model.rightLeg.z = 0.1F;
+            model.leftLeg.z = 0.1F;
+            model.rightLeg.y = 12.0F;
+            model.leftLeg.y = 12.0F;
+            model.head.y = 0.0F;
+            model.body.y = 0.0F;
+            model.leftArm.y = 2.0F;
+            model.rightArm.y = 2.0F;
+        }
     }
 }

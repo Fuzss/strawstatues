@@ -10,6 +10,7 @@ import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -55,6 +56,6 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
 
     @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatue.MODEL_PARTS_SCREEN_TYPE;
+        return StrawStatueData.MODEL_PARTS_SCREEN_TYPE;
     }
 }

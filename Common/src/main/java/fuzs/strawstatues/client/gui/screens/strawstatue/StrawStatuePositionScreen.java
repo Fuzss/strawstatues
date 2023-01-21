@@ -8,6 +8,7 @@ import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -36,8 +37,13 @@ public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
     }
 
     @Override
+    protected int getWidgetRenderOffset() {
+        return 0;
+    }
+
+    @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatue.STRAW_STATUE_POSITION_SCREEN_TYPE;
+        return StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE;
     }
 
     public static float toModelScale(double newValue) {
