@@ -1,5 +1,6 @@
 package fuzs.strawstatues.world.entity.decoration;
 
+import com.google.common.collect.ImmutableSortedMap;
 import com.mojang.authlib.GameProfile;
 import fuzs.strawstatues.api.helper.ArmorStandInteractHelper;
 import fuzs.strawstatues.api.world.entity.decoration.ArmorStandDataProvider;
@@ -20,13 +21,11 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityEvent;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -41,17 +40,24 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.NavigableMap;
 import java.util.Optional;
 
 public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
+    public static final float DEFAULT_MODEL_SCALE = 3.0F;
+    public static final float MIN_MODEL_SCALE = 1.0F;
+    public static final float MAX_MODEL_SCALE = 8.0F;
     private static final String OWNER_KEY = "Owner";
     private static final String SLIM_ARMS_KEY = "SlimArms";
     private static final String MODEL_PARTS_KEY = "ModelParts";
+    private static final String MODEL_SCALE_KEY = "ModelScale";
     public static final EntityDataAccessor<Optional<GameProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER);
     public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Float> DATA_MODEL_SCALE = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.FLOAT);
     public static final ArmorStandScreenType MODEL_PARTS_SCREEN_TYPE = new ArmorStandScreenType("modelParts", new ItemStack(Items.YELLOW_WOOL));
     public static final ArmorStandScreenType STRAW_STATUE_STYLE_SCREEN_TYPE = new ArmorStandScreenType("style", new ItemStack(Blocks.HAY_BLOCK));
+    public static final ArmorStandScreenType STRAW_STATUE_POSITION_SCREEN_TYPE = new ArmorStandScreenType("position", new ItemStack(Blocks.MYCELIUM));
     public static final ArmorStandStyleOption SLIM_ARMS_STYLE_OPTION = new ArmorStandStyleOption() {
 
         @Override
@@ -76,16 +82,31 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     };
     public static final PosePartMutator CAPE_POSE_PART_MUTATOR = new PosePartMutator("cape", ArmorStandPose::getBodyPose, ArmorStandPose::withBodyPose, PosePartMutator.PosePartAxisRange.range(0.0F, 120.0F), PosePartMutator.PosePartAxisRange.range(-60.0F, 60.0F), PosePartMutator.PosePartAxisRange.range(-120.0, 120.0));
 
+    private final NavigableMap<Float, EntityDimensions> defaultDimensions;
+    private final NavigableMap<Float, EntityDimensions> babyDimensions;
+    public float modelScaleO;
+
     public StrawStatue(EntityType<? extends StrawStatue> entityType, Level level) {
         super(entityType, level);
         // important to enable arms beyond rendering in the model to allow for in world interactions (putting items into the hands by clicking on the statue)
         ArmorStandStyleOption.setArmorStandData(this, true, ArmorStand.CLIENT_FLAG_SHOW_ARMS);
         ArmorStandStyleOption.setArmorStandData(this, true, ArmorStand.CLIENT_FLAG_NO_BASEPLATE);
+        this.defaultDimensions = buildStatueDimensions(entityType, false);
+        this.babyDimensions = buildStatueDimensions(entityType, true);
     }
 
     public StrawStatue(Level level, double x, double y, double z) {
         this(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), level);
         this.setPos(x, y, z);
+    }
+
+    private static NavigableMap<Float, EntityDimensions> buildStatueDimensions(EntityType<?> entityType, boolean forBaby) {
+        final float defaultScale = DEFAULT_MODEL_SCALE * (forBaby ? 2.0F : 1.0F);
+        ImmutableSortedMap.Builder<Float, EntityDimensions> builder = ImmutableSortedMap.naturalOrder();
+        for (float scale = MIN_MODEL_SCALE; scale <= MAX_MODEL_SCALE; scale += 0.5F) {
+            builder.put(scale - 0.25F, entityType.getDimensions().scale(scale / defaultScale));
+        }
+        return builder.build();
     }
 
     @Override
@@ -94,6 +115,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         this.entityData.define(DATA_OWNER, Optional.empty());
         this.entityData.define(DATA_SLIM_ARMS, false);
         this.entityData.define(DATA_PLAYER_MODE_CUSTOMISATION, getAllModelParts());
+        this.entityData.define(DATA_MODEL_SCALE, DEFAULT_MODEL_SCALE);
     }
 
     private static byte getAllModelParts() {
@@ -114,6 +136,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             NbtUtils.writeGameProfile(gameProfileTag, owner);
             tag.put(OWNER_KEY, gameProfileTag);
         });
+        tag.putFloat(MODEL_SCALE_KEY, this.getModelScale());
     }
 
     @Override
@@ -128,6 +151,30 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
             this.verifyAndSetOwner(NbtUtils.readGameProfile(tag.getCompound(OWNER_KEY)));
         }
+        if (tag.contains(MODEL_SCALE_KEY, Tag.TAG_FLOAT)) {
+            this.setModelScale(tag.getFloat(MODEL_SCALE_KEY));
+            this.modelScaleO = this.getModelScale();
+        }
+    }
+
+    @Override
+    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
+        return dimensions.height * 0.85F;
+    }
+
+    @Override
+    public EntityDimensions getDimensions(Pose pose) {
+        if (this.isMarker() || this.babyDimensions == null || this.defaultDimensions == null) return super.getDimensions(pose);
+        NavigableMap<Float, EntityDimensions> dimensions = this.isBaby() ? this.babyDimensions : this.defaultDimensions;
+        return dimensions.floorEntry(this.getModelScale()).getValue();
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
+        if (DATA_MODEL_SCALE.equals(key)) {
+            this.refreshDimensions();
+        }
+        super.onSyncedDataUpdated(key);
     }
 
     public static Optional<InteractionResult> onEntityInteract(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
@@ -197,6 +244,26 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             oldBit = (byte) (oldBit & ~offset);
         }
         return oldBit;
+    }
+
+    public float getModelScale() {
+        return this.entityData.get(DATA_MODEL_SCALE);
+    }
+
+    public void setModelScale(float modelScale) {
+        modelScale = fixModelScale(modelScale);
+        this.entityData.set(DATA_MODEL_SCALE, modelScale);
+    }
+
+    public static float fixModelScale(double modelScale) {
+        modelScale = (int) (modelScale * 10.0) / 10.0;
+        return Mth.clamp((float) modelScale, MIN_MODEL_SCALE, MAX_MODEL_SCALE);
+    }
+
+    @Override
+    public void baseTick() {
+        super.baseTick();
+        this.modelScaleO = this.getModelScale();
     }
 
     @Override
@@ -306,7 +373,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public ArmorStandScreenType[] getScreenTypes() {
-        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, STRAW_STATUE_STYLE_SCREEN_TYPE, MODEL_PARTS_SCREEN_TYPE, ArmorStandScreenType.POSITION, ArmorStandScreenType.EQUIPMENT};
+        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, STRAW_STATUE_STYLE_SCREEN_TYPE, MODEL_PARTS_SCREEN_TYPE, STRAW_STATUE_POSITION_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
     }
 
     @Override

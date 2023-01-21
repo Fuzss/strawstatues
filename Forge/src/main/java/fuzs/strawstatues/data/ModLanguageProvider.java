@@ -18,6 +18,7 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.type.modelParts", "Model Parts");
         this.add("armorstatues.screen.style.slimArms", "Slim Arms");
         this.add("armorstatues.screen.rotations.pose.cape", "Cape");
+        this.add("armorstatues.screen.position.scale", "Scale:");
         // armor statues keys
         this.add("key.cycleStatueTabs", "Cycle Statue Tabs");
         this.add("armorstatues.screen.style.slimArms.description", "Makes the statue's arms a few pixels less wide, like Minecraft's Alex skin.");
@@ -65,8 +66,8 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.position.x", "X-Position:");
         this.add("armorstatues.screen.position.y", "Y-Position:");
         this.add("armorstatues.screen.position.z", "Z-Position:");
-        this.add("armorstatues.screen.position.increment", "Increment By %s");
-        this.add("armorstatues.screen.position.decrement", "Decrement By %s");
+        this.add("armorstatues.screen.position.increment", "Increment by %s");
+        this.add("armorstatues.screen.position.decrement", "Decrement by %s");
         this.add("armorstatues.screen.position.centered", "Align Centered");
         this.add("armorstatues.screen.position.cornered", "Align Cornered");
         this.add("armorstatues.screen.position.aligned", "Aligned!");
@@ -80,7 +81,6 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.rotations.pose.rightLeg", "Right Leg");
         this.add("armorstatues.screen.rotations.tip1", "Hold the Shift or Alt key to lock sliders to a single axis!");
         this.add("armorstatues.screen.rotations.tip2", "Use the arrow keys to move sliders more precisely! Focus a slider first by clicking.");
-        this.add("armorstatues.screen.rotations.tip3", "Press the %s key (or Shift + %s) to quickly switch between tabs!");
         this.add("armorstatues.screen.rotations.reset", "Reset");
         this.add("armorstatues.screen.rotations.randomize", "Randomize");
         this.add("armorstatues.screen.rotations.limited", "Limited Rotations");

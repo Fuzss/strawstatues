@@ -2,10 +2,12 @@ package fuzs.strawstatues.client;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import fuzs.puzzleslib.client.core.ClientModConstructor;
+import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandInInventoryRenderer;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueModelPartsScreen;
+import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatuePositionScreen;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueStyleScreen;
 import fuzs.strawstatues.client.init.ModClientRegistry;
 import fuzs.strawstatues.client.model.StrawStatueModel;
@@ -24,12 +26,24 @@ public class StrawStatuesClient implements ClientModConstructor {
     public void onClientSetup() {
         ArmorStandScreenFactory.register(StrawStatue.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(StrawStatue.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueStyleScreen::new);
+        ArmorStandScreenFactory.register(StrawStatue.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
         ArmorStandRotationsScreen.registerPosePartMutatorFilter(StrawStatue.CAPE_POSE_PART_MUTATOR, armorStand -> {
             StrawStatue strawStatue = (StrawStatue) armorStand;
             if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
                 return StrawStatueRenderer.getPlayerProfileTexture(strawStatue, MinecraftProfileTexture.Type.CAPE).isPresent();
             }
             return false;
+        });
+        ArmorStandInInventoryRenderer.setArmorStandRenderer((posX, posY, scale, mouseX, mouseY, livingEntity) -> {
+            float oldModelScale = 0.0F;
+            if (livingEntity instanceof StrawStatue strawStatue) {
+                oldModelScale = strawStatue.getModelScale();
+                strawStatue.setModelScale(StrawStatue.DEFAULT_MODEL_SCALE);
+            }
+            ArmorStandInInventoryRenderer.SIMPLE.renderEntityInInventory(posX, posY, scale, mouseX, mouseY, livingEntity);
+            if (livingEntity instanceof StrawStatue strawStatue) {
+                strawStatue.setModelScale(oldModelScale);
+            }
         });
     }
 
@@ -38,6 +52,7 @@ public class StrawStatuesClient implements ClientModConstructor {
         context.registerEntityRenderer(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), StrawStatueRenderer::new);
     }
 
+    @SuppressWarnings("Convert2MethodRef")
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
         // compiler doesn't like method reference :(

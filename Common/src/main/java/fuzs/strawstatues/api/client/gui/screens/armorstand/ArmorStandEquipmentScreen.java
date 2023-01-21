@@ -9,7 +9,6 @@ import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -110,7 +109,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
             }
         }
         AbstractArmorStandScreen.drawTabs(poseStack, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
-        InventoryScreen.renderEntityInInventory(this.leftPos + 104, this.topPos + 84, 30, (float) (this.leftPos + 104 - 10) - this.mouseX, (float) (this.topPos + 84 - 44) - this.mouseY, this.menu.getArmorStand());
+        this.renderArmorStandInInventory(this.leftPos + 104, this.topPos + 84, 30, (float) (this.leftPos + 104 - 10) - this.mouseX, (float) (this.topPos + 84 - 44) - this.mouseY);
     }
 
     private boolean isSlotRestricted(EquipmentSlot equipmentSlot) {

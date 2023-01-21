@@ -1,14 +1,13 @@
 package fuzs.strawstatues.api.client.gui.screens.armorstand;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -69,7 +68,7 @@ public class ArmorStandPosesScreen extends AbstractArmorStandScreen {
             Optional<ArmorStandPose> pose = getPoseAt(i);
             if (pose.isPresent()) {
                 pose.get().applyToEntity(armorStand);
-                InventoryScreen.renderEntityInInventory(this.leftPos + 112 + i % 2 * 62, this.topPos + 79 + i / 2 * 88, 30, this.leftPos + 112 + i % 2 * 62 - 10 - this.mouseX, this.topPos + 79 + i / 2 * 88 - 44 - this.mouseY, armorStand);
+                this.renderArmorStandInInventory(this.leftPos + 112 + i % 2 * 62, this.topPos + 79 + i / 2 * 88, 30, this.leftPos + 112 + i % 2 * 62 - 10 - this.mouseX, this.topPos + 79 + i / 2 * 88 - 44 - this.mouseY);
             }
         }
         entityPose.applyToEntity(armorStand);

@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.10-1.19.2] - 2023-01-21
+### Added
+- Added an option in the configuration screen to adjust the scale of statues
+### Changed
+- Refined the default statue texture
+
 ## [v4.0.9-1.19.2] - 2023-01-17
 ### Changed
 - Opening the statue menu now requires a stick to be held in addition to sneaking, this was changed to improve compatibility with the Quark mod

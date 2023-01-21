@@ -17,4 +17,8 @@ public interface ArmorStandScreen {
     void setMouseX(int mouseX);
 
     void setMouseY(int mouseY);
+
+    default void renderArmorStandInInventory(int posX, int posY, int scale, float mouseX, float mouseY) {
+        AbstractArmorStandScreen.armorStandRenderer.renderEntityInInventory(posX, posY, scale, mouseX, mouseY, this.getHolder().getArmorStand());
+    }
 }

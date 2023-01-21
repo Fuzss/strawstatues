@@ -2,13 +2,13 @@ package fuzs.strawstatues.api.client.gui.screens.armorstand;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.vertex.PoseStack;
+import fuzs.puzzleslib.util.PuzzlesUtil;
 import fuzs.strawstatues.api.client.gui.components.NewTextureButton;
 import fuzs.strawstatues.api.client.gui.components.NewTextureSliderButton;
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.puzzleslib.util.PuzzlesUtil;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
@@ -29,7 +29,6 @@ import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
@@ -60,7 +59,7 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
     protected List<ArmorStandWidgetsScreen.PositionScreenWidget> buildWidgets(ArmorStand armorStand) {
         // only move server-side to prevent rubber banding
         return Lists.newArrayList(
-                new RotationWidget(armorStand::getYRot, this.dataSyncHandler::sendRotation),
+                new RotationWidget(Component.translatable("armorstatues.screen.position.rotation"), armorStand::getYRot, this.dataSyncHandler::sendRotation, ArmorStandPose.DEGREES_SNAP_INTERVAL),
                 new PositionIncrementWidget(),
                 new PositionComponentWidget("x", armorStand::getX, x -> {
                     this.dataSyncHandler.sendPosition(x, armorStand.getY(), armorStand.getZ());
@@ -99,22 +98,40 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
         return (float) Mth.wrapDegrees(value * 360.0 - 180.0);
     }
 
-    private class RotationWidget extends AbstractPositionScreenWidget {
-        private final Supplier<Float> currentRotation;
-        private final Consumer<Float> newRotation;
+    protected class RotationWidget extends AbstractPositionScreenWidget {
+        protected final DoubleSupplier currentValue;
+        protected final Consumer<Float> newValue;
+        private final double snapInterval;
 
-        public RotationWidget(Supplier<Float> currentRotation, Consumer<Float> newRotation) {
-            super(Component.translatable("armorstatues.screen.position.rotation"));
-            this.currentRotation = currentRotation;
-            this.newRotation = newRotation;
+        public RotationWidget(Component title, DoubleSupplier currentValue, Consumer<Float> newValue, double snapInterval) {
+            super(title);
+            this.currentValue = currentValue;
+            this.newValue = newValue;
+            this.snapInterval = snapInterval;
+        }
+
+        protected double getCurrentValue() {
+            return fromWrappedDegrees(this.currentValue.getAsDouble());
+        }
+
+        protected void setNewValue(double newValue) {
+            this.newValue.accept(toWrappedDegrees(newValue));
+        }
+
+        protected Component getTooltipComponent(double mouseValue) {
+            return Component.translatable("armorstatues.screen.position.degrees", ArmorStandPose.ROTATION_FORMAT.format(toWrappedDegrees(mouseValue)));
+        }
+
+        protected void applyClientValue(double newValue) {
+
         }
 
         @Override
         public void init(int posX, int posY) {
             super.init(posX, posY);
-            NewTextureSliderButton sliderButton = ArmorStandPositionScreen.this.addRenderableWidget(new NewTextureSliderButton(posX + 76, posY + 1, 90, 20, 0, 184, ARMOR_STAND_WIDGETS_LOCATION, CommonComponents.EMPTY, fromWrappedDegrees(this.currentRotation.get()), (button, poseStack, mouseX, mouseY) -> {
-                double mouseValue = ArmorStandPose.snapValue((mouseX - button.x) / (double) button.getWidth(), ArmorStandPose.DEGREES_SNAP_INTERVAL);
-                ArmorStandPositionScreen.this.renderTooltip(poseStack, Component.translatable("armorstatues.screen.position.degrees", ArmorStandPose.ROTATION_FORMAT.format(toWrappedDegrees(mouseValue))), mouseX, mouseY);
+            NewTextureSliderButton sliderButton = ArmorStandPositionScreen.this.addRenderableWidget(new NewTextureSliderButton(posX + 76, posY + 1, 90, 20, 0, 184, ARMOR_STAND_WIDGETS_LOCATION, CommonComponents.EMPTY, this.getCurrentValue(), (button, poseStack, mouseX, mouseY) -> {
+                double mouseValue = ArmorStandPose.snapValue((mouseX - button.x) / (double) button.getWidth(), this.snapInterval);
+                ArmorStandPositionScreen.this.renderTooltip(poseStack, this.getTooltipComponent(mouseValue), mouseX, mouseY);
             }) {
                 private boolean dirty;
 
@@ -126,6 +143,7 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
                 @Override
                 protected void applyValue() {
                     this.dirty = true;
+                    RotationWidget.this.applyClientValue(this.value);
                 }
 
                 @Override
@@ -134,7 +152,7 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
                     // we use #onRelease instead of directly applying in #applyValue as the armor stand will otherwise glitch out visually since the server constantly sends outdated values
                     if (this.isDirty()) {
                         this.dirty = false;
-                        RotationWidget.this.newRotation.accept(toWrappedDegrees(this.value));
+                        RotationWidget.this.setNewValue(this.value);
                     }
                 }
 
@@ -143,7 +161,7 @@ public class ArmorStandPositionScreen extends ArmorStandWidgetsScreen {
                     return this.dirty;
                 }
             });
-            sliderButton.snapInterval = ArmorStandPose.DEGREES_SNAP_INTERVAL;
+            sliderButton.snapInterval = this.snapInterval;
             this.children.add(sliderButton);
             this.children.add(ArmorStandPositionScreen.this.addRenderableWidget(new ImageButton(posX + 174, posY + 1, 20, 20, 236, 64, ARMOR_STAND_WIDGETS_LOCATION, button -> {
                 ArmorStandPositionScreen.this.setActiveWidget(this);

@@ -16,7 +16,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -27,12 +26,15 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 public abstract class AbstractArmorStandScreen extends Screen implements MenuAccess<ArmorStandMenu>, ArmorStandScreen {
     private static final ResourceLocation ARMOR_STAND_BACKGROUND_LOCATION = new ResourceLocation(ArmorStatuesApi.MOD_ID, "textures/gui/container/armor_stand/background.png");
     public static final ResourceLocation ARMOR_STAND_WIDGETS_LOCATION = new ResourceLocation(ArmorStatuesApi.MOD_ID, "textures/gui/container/armor_stand/widgets.png");
+
+    static ArmorStandInInventoryRenderer armorStandRenderer = ArmorStandInInventoryRenderer.SIMPLE;
 
     protected final int imageWidth = 210;
     protected final int imageHeight = 188;
@@ -46,6 +48,7 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     protected boolean smallInventoryEntity;
     protected int mouseX;
     protected int mouseY;
+    @Nullable
     private AbstractWidget closeButton;
 
     public AbstractArmorStandScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
@@ -114,7 +117,9 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     }
 
     protected void toggleMenuRendering(boolean disableMenuRendering) {
-        this.closeButton.visible = !disableMenuRendering;
+        if (this.closeButton != null) {
+            this.closeButton.visible = !disableMenuRendering;
+        }
     }
 
     @Override
@@ -161,10 +166,10 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
             RenderSystem.setShaderTexture(0, ARMOR_STAND_WIDGETS_LOCATION);
             if (this.smallInventoryEntity) {
                 this.blit(poseStack, this.leftPos + this.inventoryEntityX, this.topPos + this.inventoryEntityY, 200, 184, 50, 72);
-                InventoryScreen.renderEntityInInventory(this.leftPos + this.inventoryEntityX + 24, this.topPos + this.inventoryEntityY + 65, 30, this.leftPos + this.inventoryEntityX + 24 - 10 - this.mouseX, this.topPos + this.inventoryEntityY + 65 - 44 - this.mouseY, this.holder.getArmorStand());
+                this.renderArmorStandInInventory(this.leftPos + this.inventoryEntityX + 24, this.topPos + this.inventoryEntityY + 65, 30, this.leftPos + this.inventoryEntityX + 24 - 10 - this.mouseX, this.topPos + this.inventoryEntityY + 65 - 44 - this.mouseY);
             } else {
                 this.blit(poseStack, this.leftPos + this.inventoryEntityX, this.topPos + this.inventoryEntityY, 0, 0, 76, 108);
-                InventoryScreen.renderEntityInInventory(this.leftPos + this.inventoryEntityX + 38, this.topPos + this.inventoryEntityY + 98, 45, (float) (this.leftPos + this.inventoryEntityX + 38 - 5) - this.mouseX, (float) (this.topPos + this.inventoryEntityY + 98 - 66) - this.mouseY, this.holder.getArmorStand());
+                this.renderArmorStandInInventory(this.leftPos + this.inventoryEntityX + 38, this.topPos + this.inventoryEntityY + 98, 45, (float) (this.leftPos + this.inventoryEntityX + 38 - 5) - this.mouseX, (float) (this.topPos + this.inventoryEntityY + 98 - 66) - this.mouseY);
             }
         }
     }

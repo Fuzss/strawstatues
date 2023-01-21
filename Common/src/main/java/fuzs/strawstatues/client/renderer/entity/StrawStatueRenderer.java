@@ -77,7 +77,10 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
 
     @Override
     protected void scale(StrawStatue livingEntity, PoseStack matrixStack, float partialTickTime) {
-        matrixStack.scale(0.9375F, 0.9375F, 0.9375F);
+        float modelScale = Mth.lerp(partialTickTime, livingEntity.modelScaleO, livingEntity.getModelScale());
+        modelScale /= StrawStatue.DEFAULT_MODEL_SCALE;
+        modelScale *= 0.9375F;
+        matrixStack.scale(modelScale, modelScale, modelScale);
     }
 
     @Override
