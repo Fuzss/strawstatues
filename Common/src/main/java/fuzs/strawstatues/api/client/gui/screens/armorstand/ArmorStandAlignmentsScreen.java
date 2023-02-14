@@ -40,7 +40,7 @@ public class ArmorStandAlignmentsScreen extends ArmorStandWidgetsScreen {
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(new ImageButton(this.leftPos + 6, this.topPos + 6, 20, 20, 136, 64, 20, ARMOR_STAND_WIDGETS_LOCATION, 256, 256, button -> {
+        this.addRenderableWidget(new ImageButton(this.leftPos + 6, this.topPos + 6, 20, 20, 136, 64, 20, getArmorStandWidgetsLocation(), 256, 256, button -> {
             this.minecraft.setScreen(new ConfirmLinkScreen((bl) -> {
                 if (bl) Util.getPlatform().openUri("https://vanillatweaks.net/");
                 this.minecraft.setScreen(this);

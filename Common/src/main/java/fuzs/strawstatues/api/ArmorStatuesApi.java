@@ -40,4 +40,8 @@ public class ArmorStatuesApi implements ModConstructor {
             ArmorStandStyleOption.register(new ResourceLocation(MOD_ID, styleOption.getTranslationId().toLowerCase(Locale.ROOT)), styleOption);
         }
     }
+
+    public static ResourceLocation id(String path) {
+        return new ResourceLocation(MOD_ID, path);
+    }
 }

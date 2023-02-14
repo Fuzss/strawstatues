@@ -1,8 +1,11 @@
 package fuzs.strawstatues.world.item;
 
+import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.config.CommonConfig;
 import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
@@ -30,7 +33,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 public class StrawStatueItem extends Item {
-    private static final Component TOOLTIP_DESCRIPTION = Component.translatable("strawstatues.item.straw_statue.description").withStyle(ChatFormatting.GRAY);
 
     public StrawStatueItem(Properties properties) {
         super(properties);
@@ -89,6 +91,9 @@ public class StrawStatueItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-        tooltipComponents.add(TOOLTIP_DESCRIPTION);
+        Component shiftComponent = Component.empty().append(Minecraft.getInstance().options.keyShift.getTranslatedKeyMessage()).withStyle(ChatFormatting.LIGHT_PURPLE);
+        Component useComponent = Component.empty().append(Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage()).withStyle(ChatFormatting.LIGHT_PURPLE);
+        Component useItemComponent = Component.empty().append(StrawStatues.CONFIG.get(CommonConfig.class).useItem.getDescription()).withStyle(ChatFormatting.GOLD);
+        tooltipComponents.add(Component.translatable("armorstatues.item.armor_stand.description", shiftComponent, useComponent, useItemComponent).withStyle(ChatFormatting.GRAY));
     }
 }

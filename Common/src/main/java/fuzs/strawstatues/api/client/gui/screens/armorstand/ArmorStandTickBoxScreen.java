@@ -74,6 +74,16 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
     protected abstract AbstractWidget makeTickBoxWidget(ArmorStand armorStand, int buttonStartY, int index, T option);
 
     @Override
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        super.render(poseStack, mouseX, mouseY, partialTick);
+        if (this.name.isMouseOver(mouseX, mouseY)) {
+            this.renderTooltip(poseStack, this.getNameComponent(), mouseX, mouseY);
+        }
+    }
+
+    protected abstract Component getNameComponent();
+
+    @Override
     public void resize(Minecraft pMinecraft, int pWidth, int pHeight) {
         this.testNameInputChanged(false);
         String s = this.name.getValue();
@@ -108,7 +118,7 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
         super.renderBg(poseStack, partialTick, mouseX, mouseY);
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, ARMOR_STAND_WIDGETS_LOCATION);
+        RenderSystem.setShaderTexture(0, getArmorStandWidgetsLocation());
         // name edit box background
         this.blit(poseStack, this.leftPos + 14, this.topPos + 30, 0, 108, 76, 12);
         this.name.render(poseStack, mouseX, mouseY, partialTick);

@@ -1,11 +1,13 @@
 package fuzs.strawstatues;
 
+import fuzs.puzzleslib.config.ConfigHolder;
 import fuzs.puzzleslib.core.CoreServices;
 import fuzs.puzzleslib.core.ModConstructor;
 import fuzs.puzzleslib.network.MessageDirection;
 import fuzs.puzzleslib.network.NetworkHandler;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
+import fuzs.strawstatues.config.CommonConfig;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
@@ -32,9 +34,12 @@ public class StrawStatues implements ModConstructor {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
 
     public static final NetworkHandler NETWORK = CoreServices.FACTORIES.network(MOD_ID);
+    @SuppressWarnings("Convert2MethodRef")
+    public static final ConfigHolder CONFIG = CoreServices.FACTORIES.commonConfig(CommonConfig.class, () -> new CommonConfig());
 
     @Override
     public void onConstructMod() {
+        CONFIG.bakeConfigs(MOD_ID);
         ModRegistry.touch();
         registerMessages();
     }

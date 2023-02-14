@@ -2,7 +2,6 @@ package fuzs.strawstatues.api.client.gui.screens.armorstand;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.strawstatues.api.ArmorStatuesApi;
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
@@ -12,15 +11,12 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
 
 public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStandMenu> implements ArmorStandScreen {
-    private static final ResourceLocation ARMOR_STAND_EQUIPMENT_LOCATION = new ResourceLocation(ArmorStatuesApi.MOD_ID, "textures/gui/container/armor_stand/equipment.png");
-
     private final Inventory inventory;
     private final DataSyncHandler dataSyncHandler;
     private int mouseX;
@@ -60,7 +56,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
     @Override
     protected void init() {
         super.init();
-        this.addRenderableWidget(AbstractArmorStandScreen.makeCloseButton(this, this.leftPos, this.imageWidth, this.topPos));
+        AbstractArmorStandScreen.makeButtons(this, this.leftPos, this.imageWidth, this.topPos, this::addRenderableWidget);
     }
 
     @Override
@@ -100,7 +96,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
     protected void renderBg(PoseStack poseStack, float pPartialTick, int pX, int pY) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, ARMOR_STAND_EQUIPMENT_LOCATION);
+        RenderSystem.setShaderTexture(0, AbstractArmorStandScreen.getArmorStandEquipmentLocation());
         this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
         for (int k = 0; k < ArmorStandMenu.SLOT_IDS.length; ++k) {
             Slot slot = this.menu.slots.get(k);
@@ -108,6 +104,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
                 this.blit(poseStack, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, 210, 0, 18, 18);
             }
         }
+        AbstractArmorStandScreen.drawThemeBg(poseStack, this.leftPos, this.topPos, this.imageWidth);
         AbstractArmorStandScreen.drawTabs(poseStack, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
         this.renderArmorStandInInventory(this.leftPos + 104, this.topPos + 84, 30, (float) (this.leftPos + 104 - 10) - this.mouseX, (float) (this.topPos + 84 - 44) - this.mouseY);
     }

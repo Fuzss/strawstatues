@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.11-1.19.2] - 2023-02-14
+### Added
+- Added a config for changing the item required to open configuration screens
+- Added buttons to toggle between a light and dark theme
+### Changed
+- New statue item icon!
+- Text fields now show description tooltips when hovered
+- The close button is now present on all screens as it has been moved above the configuration menus
+- Improved statue tooltip to be more precise on how to open statue configuration screens
+
 ## [v4.0.10-1.19.2] - 2023-01-21
 ### Added
 - Added an option in the configuration screen to adjust the scale of statues

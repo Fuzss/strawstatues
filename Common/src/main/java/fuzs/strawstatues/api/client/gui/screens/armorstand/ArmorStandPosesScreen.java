@@ -32,17 +32,17 @@ public class ArmorStandPosesScreen extends AbstractArmorStandScreen {
     @Override
     protected void init() {
         super.init();
-        this.cycleButtons[0] = this.addRenderableWidget(new ImageButton(this.leftPos + 17, this.topPos + 153, 20, 20, 156, 64, ARMOR_STAND_WIDGETS_LOCATION, button -> {
+        this.cycleButtons[0] = this.addRenderableWidget(new ImageButton(this.leftPos + 17, this.topPos + 153, 20, 20, 156, 64, getArmorStandWidgetsLocation(), button -> {
             firstPoseIndex -= POSES_PER_PAGE;
             this.toggleCycleButtons();
         }));
-        this.cycleButtons[1] = this.addRenderableWidget(new ImageButton(this.leftPos + 49, this.topPos + 153, 20, 20, 176, 64, ARMOR_STAND_WIDGETS_LOCATION, button -> {
+        this.cycleButtons[1] = this.addRenderableWidget(new ImageButton(this.leftPos + 49, this.topPos + 153, 20, 20, 176, 64, getArmorStandWidgetsLocation(), button -> {
             firstPoseIndex += POSES_PER_PAGE;
             this.toggleCycleButtons();
         }));
         for (int i = 0; i < this.poseButtons.length; i++) {
             final int ii = i;
-            this.poseButtons[i] = this.addRenderableWidget(new ImageButton(this.leftPos + 83 + i % 2 * 62, this.topPos + 9 + i / 2 * 88, 60, 82, 76, 0, 82, ARMOR_STAND_WIDGETS_LOCATION, 256, 256, button -> {
+            this.poseButtons[i] = this.addRenderableWidget(new ImageButton(this.leftPos + 83 + i % 2 * 62, this.topPos + 9 + i / 2 * 88, 60, 82, 76, 0, 82, getArmorStandWidgetsLocation(), 256, 256, button -> {
                 getPoseAt(ii).ifPresent(this.dataSyncHandler::sendPose);
             }, (Button button, PoseStack poseStack, int mouseX, int mouseY) -> {
                 getPoseAt(ii).ifPresent(pose -> this.renderTooltip(poseStack, pose.getComponent(), mouseX, mouseY));
@@ -72,11 +72,6 @@ public class ArmorStandPosesScreen extends AbstractArmorStandScreen {
             }
         }
         entityPose.applyToEntity(armorStand);
-    }
-
-    @Override
-    protected boolean withCloseButton() {
-        return false;
     }
 
     @Override

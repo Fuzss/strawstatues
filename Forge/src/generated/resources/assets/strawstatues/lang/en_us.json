@@ -12,12 +12,13 @@
   "armorstatues.entity.armor_stand.pose.salute": "Salute",
   "armorstatues.entity.armor_stand.pose.solemn": "Solemn",
   "armorstatues.entity.armor_stand.pose.zombie": "Zombie",
-  "armorstatues.item.armor_stand.description": "Shift + right-click holding a stick to open configuration screen after placing.",
+  "armorstatues.item.armor_stand.description": "Use %s + %s holding %s to open configuration screen after placing.",
   "armorstatues.screen.alignments.block": "Align Block",
   "armorstatues.screen.alignments.credit": "Alignment values are taken from the Vanilla Tweaks \"Armor Statues\" data pack. Click this button to go to their website!",
   "armorstatues.screen.alignments.itemFlat": "Align Item As Flat",
   "armorstatues.screen.alignments.itemFloating": "Align Item As Floating",
   "armorstatues.screen.alignments.tool": "Align Tool As Flat",
+  "armorstatues.screen.modelParts.name": "Set a player name to take the statue skin from.",
   "armorstatues.screen.noPermission": "Unable to set new armor stand data; no permission",
   "armorstatues.screen.pose.randomize": "Randomize",
   "armorstatues.screen.pose.randomized": "Applied!",
@@ -59,6 +60,7 @@
   "armorstatues.screen.style.glowing.description": "Adds a glowing outline to the statue, visible through blocks.",
   "armorstatues.screen.style.invisible": "Invisible",
   "armorstatues.screen.style.invisible.description": "Makes the statue itself invisible, but still shows all equipped items.",
+  "armorstatues.screen.style.name": "Set a name to display above the statue if enabled.",
   "armorstatues.screen.style.noBasePlate": "No Base Plate",
   "armorstatues.screen.style.noBasePlate.description": "Hide the stone base plate at the statue's feet.",
   "armorstatues.screen.style.noGravity": "No Gravity",
@@ -81,7 +83,5 @@
   "armorstatues.screen.type.rotations": "Rotations",
   "armorstatues.screen.type.style": "Style",
   "entity.strawstatues.straw_statue": "Straw Statue",
-  "item.strawstatues.straw_statue": "Straw Statue",
-  "key.cycleStatueTabs": "Cycle Statue Tabs",
-  "strawstatues.item.straw_statue.description": "Shift + right-click holding a stick to open configuration screen after placing."
+  "item.strawstatues.straw_statue": "Straw Statue"
 }

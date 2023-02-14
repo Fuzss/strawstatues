@@ -3,6 +3,7 @@ package fuzs.strawstatues.api.client.gui.screens.armorstand;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.puzzleslib.client.core.ClientCoreServices;
+import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.api.ArmorStatuesApi;
 import fuzs.strawstatues.api.client.gui.components.TickingButton;
 import fuzs.strawstatues.api.client.gui.components.UnboundedSliderButton;
@@ -10,8 +11,9 @@ import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.config.CommonConfig;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.components.AbstractButton;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -26,13 +28,17 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.apache.commons.lang3.ArrayUtils;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+import java.util.function.UnaryOperator;
 
 public abstract class AbstractArmorStandScreen extends Screen implements MenuAccess<ArmorStandMenu>, ArmorStandScreen {
-    private static final ResourceLocation ARMOR_STAND_BACKGROUND_LOCATION = new ResourceLocation(ArmorStatuesApi.MOD_ID, "textures/gui/container/armor_stand/background.png");
-    public static final ResourceLocation ARMOR_STAND_WIDGETS_LOCATION = new ResourceLocation(ArmorStatuesApi.MOD_ID, "textures/gui/container/armor_stand/widgets.png");
+    private static final ResourceLocation ARMOR_STAND_LIGHT_BACKGROUND_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/light_background.png");
+    private static final ResourceLocation ARMOR_STAND_LIGHT_WIDGETS_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/light_widgets.png");
+    private static final ResourceLocation ARMOR_STAND_LIGHT_EQUIPMENT_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/light_equipment.png");
+    private static final ResourceLocation ARMOR_STAND_DARK_BACKGROUND_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/dark_background.png");
+    private static final ResourceLocation ARMOR_STAND_DARK_WIDGETS_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/dark_widgets.png");
+    private static final ResourceLocation ARMOR_STAND_DARK_EQUIPMENT_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/dark_equipment.png");
 
     static ArmorStandInInventoryRenderer armorStandRenderer = ArmorStandInInventoryRenderer.SIMPLE;
 
@@ -48,14 +54,25 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     protected boolean smallInventoryEntity;
     protected int mouseX;
     protected int mouseY;
-    @Nullable
-    private AbstractWidget closeButton;
+    private AbstractWidget[] buttons;
 
     public AbstractArmorStandScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(component);
         this.holder = holder;
         this.inventory = inventory;
         this.dataSyncHandler = dataSyncHandler;
+    }
+
+    public static ResourceLocation getArmorStandBackgroundLocation() {
+        return StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.get() ? ARMOR_STAND_DARK_BACKGROUND_LOCATION : ARMOR_STAND_LIGHT_BACKGROUND_LOCATION;
+    }
+
+    public static ResourceLocation getArmorStandWidgetsLocation() {
+        return StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.get() ? ARMOR_STAND_DARK_WIDGETS_LOCATION : ARMOR_STAND_LIGHT_WIDGETS_LOCATION;
+    }
+
+    public static ResourceLocation getArmorStandEquipmentLocation() {
+        return StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.get() ? ARMOR_STAND_DARK_EQUIPMENT_LOCATION : ARMOR_STAND_LIGHT_EQUIPMENT_LOCATION;
     }
 
     @Override
@@ -93,19 +110,32 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     protected void init() {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
-        if (this.withCloseButton()) {
-            this.closeButton = this.addRenderableWidget(makeCloseButton(this, this.leftPos, this.imageWidth, this.topPos));
-        }
+        this.buttons = makeButtons(this, this.leftPos, this.imageWidth, this.topPos, this::addRenderableWidget);
     }
 
-    public static AbstractButton makeCloseButton(Screen screen, int leftPos, int imageWidth, int topPos) {
-        return new ImageButton(leftPos + imageWidth - 15 - 8, topPos + 8, 15, 15, 136, 0, ARMOR_STAND_WIDGETS_LOCATION, button -> {
+    public static AbstractWidget[] makeButtons(Screen screen, int leftPos, int imageWidth, int topPos, UnaryOperator<AbstractWidget> addRenderableWidget) {
+        AbstractWidget[] abstractWidgets = new AbstractWidget[3];
+        abstractWidgets[0] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 21, topPos - 18, 15, 15, 48, 188, getArmorStandBackgroundLocation(), button -> {
             screen.onClose();
-        });
+        }));
+        abstractWidgets[1] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 76, topPos - 20, 24, 19, 0, 188, getArmorStandBackgroundLocation(), button -> {
+            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], true);
+        }));
+        abstractWidgets[2] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 49, topPos - 20, 24, 19, 24, 188, getArmorStandBackgroundLocation(), button -> {
+            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], true);
+        }));
+        toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], false);
+        return abstractWidgets;
     }
 
-    protected boolean withCloseButton() {
-        return true;
+    private static void toggleThemeButtons(AbstractWidget lightThemeWidget, AbstractWidget darkThemeWidget, boolean toggleSetting) {
+        boolean darkTheme = StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.get();
+        if (toggleSetting) {
+            darkTheme = !darkTheme;
+            StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.set(darkTheme);
+        }
+        lightThemeWidget.active = darkTheme;
+        darkThemeWidget.active = !darkTheme;
     }
 
     protected boolean renderInventoryEntity() {
@@ -117,8 +147,8 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     }
 
     protected void toggleMenuRendering(boolean disableMenuRendering) {
-        if (this.closeButton != null) {
-            this.closeButton.visible = !disableMenuRendering;
+        for (AbstractWidget button : this.buttons) {
+            button.visible = !disableMenuRendering;
         }
     }
 
@@ -152,8 +182,9 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         if (!this.disableMenuRendering()) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, ARMOR_STAND_BACKGROUND_LOCATION);
+            RenderSystem.setShaderTexture(0, getArmorStandBackgroundLocation());
             this.blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+            drawThemeBg(poseStack, this.leftPos, this.topPos, this.imageWidth);
             drawTabs(poseStack, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
             this.renderEntityInInventory(poseStack);
         }
@@ -163,7 +194,7 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         if (this.renderInventoryEntity()) {
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, ARMOR_STAND_WIDGETS_LOCATION);
+            RenderSystem.setShaderTexture(0, getArmorStandWidgetsLocation());
             if (this.smallInventoryEntity) {
                 this.blit(poseStack, this.leftPos + this.inventoryEntityX, this.topPos + this.inventoryEntityY, 200, 184, 50, 72);
                 this.renderArmorStandInInventory(this.leftPos + this.inventoryEntityX + 24, this.topPos + this.inventoryEntityY + 65, 30, this.leftPos + this.inventoryEntityX + 24 - 10 - this.mouseX, this.topPos + this.inventoryEntityY + 65 - 44 - this.mouseY);
@@ -249,13 +280,20 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
             int tabY = topPos + tabsStartY + 27 * i;
             RenderSystem.setShader(GameRenderer::getPositionTexShader);
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.setShaderTexture(0, ARMOR_STAND_WIDGETS_LOCATION);
-            screen.blit(poseStack, tabX, tabY, 212, tabType == screen.getScreenType() ? 0 : 27, 35, 26);
+            RenderSystem.setShaderTexture(0, getArmorStandWidgetsLocation());
+            GuiComponent.blit(poseStack, tabX, tabY, 212, tabType == screen.getScreenType() ? 0 : 27, 35, 26, 256, 256);
             ItemRenderer itemRenderer = ClientCoreServices.SCREENS.getItemRenderer(screen);
             itemRenderer.blitOffset = 100.0F;
             itemRenderer.renderAndDecorateItem(tabType.getIcon(), tabX + 10, tabY + 5);
             itemRenderer.blitOffset = 0.0F;
         }
+    }
+
+    public static void drawThemeBg(PoseStack poseStack, int leftPos, int topPos, int imageWidth) {
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        RenderSystem.setShaderTexture(0, getArmorStandBackgroundLocation());
+        GuiComponent.blit(poseStack, leftPos + imageWidth - 3 - 84, topPos - 24, 63, 188, 84, 24, 256, 256);
     }
 
     public static Optional<ArmorStandScreenType> findHoveredTab(int leftPos, int topPos, int imageHeight, int mouseX, int mouseY, ArmorStandScreenType[] tabs) {

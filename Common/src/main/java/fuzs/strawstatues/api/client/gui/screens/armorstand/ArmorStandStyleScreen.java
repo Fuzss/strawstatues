@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
 import java.util.stream.Stream;
 
 public class ArmorStandStyleScreen extends ArmorStandTickBoxScreen<ArmorStandStyleOption> {
+    private static final Component STYLE_NAME_COMPONENT = Component.translatable("armorstatues.screen.style.name");
 
     public ArmorStandStyleScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(holder, inventory, component, dataSyncHandler);
@@ -50,6 +51,11 @@ public class ArmorStandStyleScreen extends ArmorStandTickBoxScreen<ArmorStandSty
     @Override
     protected String getNameDefaultValue() {
         return this.holder.getArmorStand().getName().getString();
+    }
+
+    @Override
+    protected Component getNameComponent() {
+        return STYLE_NAME_COMPONENT;
     }
 
     @Override

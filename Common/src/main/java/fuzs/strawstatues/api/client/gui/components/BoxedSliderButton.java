@@ -64,7 +64,7 @@ public abstract class BoxedSliderButton extends AbstractWidget implements Unboun
     @Override
     public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderTexture(0, AbstractArmorStandScreen.ARMOR_STAND_WIDGETS_LOCATION);
+        RenderSystem.setShaderTexture(0, AbstractArmorStandScreen.getArmorStandWidgetsLocation());
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, this.alpha);
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();

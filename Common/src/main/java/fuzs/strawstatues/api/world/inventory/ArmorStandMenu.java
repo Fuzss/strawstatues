@@ -24,7 +24,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
 public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandHolder {
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_SWORD = new ResourceLocation(ArmorStatuesApi.MOD_ID, "item/empty_armor_slot_sword");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_SWORD = ArmorStatuesApi.id("item/empty_armor_slot_sword");
     static final ResourceLocation[] TEXTURE_EMPTY_SLOTS = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD, EMPTY_ARMOR_SLOT_SWORD};
     public static final EquipmentSlot[] SLOT_IDS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
 

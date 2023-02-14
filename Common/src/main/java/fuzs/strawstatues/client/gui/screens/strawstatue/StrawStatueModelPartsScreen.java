@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerModelPart> {
+    private static final Component MODEL_PARTS_NAME_COMPONENT = Component.translatable("armorstatues.screen.modelParts.name");
 
     public StrawStatueModelPartsScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(holder, inventory, component, dataSyncHandler);
@@ -52,6 +53,11 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
     @Override
     protected String getNameDefaultValue() {
         return ((StrawStatue) this.getHolder().getArmorStand()).getOwner().map(GameProfile::getName).orElse("");
+    }
+
+    @Override
+    protected Component getNameComponent() {
+        return MODEL_PARTS_NAME_COMPONENT;
     }
 
     @Override

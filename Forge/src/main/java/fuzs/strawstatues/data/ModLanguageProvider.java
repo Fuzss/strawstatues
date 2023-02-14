@@ -14,8 +14,9 @@ public class ModLanguageProvider extends LanguageProvider {
     protected void addTranslations() {
         this.add(ModRegistry.STRAW_STATUE_ITEM.get(), "Straw Statue");
         this.add(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), "Straw Statue");
-        this.add("strawstatues.item.straw_statue.description", "Shift + right-click holding a stick to open configuration screen after placing.");
         this.add("armorstatues.screen.type.modelParts", "Model Parts");
+        this.add("armorstatues.screen.style.name", "Set a name to display above the statue if enabled.");
+        this.add("armorstatues.screen.modelParts.name", "Set a player name to take the statue skin from.");
         this.add("armorstatues.screen.style.slimArms", "Slim Arms");
         this.add("armorstatues.screen.style.slimArms.description", "Makes the statue's arms a few pixels less wide, like Minecraft's Alex skin.");
         this.add("armorstatues.screen.style.crouching", "Crouching");
@@ -23,7 +24,7 @@ public class ModLanguageProvider extends LanguageProvider {
         this.add("armorstatues.screen.rotations.pose.cape", "Cape");
         this.add("armorstatues.screen.position.scale", "Scale:");
         // armor statues keys
-        this.add("armorstatues.item.armor_stand.description", "Shift + right-click holding a stick to open configuration screen after placing.");
+        this.add("armorstatues.item.armor_stand.description", "Use %s + %s holding %s to open configuration screen after placing.");
         this.add("armorstatues.entity.armor_stand.pose.athena", "Athena");
         this.add("armorstatues.entity.armor_stand.pose.brandish", "Brandish");
         this.add("armorstatues.entity.armor_stand.pose.cancanA", "Cancan #1");

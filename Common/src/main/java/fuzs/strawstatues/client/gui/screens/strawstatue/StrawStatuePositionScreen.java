@@ -32,11 +32,6 @@ public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
     }
 
     @Override
-    protected boolean withCloseButton() {
-        return false;
-    }
-
-    @Override
     protected int getWidgetRenderOffset() {
         return 0;
     }
