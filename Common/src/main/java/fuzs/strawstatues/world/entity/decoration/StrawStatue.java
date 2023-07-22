@@ -10,6 +10,7 @@ import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.api.world.inventory.data.PosePartMutator;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
+import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
@@ -43,6 +44,7 @@ import java.util.NavigableMap;
 import java.util.Optional;
 
 public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
+    private static final Rotations DEFAULT_ENTITY_ROTATIONS = new Rotations(0.0F, 0.0F, 0.0F);
     public static final float DEFAULT_MODEL_SCALE = 3.0F;
     public static final float MIN_MODEL_SCALE = 1.0F;
     public static final float MAX_MODEL_SCALE = 8.0F;
@@ -56,6 +58,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Float> DATA_MODEL_SCALE = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.FLOAT);
+    public static final EntityDataAccessor<Rotations> DATA_ENTITY_ROTATIONS = SynchedEntityData.defineId(ArmorStand.class, EntityDataSerializers.ROTATIONS);
 
     private final NavigableMap<Float, EntityDimensions> defaultDimensions;
     private final NavigableMap<Float, EntityDimensions> babyDimensions;
@@ -377,7 +380,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public ArmorStandScreenType[] getScreenTypes() {
-        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueData.MODEL_PARTS_SCREEN_TYPE, StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
+        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueData.MODEL_PARTS_SCREEN_TYPE, StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatueData.STRAW_STATUE_SCALE_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
     }
 
     @Override

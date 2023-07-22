@@ -56,7 +56,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
     @Override
     protected void init() {
         super.init();
-        AbstractArmorStandScreen.makeButtons(this, this.leftPos, this.imageWidth, this.topPos, this::addRenderableWidget);
+        AbstractArmorStandScreen.makeButtons(this, this.leftPos, this.topPos, this.imageWidth, this::addRenderableWidget);
     }
 
     @Override

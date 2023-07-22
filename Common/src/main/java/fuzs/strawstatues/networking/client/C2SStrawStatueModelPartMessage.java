@@ -1,4 +1,4 @@
-package fuzs.strawstatues.network.client;
+package fuzs.strawstatues.networking.client;
 
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;

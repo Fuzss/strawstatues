@@ -28,6 +28,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 import java.util.function.UnaryOperator;
@@ -110,29 +111,30 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     protected void init() {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
-        this.buttons = makeButtons(this, this.leftPos, this.imageWidth, this.topPos, this::addRenderableWidget);
+        this.buttons = makeButtons(this, this.leftPos, this.topPos, this.imageWidth, this::addRenderableWidget);
     }
 
-    public static AbstractWidget[] makeButtons(Screen screen, int leftPos, int imageWidth, int topPos, UnaryOperator<AbstractWidget> addRenderableWidget) {
+    public static AbstractWidget[] makeButtons(Screen screen, int leftPos, int topPos, int imageWidth, UnaryOperator<AbstractWidget> addWidget) {
         AbstractWidget[] abstractWidgets = new AbstractWidget[3];
-        abstractWidgets[0] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 21, topPos - 18, 15, 15, 48, 188, getArmorStandBackgroundLocation(), button -> {
+        abstractWidgets[0] = addWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 21, topPos - 18, 15, 15, 48, 188, getArmorStandBackgroundLocation(), button -> {
             screen.onClose();
         }));
-        abstractWidgets[1] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 76, topPos - 20, 24, 19, 0, 188, getArmorStandBackgroundLocation(), button -> {
-            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], true);
+        abstractWidgets[1] = addWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 76, topPos - 20, 24, 19, 0, 188, getArmorStandBackgroundLocation(), button -> {
+            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], screen);
         }));
-        abstractWidgets[2] = addRenderableWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 49, topPos - 20, 24, 19, 24, 188, getArmorStandBackgroundLocation(), button -> {
-            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], true);
+        abstractWidgets[2] = addWidget.apply(new ImageButton(leftPos + imageWidth - 3 - 49, topPos - 20, 24, 19, 24, 188, getArmorStandBackgroundLocation(), button -> {
+            toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], screen);
         }));
-        toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], false);
+        toggleThemeButtons(abstractWidgets[1], abstractWidgets[2], null);
         return abstractWidgets;
     }
 
-    private static void toggleThemeButtons(AbstractWidget lightThemeWidget, AbstractWidget darkThemeWidget, boolean toggleSetting) {
+    private static void toggleThemeButtons(AbstractWidget lightThemeWidget, AbstractWidget darkThemeWidget, @Nullable Screen screen) {
         boolean darkTheme = StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.get();
-        if (toggleSetting) {
+        if (screen != null) {
             darkTheme = !darkTheme;
             StrawStatues.CONFIG.get(CommonConfig.class).darkTheme.set(darkTheme);
+            screen.init(ClientCoreServices.SCREENS.getMinecraft(screen), screen.width, screen.height);
         }
         lightThemeWidget.active = darkTheme;
         darkThemeWidget.active = !darkTheme;

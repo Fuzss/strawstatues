@@ -1,4 +1,4 @@
-package fuzs.strawstatues.network.client;
+package fuzs.strawstatues.networking.client;
 
 import com.mojang.authlib.GameProfile;
 import fuzs.puzzleslib.network.Message;

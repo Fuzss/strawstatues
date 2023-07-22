@@ -14,6 +14,7 @@ public final class StrawStatueData {
     public static final ArmorStandScreenType MODEL_PARTS_SCREEN_TYPE = new ArmorStandScreenType("modelParts", new ItemStack(Items.YELLOW_WOOL));
     public static final ArmorStandScreenType STRAW_STATUE_STYLE_SCREEN_TYPE = new ArmorStandScreenType("style", new ItemStack(Blocks.HAY_BLOCK));
     public static final ArmorStandScreenType STRAW_STATUE_POSITION_SCREEN_TYPE = new ArmorStandScreenType("position", new ItemStack(Blocks.MYCELIUM));
+    public static final ArmorStandScreenType STRAW_STATUE_SCALE_SCREEN_TYPE = new ArmorStandScreenType("scale", new ItemStack(Blocks.BELL));
     public static final ArmorStandStyleOption SLIM_ARMS_STYLE_OPTION = new ArmorStandStyleOption() {
 
         @Override

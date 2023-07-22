@@ -2,12 +2,14 @@ package fuzs.strawstatues.client;
 
 import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import fuzs.puzzleslib.client.core.ClientModConstructor;
+import fuzs.puzzleslib.core.ModConstructor;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandInInventoryRenderer;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandRotationsScreen;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandScreenFactory;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatuePositionScreen;
+import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueScaleScreen;
 import fuzs.strawstatues.client.gui.screens.strawstatue.StrawStatueStyleScreen;
 import fuzs.strawstatues.client.init.ModClientRegistry;
 import fuzs.strawstatues.client.model.StrawStatueModel;
@@ -24,10 +26,11 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 public class StrawStatuesClient implements ClientModConstructor {
 
     @Override
-    public void onClientSetup() {
+    public void onClientSetup(ModConstructor.ModLifecycleContext context) {
         ArmorStandScreenFactory.register(StrawStatueData.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueStyleScreen::new);
         ArmorStandScreenFactory.register(StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
+        ArmorStandScreenFactory.register(StrawStatueData.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
         ArmorStandRotationsScreen.registerPosePartMutatorFilter(StrawStatueData.CAPE_POSE_PART_MUTATOR, armorStand -> {
             StrawStatue strawStatue = (StrawStatue) armorStand;
             if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
