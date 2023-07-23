@@ -45,7 +45,7 @@ public class ArmorStandPosesScreen extends AbstractArmorStandScreen {
             this.poseButtons[i] = this.addRenderableWidget(new ImageButton(this.leftPos + 83 + i % 2 * 62, this.topPos + 9 + i / 2 * 88, 60, 82, 76, 0, 82, getArmorStandWidgetsLocation(), 256, 256, button -> {
                 getPoseAt(ii).ifPresent(this.dataSyncHandler::sendPose);
             }, (Button button, PoseStack poseStack, int mouseX, int mouseY) -> {
-                getPoseAt(ii).ifPresent(pose -> this.renderTooltip(poseStack, pose.getComponent(), mouseX, mouseY));
+                getPoseAt(ii).ifPresent(pose -> this.renderTooltip(poseStack, Component.translatable(pose.getTranslationKey()), mouseX, mouseY));
             }, CommonComponents.EMPTY));
         }
         this.toggleCycleButtons();
@@ -72,6 +72,11 @@ public class ArmorStandPosesScreen extends AbstractArmorStandScreen {
             }
         }
         entityPose.applyToEntity(armorStand);
+    }
+
+    @Override
+    protected boolean withCloseButton() {
+        return false;
     }
 
     @Override

@@ -27,7 +27,7 @@ public class StrawStatuesFabric implements ModInitializer {
             // this callback runs in two places, one runs only for armor stands and is hit location aware, that's the one we need
             if (entityHitResult == null) return InteractionResult.PASS;
             Vec3 vec3 = entityHitResult.getLocation().subtract(target.getX(), target.getY(), target.getZ());
-            return StrawStatue.onEntityInteract(player, level, interactionHand, target, vec3).orElse(InteractionResult.PASS);
+            return StrawStatue.onUseEntityAt(player, level, interactionHand, target, vec3).orElse(InteractionResult.PASS);
         });
     }
 }

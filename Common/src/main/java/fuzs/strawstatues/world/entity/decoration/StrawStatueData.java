@@ -18,7 +18,7 @@ public final class StrawStatueData {
     public static final ArmorStandStyleOption SLIM_ARMS_STYLE_OPTION = new ArmorStandStyleOption() {
 
         @Override
-        public String getTranslationId() {
+        public String getName() {
             return "slimArms";
         }
 
@@ -40,7 +40,7 @@ public final class StrawStatueData {
     public static final ArmorStandStyleOption CROUCHING_STYLE_OPTION = new ArmorStandStyleOption() {
 
         @Override
-        public String getTranslationId() {
+        public String getName() {
             return "crouching";
         }
 

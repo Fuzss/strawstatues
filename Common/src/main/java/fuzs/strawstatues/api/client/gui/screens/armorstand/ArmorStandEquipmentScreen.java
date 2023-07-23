@@ -56,7 +56,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
     @Override
     protected void init() {
         super.init();
-        AbstractArmorStandScreen.makeButtons(this, this.leftPos, this.topPos, this.imageWidth, this::addRenderableWidget);
+        this.addRenderableWidget(AbstractArmorStandScreen.makeCloseButton(this, this.leftPos, this.imageWidth, this.topPos));
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
         this.renderTooltip(poseStack, mouseX, mouseY);
         if (this.menu.getCarried().isEmpty()) {
             AbstractArmorStandScreen.findHoveredTab(this.leftPos, this.topPos, this.imageHeight, mouseX, mouseY, this.dataSyncHandler.tabs()).ifPresent(hoveredTab -> {
-                this.renderTooltip(poseStack, hoveredTab.getComponent(), mouseX, mouseY);
+                this.renderTooltip(poseStack, Component.translatable(hoveredTab.getTranslationKey()), mouseX, mouseY);
             });
         }
         this.mouseX = mouseX;
@@ -104,7 +104,6 @@ public class ArmorStandEquipmentScreen extends AbstractContainerScreen<ArmorStan
                 this.blit(poseStack, this.leftPos + slot.x - 1, this.topPos + slot.y - 1, 210, 0, 18, 18);
             }
         }
-        AbstractArmorStandScreen.drawThemeBg(poseStack, this.leftPos, this.topPos, this.imageWidth);
         AbstractArmorStandScreen.drawTabs(poseStack, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
         this.renderArmorStandInInventory(this.leftPos + 104, this.topPos + 84, 30, (float) (this.leftPos + 104 - 10) - this.mouseX, (float) (this.topPos + 84 - 44) - this.mouseY);
     }

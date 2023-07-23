@@ -7,8 +7,8 @@ import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandTickBoxScre
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.strawstatues.networking.client.C2SStrawStatueModelPartMessage;
-import fuzs.strawstatues.networking.client.C2SStrawStatueOwnerMessage;
+import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
+import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.gui.components.AbstractWidget;

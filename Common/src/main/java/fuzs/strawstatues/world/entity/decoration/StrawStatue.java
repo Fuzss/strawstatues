@@ -175,10 +175,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         super.onSyncedDataUpdated(key);
     }
 
-    public static Optional<InteractionResult> onEntityInteract(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
+    public static Optional<InteractionResult> onUseEntityAt(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
         if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.get()) {
-            ItemStack stack = player.getItemInHand(interactionHand);
-            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, stack, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get());
+            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get());
         }
         return Optional.empty();
     }

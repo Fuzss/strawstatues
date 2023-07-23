@@ -77,7 +77,7 @@ public abstract class ArmorStandTickBoxScreen<T> extends AbstractArmorStandScree
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         super.render(poseStack, mouseX, mouseY, partialTick);
         if (this.name.isMouseOver(mouseX, mouseY)) {
-            this.renderTooltip(poseStack, this.getNameComponent(), mouseX, mouseY);
+            this.renderTooltip(poseStack, this.font.split(this.getNameComponent(), 175), mouseX, mouseY);
         }
     }
 

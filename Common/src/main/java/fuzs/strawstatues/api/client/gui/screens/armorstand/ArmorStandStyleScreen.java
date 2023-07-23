@@ -31,10 +31,10 @@ public class ArmorStandStyleScreen extends ArmorStandTickBoxScreen<ArmorStandSty
 
     @Override
     protected AbstractWidget makeTickBoxWidget(ArmorStand armorStand, int buttonStartY, int index, ArmorStandStyleOption option) {
-        return new TickBoxButton(this.leftPos + 96, this.topPos + buttonStartY + index * 22, 6, 76, option.getComponent(), option.getOption(armorStand), (Button button) -> {
+        return new TickBoxButton(this.leftPos + 96, this.topPos + buttonStartY + index * 22, 6, 76, Component.translatable(option.getTranslationKey()), option.getOption(armorStand), (Button button) -> {
             this.dataSyncHandler.sendStyleOption(option, ((TickBoxButton) button).isSelected());
         }, (Button button, PoseStack poseStack, int mouseX, int mouseY) -> {
-            this.renderTooltip(poseStack, this.minecraft.font.split(option.getDescriptionComponent(), 175), mouseX, mouseY);
+            this.renderTooltip(poseStack, this.minecraft.font.split(Component.translatable(option.getDescriptionKey()), 175), mouseX, mouseY);
         });
     }
 

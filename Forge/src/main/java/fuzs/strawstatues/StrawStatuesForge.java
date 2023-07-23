@@ -31,7 +31,7 @@ public class StrawStatuesForge {
     private static void registerHandlers() {
         // high priority so we run before the Quark mod
         MinecraftForge.EVENT_BUS.addListener(EventPriority.HIGH, (final PlayerInteractEvent.EntityInteractSpecific evt) -> {
-            StrawStatue.onEntityInteract(evt.getEntity(), evt.getLevel(), evt.getHand(), evt.getTarget(), evt.getLocalPos()).ifPresent(result -> {
+            StrawStatue.onUseEntityAt(evt.getEntity(), evt.getLevel(), evt.getHand(), evt.getTarget(), evt.getLocalPos()).ifPresent(result -> {
                 evt.setCancellationResult(result);
                 evt.setCanceled(true);
             });
