@@ -3,15 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
-## [v4.0.11-1.19.2] - 2023-02-14
+## [v4.0.11-1.19.2] - 2023-07-24
 ### Added
-- Added a config for changing the item required to open configuration screens
-- Added buttons to toggle between a light and dark theme
+- Added a new configuration tab for configuring x- and z- rotations of a statue, y-rotation and scale have been moved here
 ### Changed
 - New statue item icon!
-- Text fields now show description tooltips when hovered
-- The close button is now present on all screens as it has been moved above the configuration menus
-- Improved statue tooltip to be more precise on how to open statue configuration screens
+- Adjusted the statue entity size to match players instead of armor stands
+- Text fields now show description tooltips when hovered to make it more clear which field is for setting a new display name and which one changes the statue skin
+- Opening the statue menu no longer requires a stick to be held, instead shift + right-click with an empty hand is the way to go, which the statue item tooltip reflects
+- A new statue skin can now easily be applied by equipping the statue with a configured player head
+### Fixed
+- Fixed an occasional start-up crash on Forge related to registering the straw statue dispense behavior
 
 ## [v4.0.10-1.19.2] - 2023-01-21
 ### Added

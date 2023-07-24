@@ -1,30 +1,53 @@
 package fuzs.strawstatues.network.client;
 
 import fuzs.puzzleslib.network.Message;
+import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.function.BiConsumer;
+
 public class C2SStrawStatueScaleMessage implements Message<C2SStrawStatueScaleMessage> {
-    private float scale;
+    private ScaleDataType type;
+    private float value;
 
     public C2SStrawStatueScaleMessage() {
 
     }
 
-    public C2SStrawStatueScaleMessage(float scale) {
-        this.scale = scale;
+    private C2SStrawStatueScaleMessage(ScaleDataType type, float value) {
+        this.type = type;
+        this.value = value;
+    }
+
+    public static void sendScale(float value) {
+        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.SCALE, value));
+    }
+
+    public static void sendRotationX(float value) {
+        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.ROTATION_X, value));
+    }
+
+    public static void sendRotationZ(float value) {
+        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.ROTATION_Z, value));
+    }
+
+    public static void sendReset() {
+        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.RESET, -1.0F));
     }
 
     @Override
     public void write(FriendlyByteBuf buf) {
-        buf.writeFloat(this.scale);
+        buf.writeEnum(this.type);
+        buf.writeFloat(this.value);
     }
 
     @Override
     public void read(FriendlyByteBuf buf) {
-        this.scale = buf.readFloat();
+        this.type = buf.readEnum(ScaleDataType.class);
+        this.value = buf.readFloat();
     }
 
     @Override
@@ -34,9 +57,22 @@ public class C2SStrawStatueScaleMessage implements Message<C2SStrawStatueScaleMe
             @Override
             public void handle(C2SStrawStatueScaleMessage message, Player player, Object gameInstance) {
                 if (player.containerMenu instanceof ArmorStandMenu menu && menu.stillValid(player)) {
-                    ((StrawStatue) menu.getArmorStand()).setModelScale(message.scale);
+                    message.type.consumer.accept((StrawStatue) menu.getArmorStand(), message.value);
                 }
             }
         };
+    }
+
+    public enum ScaleDataType {
+        SCALE(StrawStatue::setEntityScale), ROTATION_X(StrawStatue::setEntityXRotation), ROTATION_Z(StrawStatue::setEntityZRotation), RESET((strawStatue, value) -> {
+            strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
+            strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(), StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
+        });
+
+        public final BiConsumer<StrawStatue, Float> consumer;
+
+        ScaleDataType(BiConsumer<StrawStatue, Float> consumer) {
+            this.consumer = consumer;
+        }
     }
 }

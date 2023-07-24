@@ -53,7 +53,7 @@ public interface ArmorStandStyleOption {
         armorStand.getEntityData().set(ArmorStand.DATA_CLIENT_FLAGS, setBit(armorStand.getEntityData().get(ArmorStand.DATA_CLIENT_FLAGS), offset, setting));
     }
 
-    private static byte setBit(byte oldBit, int offset, boolean value) {
+    static byte setBit(byte oldBit, int offset, boolean value) {
         if (value) {
             oldBit = (byte) (oldBit | offset);
         } else {

@@ -1,8 +1,8 @@
 {
   "armorstatues.entity.armor_stand.pose.athena": "Athena",
   "armorstatues.entity.armor_stand.pose.brandish": "Brandish",
-  "armorstatues.entity.armor_stand.pose.cancanA": "Cancan A",
-  "armorstatues.entity.armor_stand.pose.cancanB": "Cancan B",
+  "armorstatues.entity.armor_stand.pose.cancanA": "Cancan",
+  "armorstatues.entity.armor_stand.pose.cancanB": "Cancan (Mirrored)",
   "armorstatues.entity.armor_stand.pose.default": "Default",
   "armorstatues.entity.armor_stand.pose.entertain": "Entertain",
   "armorstatues.entity.armor_stand.pose.hero": "Hero",
@@ -58,7 +58,6 @@
   "armorstatues.screen.rotations.z": "Z: %s",
   "armorstatues.screen.style.crouching": "Crouching",
   "armorstatues.screen.style.crouching.description": "Makes the statue show as if it were crouching.",
-  "armorstatues.screen.style.glowing.description": "Adds a glowing outline to the statue, visible through blocks.",
   "armorstatues.screen.style.invisible": "Invisible",
   "armorstatues.screen.style.invisible.description": "Makes the statue itself invisible, but still shows all equipped items.",
   "armorstatues.screen.style.name": "Set a name to display above the statue if enabled.",

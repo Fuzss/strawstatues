@@ -19,6 +19,7 @@ import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -39,14 +40,18 @@ public class StrawStatuesClient implements ClientModConstructor {
             return false;
         });
         ArmorStandInInventoryRenderer.setArmorStandRenderer((posX, posY, scale, mouseX, mouseY, livingEntity) -> {
-            float oldModelScale = 0.0F;
+            float modelScale = 0.0F;
+            Rotations entityRotations = null;
             if (livingEntity instanceof StrawStatue strawStatue) {
-                oldModelScale = strawStatue.getModelScale();
-                strawStatue.setModelScale(StrawStatue.DEFAULT_MODEL_SCALE);
+                modelScale = strawStatue.getEntityScale();
+                entityRotations = strawStatue.getEntityRotations();
+                strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
+                strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(), StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
             }
             ArmorStandInInventoryRenderer.SIMPLE.renderEntityInInventory(posX, posY, scale, mouseX, mouseY, livingEntity);
             if (livingEntity instanceof StrawStatue strawStatue) {
-                strawStatue.setModelScale(oldModelScale);
+                strawStatue.setEntityScale(modelScale);
+                strawStatue.setEntityRotations(entityRotations.getX(), entityRotations.getZ());
             }
         });
     }

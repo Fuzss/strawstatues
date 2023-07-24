@@ -27,7 +27,7 @@ public class ModRegistry {
     private static final RegistryManager REGISTRY = CoreServices.FACTORIES.registration(StrawStatues.MOD_ID);
     public static final RegistryReference<Item> STRAW_STATUE_ITEM = REGISTRY.registerItem("straw_statue", () -> new StrawStatueItem(new Item.Properties().stacksTo(16).tab(CreativeModeTab.TAB_DECORATIONS)));
     public static final RegistryReference<EntityType<StrawStatue>> STRAW_STATUE_ENTITY_TYPE = REGISTRY.registerEntityTypeBuilder("straw_statue", () -> {
-        return EntityType.Builder.of((EntityType<StrawStatue> entityType, Level level) -> new StrawStatue(entityType, level), MobCategory.MISC).sized(0.5F, 1.975F).clientTrackingRange(10);
+        return EntityType.Builder.of((EntityType<StrawStatue> entityType, Level level) -> new StrawStatue(entityType, level), MobCategory.MISC).sized(0.6F, 1.8F).clientTrackingRange(10);
     });
     public static final RegistryReference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerExtendedMenuTypeSupplier("straw_statue", () -> getStrawStatueMenuTypeSupplier());
 

@@ -84,21 +84,22 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
 
     @Override
     protected void scale(StrawStatue livingEntity, PoseStack matrixStack, float partialTickTime) {
-        float modelScale = Mth.lerp(partialTickTime, livingEntity.modelScaleO, livingEntity.getModelScale());
-        modelScale /= StrawStatue.DEFAULT_MODEL_SCALE;
+        float modelScale = Mth.lerp(partialTickTime, livingEntity.entityScaleO, livingEntity.getEntityScale());
+        modelScale /= StrawStatue.DEFAULT_ENTITY_SCALE;
         modelScale *= 0.9375F;
         matrixStack.scale(modelScale, modelScale, modelScale);
     }
 
     @Override
     protected void setupRotations(StrawStatue entityLiving, PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
+        float entityZRotation = Mth.lerp(partialTicks, entityLiving.entityRotationsO.getZ(), entityLiving.getEntityZRotation());
+        float entityXRotation = Mth.lerp(partialTicks, entityLiving.entityRotationsO.getX(), entityLiving.getEntityXRotation());
+        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(180.0F - entityZRotation));
         matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - rotationYaw));
-//        matrixStack.mulPose(Vector3f.ZP.rotationDegrees(entityLiving.getBodyPose().getZ()));
-//        matrixStack.mulPose(Vector3f.YP.rotationDegrees(180.0F - entityLiving.getBodyPose().getY()));
-//        matrixStack.mulPose(Vector3f.XP.rotationDegrees(entityLiving.getBodyPose().getX()));
-        float f = (float)(entityLiving.level.getGameTime() - entityLiving.lastHit) + partialTicks;
-        if (f < 5.0F) {
-            matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(f / 1.5F * 3.1415927F) * 3.0F));
+        matrixStack.mulPose(Vector3f.XP.rotationDegrees(180.0F - entityXRotation));
+        float hurtAmount = (float)(entityLiving.level.getGameTime() - entityLiving.lastHit) + partialTicks;
+        if (hurtAmount < 5.0F) {
+            matrixStack.mulPose(Vector3f.YP.rotationDegrees(Mth.sin(hurtAmount / 1.5F * 3.1415927F) * 3.0F));
         }
         if (isEntityUpsideDown(entityLiving)) {
             matrixStack.translate(0.0, entityLiving.getBbHeight() - 0.0625F, 0.0);

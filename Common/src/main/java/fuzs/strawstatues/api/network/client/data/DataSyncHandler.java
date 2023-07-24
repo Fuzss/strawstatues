@@ -40,10 +40,10 @@ public interface DataSyncHandler extends ArmorStandHolder {
     void setLastType(ArmorStandScreenType lastType);
 
     static void setCustomArmorStandName(ArmorStand armorStand, String name) {
-        String s = SharedConstants.filterText(name);
-        if (s.length() <= 50) {
-            boolean remove = s.isBlank() || s.equals(EntityType.ARMOR_STAND.getDescription().getString());
-            armorStand.setCustomName(remove ? null : Component.literal(s));
+        name = SharedConstants.filterText(name);
+        if (name.length() <= 50) {
+            boolean remove = name.isBlank() || name.equals(EntityType.ARMOR_STAND.getDescription().getString());
+            armorStand.setCustomName(remove ? null : Component.literal(name));
         }
     }
 }
