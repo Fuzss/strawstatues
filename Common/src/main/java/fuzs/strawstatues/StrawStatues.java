@@ -11,7 +11,6 @@ import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
@@ -47,8 +46,8 @@ public class StrawStatues implements ModConstructor {
 
     @Override
     public void onCommonSetup(ModLifecycleContext context) {
-        ArmorStandStyleOption.register(id("slimarms"), StrawStatueData.SLIM_ARMS_STYLE_OPTION);
-        ArmorStandStyleOption.register(id("crouching"), StrawStatueData.CROUCHING_STYLE_OPTION);
+        ArmorStandStyleOption.register(id("slimarms"), ModRegistry.SLIM_ARMS_STYLE_OPTION);
+        ArmorStandStyleOption.register(id("crouching"), ModRegistry.CROUCHING_STYLE_OPTION);
         context.enqueueWork(() -> DispenserBlock.registerBehavior(ModRegistry.STRAW_STATUE_ITEM.get(), new DefaultDispenseItemBehavior() {
 
             @Override
@@ -59,7 +58,7 @@ public class StrawStatues implements ModConstructor {
                 ArmorStand armorstand = new StrawStatue(level, blockpos.getX() + 0.5, blockpos.getY(), blockpos.getZ() + 0.5);
                 EntityType.updateCustomEntityTag(level, null, armorstand, stack.getTag());
                 armorstand.setYRot(direction.toYRot());
-                ArmorStandPose.selectRandomPose().applyToEntity(armorstand);
+                ArmorStandPose.randomValue().applyToEntity(armorstand);
                 level.addFreshEntity(armorstand);
                 stack.shrink(1);
                 return stack;

@@ -1,6 +1,7 @@
 package fuzs.strawstatues.api.helper;
 
 import fuzs.puzzleslib.core.CommonAbstractions;
+import fuzs.strawstatues.api.world.entity.decoration.ArmorStandDataProvider;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,29 +13,29 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
 public class ArmorStandInteractHelper {
 
-    public static Optional<InteractionResult> tryOpenArmorStatueMenu(Player player, Level level, InteractionHand interactionHand, ArmorStand entity, MenuType<?> menuType) {
+    public static Optional<InteractionResult> tryOpenArmorStatueMenu(Player player, Level level, InteractionHand interactionHand, ArmorStand entity, MenuType<?> menuType, @Nullable ArmorStandDataProvider dataProvider) {
         ItemStack itemInHand = player.getItemInHand(interactionHand);
         if (player.isShiftKeyDown() && itemInHand.isEmpty() && (!entity.isInvulnerable() || player.getAbilities().instabuild)) {
-            openArmorStatueMenu(player, entity, menuType);
+            openArmorStatueMenu(player, entity, menuType, dataProvider);
             return Optional.of(InteractionResult.sidedSuccess(level.isClientSide));
         }
         return Optional.empty();
     }
 
-    public static void openArmorStatueMenu(Player player, ArmorStand entity, MenuType<?> menuType) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            CommonAbstractions.INSTANCE.openMenu(serverPlayer, new SimpleMenuProvider((containerId, inventory, player1) -> {
-                return ArmorStandMenu.create(menuType, containerId, inventory, entity);
-            }, entity.getDisplayName()), (serverPlayer1, friendlyByteBuf) -> {
-                friendlyByteBuf.writeInt(entity.getId());
-                friendlyByteBuf.writeBoolean(entity.isInvulnerable());
-                friendlyByteBuf.writeInt(((ArmorStandAccessor) entity).getDisabledSlots());
-            });
-        }
+    public static void openArmorStatueMenu(Player player, ArmorStand entity, MenuType<?> menuType, @Nullable ArmorStandDataProvider dataProvider) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+        CommonAbstractions.INSTANCE.openMenu(serverPlayer, new SimpleMenuProvider((containerId, inventory, player1) -> {
+            return ArmorStandMenu.create(menuType, containerId, inventory, entity, dataProvider);
+        }, entity.getDisplayName()), (serverPlayer1, friendlyByteBuf) -> {
+            friendlyByteBuf.writeInt(entity.getId());
+            friendlyByteBuf.writeBoolean(entity.isInvulnerable());
+            friendlyByteBuf.writeInt(((ArmorStandAccessor) entity).getDisabledSlots());
+        });
     }
 }

@@ -1,6 +1,7 @@
 package fuzs.strawstatues.client.gui.screens.strawstatue;
 
 import com.google.common.collect.Lists;
+import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.api.client.gui.components.NewTextureTickButton;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandPositionScreen;
 import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandWidgetsScreen;
@@ -8,9 +9,9 @@ import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -22,6 +23,12 @@ import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
+    public static final String RESET_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.rotations.reset";
+    public static final String SCALE_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.scale";
+    public static final String ROTATION_X_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationX";
+    public static final String ROTATION_Y_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationY";
+    public static final String ROTATION_Z_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationZ";
+    
     private AbstractWidget resetButton;
 
     public StrawStatueScaleScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
@@ -36,7 +43,7 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
             C2SStrawStatueScaleMessage.sendReset();
             this.widgets.forEach(PositionScreenWidget::reset);
         }, (button, poseStack, mouseX, mouseY) -> {
-            this.renderTooltip(poseStack, Component.translatable("armorstatues.screen.rotations.reset"), mouseX, mouseY);
+            this.renderTooltip(poseStack, Component.translatable(RESET_TRANSLATION_KEY), mouseX, mouseY);
         }));
     }
 
@@ -44,10 +51,10 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     protected List<ArmorStandWidgetsScreen.PositionScreenWidget> buildWidgets(ArmorStand armorStand) {
         StrawStatue strawStatue = (StrawStatue) armorStand;
         return Lists.newArrayList(
-                new ScaleWidget(Component.translatable("armorstatues.screen.position.scale"), strawStatue::getEntityScale, C2SStrawStatueScaleMessage::sendScale),
-                new StrawRotationWidget(Component.translatable("armorstatues.screen.position.rotationX"), strawStatue::getEntityXRotation, C2SStrawStatueScaleMessage::sendRotationX, strawStatue::setEntityXRotation),
-                new RotationWidget(Component.translatable("armorstatues.screen.position.rotationY"), armorStand::getYRot, this.dataSyncHandler::sendRotation),
-                new StrawRotationWidget(Component.translatable("armorstatues.screen.position.rotationZ"), strawStatue::getEntityZRotation, C2SStrawStatueScaleMessage::sendRotationZ, strawStatue::setEntityZRotation)
+                new ScaleWidget(Component.translatable(SCALE_TRANSLATION_KEY), strawStatue::getEntityScale, C2SStrawStatueScaleMessage::sendScale),
+                new StrawRotationWidget(Component.translatable(ROTATION_X_TRANSLATION_KEY), strawStatue::getEntityXRotation, C2SStrawStatueScaleMessage::sendRotationX, strawStatue::setEntityXRotation),
+                new RotationWidget(Component.translatable(ROTATION_Y_TRANSLATION_KEY), armorStand::getYRot, this.dataSyncHandler::sendRotation),
+                new StrawRotationWidget(Component.translatable(ROTATION_Z_TRANSLATION_KEY), strawStatue::getEntityZRotation, C2SStrawStatueScaleMessage::sendRotationZ, strawStatue::setEntityZRotation)
         );
     }
 
@@ -58,13 +65,8 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     }
 
     @Override
-    protected int getWidgetRenderOffset() {
-        return 7;
-    }
-
-    @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatueData.STRAW_STATUE_SCALE_SCREEN_TYPE;
+        return ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE;
     }
 
     public static float toModelScale(double newValue) {

@@ -8,7 +8,7 @@ import fuzs.strawstatues.api.world.inventory.data.PosePartMutator;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.inventory.InventoryMenu;
 
-public class ArmorStatuesApiClient implements ClientModConstructor {
+public class StatuesApiClient implements ClientModConstructor {
 
     @Override
     public void onClientSetup() {
@@ -17,7 +17,6 @@ public class ArmorStatuesApiClient implements ClientModConstructor {
         ArmorStandScreenFactory.register(ArmorStandScreenType.STYLE, ArmorStandStyleScreen::new);
         ArmorStandScreenFactory.register(ArmorStandScreenType.POSES, ArmorStandPosesScreen::new);
         ArmorStandScreenFactory.register(ArmorStandScreenType.POSITION, ArmorStandPositionScreen::new);
-        ArmorStandScreenFactory.register(ArmorStandScreenType.ALIGNMENTS, ArmorStandAlignmentsScreen::new);
         ArmorStandRotationsScreen.registerPosePartMutatorFilter(PosePartMutator.LEFT_ARM, ArmorStand::isShowArms);
         ArmorStandRotationsScreen.registerPosePartMutatorFilter(PosePartMutator.RIGHT_ARM, ArmorStand::isShowArms);
     }

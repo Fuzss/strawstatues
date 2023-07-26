@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Locale;
 
-public class ArmorStatuesApi implements ModConstructor {
+public class StatuesApi implements ModConstructor {
     public static final String MOD_ID = "armorstatues";
     public static final String MOD_NAME = "Armor Statues";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
@@ -37,7 +37,7 @@ public class ArmorStatuesApi implements ModConstructor {
     public void onCommonSetup() {
         // do this here instead of in enum constructor to avoid potential issues with the enum class not having been loaded yet on server-side, therefore nothing being registered
         for (ArmorStandStyleOptions styleOption : ArmorStandStyleOptions.values()) {
-            ArmorStandStyleOption.register(new ResourceLocation(MOD_ID, styleOption.getName().toLowerCase(Locale.ROOT)), styleOption);
+            ArmorStandStyleOption.register(id(styleOption.getName().toLowerCase(Locale.ROOT)), styleOption);
         }
     }
 

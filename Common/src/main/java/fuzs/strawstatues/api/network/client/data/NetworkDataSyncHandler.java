@@ -1,78 +1,57 @@
 package fuzs.strawstatues.api.network.client.data;
 
-import fuzs.strawstatues.api.ArmorStatuesApi;
+import fuzs.strawstatues.api.StatuesApi;
 import fuzs.strawstatues.api.network.client.*;
+import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.decoration.ArmorStand;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 public class NetworkDataSyncHandler implements DataSyncHandler {
-    @Nullable
-    private static ArmorStandScreenType lastType;
+    private final ArmorStandHolder holder;
 
-    private final ArmorStand armorStand;
-
-    public NetworkDataSyncHandler(ArmorStand armorStand) {
-        this.armorStand = armorStand;
+    public NetworkDataSyncHandler(ArmorStandHolder holder) {
+        this.holder = holder;
     }
 
     @Override
-    public ArmorStand getArmorStand() {
-        return this.armorStand;
+    public ArmorStandHolder getArmorStandHolder() {
+        return this.holder;
     }
 
     @Override
     public void sendName(String name) {
-        DataSyncHandler.super.sendName(name);
-        ArmorStatuesApi.NETWORK.sendToServer(new C2SArmorStandNameMessage(name));
+        DataSyncHandler.setCustomArmorStandName(this.getArmorStand(), name);
+        StatuesApi.NETWORK.sendToServer(new C2SArmorStandNameMessage(name));
     }
 
     @Override
-    public void sendPose(ArmorStandPose currentPose) {
-        DataSyncHandler.super.sendPose(currentPose);
+    public void sendPose(ArmorStandPose pose) {
+        pose.applyToEntity(this.getArmorStand());
         CompoundTag tag = new CompoundTag();
-        currentPose.serializeAllPoses(tag);
-        ArmorStatuesApi.NETWORK.sendToServer(new C2SArmorStandPoseMessage(tag));
+        pose.serializeAllPoses(tag);
+        StatuesApi.NETWORK.sendToServer(new C2SArmorStandPoseMessage(tag));
     }
 
     @Override
     public void sendPosition(double posX, double posY, double posZ) {
-        DataSyncHandler.super.sendPosition(posX, posY, posZ);
-        ArmorStatuesApi.NETWORK.sendToServer(new C2SArmorStandPositionMessage(posX, posY, posZ));
+        StatuesApi.NETWORK.sendToServer(new C2SArmorStandPositionMessage(posX, posY, posZ));
     }
 
     @Override
     public void sendRotation(float rotation) {
-        DataSyncHandler.super.sendRotation(rotation);
-        ArmorStatuesApi.NETWORK.sendToServer(new C2SArmorStandRotationMessage(rotation));
+        StatuesApi.NETWORK.sendToServer(new C2SArmorStandRotationMessage(rotation));
     }
 
     @Override
     public void sendStyleOption(ArmorStandStyleOption styleOption, boolean value) {
-        DataSyncHandler.super.sendStyleOption(styleOption, value);
-        ArmorStatuesApi.NETWORK.sendToServer(new C2SArmorStandStyleMessage(styleOption, value));
+        styleOption.setOption(this.getArmorStand(), value);
+        StatuesApi.NETWORK.sendToServer(new C2SArmorStandStyleMessage(styleOption, value));
     }
 
     @Override
     public ArmorStandScreenType[] tabs() {
-        return this.getDataProvider().getScreenTypes();
-    }
-
-    @Override
-    public Optional<ArmorStandScreenType> getLastType() {
-        List<ArmorStandScreenType> screenTypes = Arrays.asList(this.getDataProvider().getScreenTypes());
-        return Optional.ofNullable(lastType).filter(screenTypes::contains);
-    }
-
-    @Override
-    public void setLastType(ArmorStandScreenType lastType) {
-        NetworkDataSyncHandler.lastType = CommandDataSyncHandler.lastType = lastType;
+        return this.getArmorStandHolder().getDataProvider().getScreenTypes();
     }
 }

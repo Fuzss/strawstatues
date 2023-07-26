@@ -7,10 +7,10 @@ import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandTickBoxScre
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -19,7 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerModelPart> {
-    private static final Component MODEL_PARTS_NAME_COMPONENT = Component.translatable("armorstatues.screen.modelParts.name");
+    public static final String TEXT_BOX_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.modelParts.name";
 
     public StrawStatueModelPartsScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(holder, inventory, component, dataSyncHandler);
@@ -57,11 +57,11 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
 
     @Override
     protected Component getNameComponent() {
-        return MODEL_PARTS_NAME_COMPONENT;
+        return Component.translatable(TEXT_BOX_TRANSLATION_KEY);
     }
 
     @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatueData.MODEL_PARTS_SCREEN_TYPE;
+        return ModRegistry.MODEL_PARTS_SCREEN_TYPE;
     }
 }

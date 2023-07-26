@@ -1,43 +1,65 @@
 package fuzs.strawstatues.api.network.client.data;
 
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 
-import java.util.Optional;
+public interface DataSyncHandler {
 
-public interface DataSyncHandler extends ArmorStandHolder {
+    ArmorStandHolder getArmorStandHolder();
 
-    default void sendName(String name) {
-        setCustomArmorStandName(this.getArmorStand(), name);
+    default ArmorStand getArmorStand() {
+        return this.getArmorStandHolder().getArmorStand();
     }
 
-    default void sendPose(ArmorStandPose currentPose) {
-        currentPose.applyToEntity(this.getArmorStand());
+    void sendName(String name);
+
+    void sendPose(ArmorStandPose pose);
+
+    default void sendPose(ArmorStandPose pose, boolean finalize) {
+        this.sendPose(pose);
     }
 
-    default void sendPosition(double posX, double posY, double posZ) {
+    void sendPosition(double posX, double posY, double posZ);
 
+    default void sendPosition(double posX, double posY, double posZ, boolean finalize) {
+        this.sendPosition(posX, posY, posZ);
     }
 
-    default void sendRotation(float rotation) {
+    void sendRotation(float rotation);
 
+    default void sendRotation(float rotation, boolean finalize) {
+        this.sendRotation(rotation);
     }
 
-    default void sendStyleOption(ArmorStandStyleOption styleOption, boolean value) {
-        styleOption.setOption(this.getArmorStand(), value);
+    void sendStyleOption(ArmorStandStyleOption styleOption, boolean value);
+
+    default void sendStyleOption(ArmorStandStyleOption styleOption, boolean value, boolean finalize) {
+        this.sendStyleOption(styleOption, value);
     }
 
     ArmorStandScreenType[] tabs();
 
-    Optional<ArmorStandScreenType> getLastType();
+    default boolean supportsScreenType(ArmorStandScreenType screenType) {
+        return true;
+    }
 
-    void setLastType(ArmorStandScreenType lastType);
+    default void tick() {
+
+    }
+
+    default boolean shouldContinueTicking() {
+        return false;
+    }
+
+    default void finalizeCurrentOperation() {
+
+    }
 
     static void setCustomArmorStandName(ArmorStand armorStand, String name) {
         name = SharedConstants.filterText(name);

@@ -3,24 +3,28 @@ package fuzs.strawstatues.api.client.gui.screens.armorstand;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import fuzs.puzzleslib.client.core.ClientCoreServices;
-import fuzs.strawstatues.api.ArmorStatuesApi;
+import fuzs.puzzleslib.client.gui.screens.CommonScreens;
+import fuzs.strawstatues.api.StatuesApi;
 import fuzs.strawstatues.api.client.gui.components.TickingButton;
 import fuzs.strawstatues.api.client.gui.components.UnboundedSliderButton;
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.screens.ConfirmLinkScreen;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -32,10 +36,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public abstract class AbstractArmorStandScreen extends Screen implements MenuAccess<ArmorStandMenu>, ArmorStandScreen {
-    private static final ResourceLocation ARMOR_STAND_BACKGROUND_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/background.png");
-    private static final ResourceLocation ARMOR_STAND_WIDGETS_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/widgets.png");
-    private static final ResourceLocation ARMOR_STAND_EQUIPMENT_LOCATION = ArmorStatuesApi.id("textures/gui/container/armor_stand/equipment.png");
+    public static final String VANILLA_TWEAKS_HOMEPAGE = "https://vanillatweaks.net/";
+    public static final String CREDITS_TRANSLATION_KEY = StatuesApi.MOD_ID + ".screen.credits";
+    public static final String APPLIED_TRANSLATION_KEY = StatuesApi.MOD_ID + ".screen.applied";
+    public static final String ALIGNED_TRANSLATION_KEY = StatuesApi.MOD_ID + ".screen.aligned";
+    private static final ResourceLocation ARMOR_STAND_BACKGROUND_LOCATION = StatuesApi.id("textures/gui/container/statue/background.png");
+    private static final ResourceLocation ARMOR_STAND_WIDGETS_LOCATION = StatuesApi.id("textures/gui/container/statue/widgets.png");
+    private static final ResourceLocation ARMOR_STAND_EQUIPMENT_LOCATION = StatuesApi.id("textures/gui/container/statue/equipment.png");
 
+    @Nullable
+    static ArmorStandScreenType lastScreenType;
     static ArmorStandInInventoryRenderer armorStandRenderer = ArmorStandInInventoryRenderer.SIMPLE;
 
     protected final int imageWidth = 210;
@@ -78,6 +88,11 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     }
 
     @Override
+    public DataSyncHandler getDataSyncHandler() {
+        return this.dataSyncHandler;
+    }
+
+    @Override
     public <T extends Screen & MenuAccess<ArmorStandMenu> & ArmorStandScreen> T createScreenType(ArmorStandScreenType screenType) {
         T screen = ArmorStandScreenFactory.createScreenType(screenType, this.holder, this.inventory, this.title, this.dataSyncHandler);
         screen.setMouseX(this.mouseX);
@@ -97,7 +112,7 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
 
     @Override
     public void tick() {
-        super.tick();
+        this.dataSyncHandler.tick();
         for (GuiEventListener child : this.children()) {
             if (child instanceof TickingButton button) button.tick();
         }
@@ -134,6 +149,17 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         if (this.closeButton != null) {
             this.closeButton.visible = !disableMenuRendering;
         }
+    }
+
+    protected void addVanillaTweaksCreditsButton() {
+        this.addRenderableWidget(new ImageButton(this.leftPos + 6, this.topPos + 6, 20, 20, 136, 64, 20, getArmorStandWidgetsLocation(), 256, 256, button -> {
+            this.minecraft.setScreen(new ConfirmLinkScreen((bl) -> {
+                if (bl) Util.getPlatform().openUri(VANILLA_TWEAKS_HOMEPAGE);
+                this.minecraft.setScreen(this);
+            }, VANILLA_TWEAKS_HOMEPAGE, true));
+        }, (button, poseStack, mouseX, mouseY) -> {
+            this.renderTooltip(poseStack, this.font.split(Component.translatable(CREDITS_TRANSLATION_KEY), 175), mouseX, mouseY);
+        }, CommonComponents.EMPTY));
     }
 
     @Override
@@ -209,6 +235,20 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         } else if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
             this.onClose();
             return true;
+        } else if (handleHotbarKeyPressed(keyCode, scanCode, this, this.dataSyncHandler.tabs())) {
+            return true;
+        }
+        return false;
+    }
+
+    public static <T extends Screen & ArmorStandScreen> boolean handleHotbarKeyPressed(int keyCode, int scanCode, T screen, ArmorStandScreenType[] tabs) {
+        Minecraft minecraft = CommonScreens.INSTANCE.getMinecraft(screen);
+        for (int i = 0; i < Math.min(tabs.length, 9); ++i) {
+            if (minecraft.options.keyHotbarSlots[i].matches(keyCode, scanCode)) {
+                if (openTabScreen(screen, tabs[i], true)) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -217,8 +257,9 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
         if (super.mouseScrolled(mouseX, mouseY, delta)) {
             return true;
+        } else {
+            return handleMouseScrolled((int) mouseX, (int) mouseY, delta, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
         }
-        return handleMouseScrolled((int) mouseX, (int) mouseY, delta, this.leftPos, this.topPos, this.imageHeight, this, this.dataSyncHandler.tabs());
     }
 
     public static <T extends Screen & ArmorStandScreen> boolean handleMouseScrolled(int mouseX, int mouseY, double delta, int leftPos, int topPos, int imageHeight, T screen, ArmorStandScreenType[] tabs) {
@@ -226,7 +267,7 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         if (delta != 0.0) {
             Optional<ArmorStandScreenType> optional = findHoveredTab(leftPos, topPos, imageHeight, mouseX, mouseY, tabs);
             if (optional.isPresent()) {
-                ArmorStandScreenType screenType = cycleTabs(screen.getScreenType(), screen.getHolder().getDataProvider().getScreenTypes(), delta > 0.0);
+                ArmorStandScreenType screenType = cycleTabs(screen.getScreenType(), tabs, delta > 0.0);
                 return openTabScreen(screen, screenType, false);
             }
         }
@@ -242,7 +283,8 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
         if (screenType != screen.getScreenType()) {
             Minecraft minecraft = ClientCoreServices.SCREENS.getMinecraft(screen);
             if (clickSound) {
-                minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                SimpleSoundInstance sound = SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F);
+                minecraft.getSoundManager().play(sound);
             }
             minecraft.setScreen(screen.createScreenType(screenType));
             return true;
@@ -297,6 +339,15 @@ public abstract class AbstractArmorStandScreen extends Screen implements MenuAcc
     @Override
     public boolean isPauseScreen() {
         return false;
+    }
+
+    @Override
+    public void removed() {
+        for (GuiEventListener child : this.children()) {
+            if (child instanceof UnboundedSliderButton sliderButton) {
+                sliderButton.clearDirty();
+            }
+        }
     }
 
     @Override

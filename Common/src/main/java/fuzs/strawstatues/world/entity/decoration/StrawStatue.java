@@ -193,7 +193,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     public static Optional<InteractionResult> onUseEntityAt(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
         if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.get()) {
-            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get());
+            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get(), null);
         }
         return Optional.empty();
     }
@@ -413,12 +413,12 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public ArmorStandScreenType[] getScreenTypes() {
-        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE, StrawStatueData.MODEL_PARTS_SCREEN_TYPE, StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatueData.STRAW_STATUE_SCALE_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
+        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, ModRegistry.STRAW_STATUE_STYLE_SCREEN_TYPE, ModRegistry.MODEL_PARTS_SCREEN_TYPE, ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
     }
 
     @Override
     public PosePartMutator[] getPosePartMutators() {
-        return new PosePartMutator[]{PosePartMutator.HEAD, StrawStatueData.CAPE_POSE_PART_MUTATOR, PosePartMutator.LEFT_ARM, PosePartMutator.RIGHT_ARM, PosePartMutator.LEFT_LEG, PosePartMutator.RIGHT_LEG};
+        return new PosePartMutator[]{PosePartMutator.HEAD, ModRegistry.CAPE_POSE_PART_MUTATOR, PosePartMutator.RIGHT_ARM, PosePartMutator.LEFT_ARM, PosePartMutator.RIGHT_LEG, PosePartMutator.LEFT_LEG};
     }
 
     @Override

@@ -3,6 +3,16 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.12-1.19.2] - 2023-07-26
+### Added
+- Added two buttons for aligning the statue on a block to the position screen
+- Added a button to the rotations screen for mirroring the current pose
+- Added many new poses from the Vanilla Tweaks Armor Statues data pack
+- Added the ability to switch between tabs by pressing hotbar keys
+### Fixed
+- Fixed left and right arm and leg parts being swapped on the rotations screen
+- Fixed an issue where new rotations set on the rotations screen wouldn't save if the sliders were moved using the arrow keys
+
 ## [v4.0.11-1.19.2] - 2023-07-24
 ### Added
 - Added a new configuration tab for configuring x- and z- rotations of a statue, y-rotation and scale have been moved here

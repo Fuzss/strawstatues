@@ -1,7 +1,7 @@
 package fuzs.strawstatues;
 
 import fuzs.puzzleslib.core.CoreServices;
-import fuzs.strawstatues.api.ArmorStatuesApi;
+import fuzs.strawstatues.api.StatuesApi;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
@@ -17,7 +17,7 @@ public class StrawStatuesFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
-        CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new ArmorStatuesApi());
+        CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new StatuesApi());
         CoreServices.FACTORIES.modConstructor(StrawStatues.MOD_ID).accept(new StrawStatues());
         registerHandlers();
     }

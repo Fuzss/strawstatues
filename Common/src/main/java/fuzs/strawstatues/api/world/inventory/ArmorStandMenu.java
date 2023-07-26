@@ -1,7 +1,8 @@
 package fuzs.strawstatues.api.world.inventory;
 
 import com.mojang.datafixers.util.Pair;
-import fuzs.strawstatues.api.ArmorStatuesApi;
+import fuzs.strawstatues.api.StatuesApi;
+import fuzs.strawstatues.api.world.entity.decoration.ArmorStandDataProvider;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.core.ModServices;
 import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
@@ -22,16 +23,19 @@ import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 
 public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandHolder {
-    public static final ResourceLocation EMPTY_ARMOR_SLOT_SWORD = ArmorStatuesApi.id("item/empty_armor_slot_sword");
+    public static final ResourceLocation EMPTY_ARMOR_SLOT_SWORD = StatuesApi.id("item/empty_armor_slot_sword");
     static final ResourceLocation[] TEXTURE_EMPTY_SLOTS = new ResourceLocation[]{InventoryMenu.EMPTY_ARMOR_SLOT_BOOTS, InventoryMenu.EMPTY_ARMOR_SLOT_LEGGINGS, InventoryMenu.EMPTY_ARMOR_SLOT_CHESTPLATE, InventoryMenu.EMPTY_ARMOR_SLOT_HELMET, InventoryMenu.EMPTY_ARMOR_SLOT_SHIELD, EMPTY_ARMOR_SLOT_SWORD};
     public static final EquipmentSlot[] SLOT_IDS = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET, EquipmentSlot.MAINHAND, EquipmentSlot.OFFHAND};
 
-    private final Container armorStandInventory;
+    private final Container container;
     private final ArmorStand armorStand;
+    @Nullable
+    private final ArmorStandDataProvider dataProvider;
 
-    public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf) {
+    public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf, @Nullable ArmorStandDataProvider dataProvider) {
         int entityId = buf.readInt();
         ArmorStand entity = (ArmorStand) inventory.player.level.getEntity(entityId);
         if (entity != null) {
@@ -39,15 +43,15 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
             entity.setInvulnerable(buf.readBoolean());
             ((ArmorStandAccessor) entity).setDisabledSlots(buf.readInt());
             // also create the armor stand container client side, so that visual update instantly instead of having to wait for the server to resync data
-            return create(menuType, containerId, inventory, entity);
+            return create(menuType, containerId, inventory, entity, dataProvider);
         }
         // exception is caught, so nothing will crash, only the screen will not open
         // not sure how this is even possible, but there was a report about it
         // report was concerning just placed statues, so maybe entity data arrived at remote after menu was opened
-        throw new IllegalStateException("trying to open invalid armor stand menu, entity for id %s was not found on client".formatted(entityId));
+        throw new IllegalStateException("Entity for id %s missing on client".formatted(entityId));
     }
 
-    public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, ArmorStand armorStand) {
+    public static ArmorStandMenu create(MenuType<?> menuType, int containerId, Inventory inventory, ArmorStand armorStand, @Nullable ArmorStandDataProvider dataProvider) {
         // we could also copy all items from the armor stand to a SimpleContainer, then update the armor stand using a listener using LivingEntity::setItemSlot
         // problem is that way we miss out on anything changing with the armor stand entity itself, therefore this approach
         NonNullList<ItemStack> armorItems = ((ArmorStandAccessor) armorStand).getArmorItems();
@@ -59,7 +63,7 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
             }
         });
         CompoundContainer container = new CompoundContainer(simpleContainer(armorItems), handItemsContainer);
-        return new ArmorStandMenu(menuType, containerId, inventory, container, armorStand);
+        return new ArmorStandMenu(menuType, containerId, inventory, container, armorStand, dataProvider);
     }
 
     private static SimpleContainer simpleContainer(NonNullList<ItemStack> items) {
@@ -68,13 +72,14 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
         return container;
     }
 
-    private ArmorStandMenu(MenuType<?> menuType, int containerId, Inventory inventory, Container container, ArmorStand armorStand) {
+    private ArmorStandMenu(MenuType<?> menuType, int containerId, Inventory inventory, Container container, ArmorStand armorStand, @Nullable ArmorStandDataProvider dataProvider) {
         super(menuType, containerId);
-        this.armorStandInventory = container;
+        this.container = container;
         this.armorStand = armorStand;
+        this.dataProvider = dataProvider;
         for (int k = 0; k < 4; ++k) {
             final EquipmentSlot equipmentslot = SLOT_IDS[k];
-            this.addSlot(new Slot(this.armorStandInventory, 3 - k, 58, 20 + k * 18) {
+            this.addSlot(new Slot(this.container, 3 - k, 58, 20 + k * 18) {
 
                 @Override
                 public void set(ItemStack stack) {
@@ -124,7 +129,7 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
         for (int i = 0; i < 2; i++) {
             final EquipmentSlot equipmentslot = SLOT_IDS[4 + i];
             final ResourceLocation slotTexture = TEXTURE_EMPTY_SLOTS[5 - i];
-            this.addSlot(new Slot(this.armorStandInventory, 4 + i, 136, 56 + i * 18) {
+            this.addSlot(new Slot(this.container, 4 + i, 136, 56 + i * 18) {
 
                 @Override
                 public boolean mayPlace(ItemStack stack) {
@@ -229,5 +234,10 @@ public class ArmorStandMenu extends AbstractContainerMenu implements ArmorStandH
     @Override
     public ArmorStand getArmorStand() {
         return this.armorStand;
+    }
+
+    @Override
+    public ArmorStandDataProvider getDataProvider() {
+        return this.dataProvider != null ? this.dataProvider : ArmorStandHolder.super.getDataProvider();
     }
 }

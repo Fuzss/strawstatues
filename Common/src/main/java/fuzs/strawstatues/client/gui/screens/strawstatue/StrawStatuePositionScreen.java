@@ -4,7 +4,7 @@ import fuzs.strawstatues.api.client.gui.screens.armorstand.ArmorStandPositionScr
 import fuzs.strawstatues.api.network.client.data.DataSyncHandler;
 import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
-import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
+import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,16 +20,13 @@ public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
     @Override
     protected List<PositionScreenWidget> buildWidgets(ArmorStand armorStand) {
         List<PositionScreenWidget> widgets = super.buildWidgets(armorStand);
-        return widgets.subList(1, widgets.size());
-    }
-
-    @Override
-    protected int getWidgetRenderOffset() {
-        return 7;
+        widgets = widgets.subList(1, widgets.size());
+        widgets.add(new PositionAlignWidget());
+        return widgets;
     }
 
     @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatueData.STRAW_STATUE_POSITION_SCREEN_TYPE;
+        return ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE;
     }
 }

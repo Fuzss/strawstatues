@@ -6,7 +6,7 @@ import fuzs.strawstatues.api.world.inventory.ArmorStandHolder;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOptions;
-import fuzs.strawstatues.world.entity.decoration.StrawStatueData;
+import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -20,13 +20,13 @@ public class StrawStatueStyleScreen extends ArmorStandStyleScreen {
 
     @Override
     protected ArmorStandStyleOption[] getAllTickBoxValues() {
-        return Stream.of(ArmorStandStyleOptions.SHOW_NAME, ArmorStandStyleOptions.SMALL, StrawStatueData.SLIM_ARMS_STYLE_OPTION, StrawStatueData.CROUCHING_STYLE_OPTION, ArmorStandStyleOptions.NO_GRAVITY, ArmorStandStyleOptions.SEALED)
+        return Stream.of(ArmorStandStyleOptions.SHOW_NAME, ArmorStandStyleOptions.SMALL, ModRegistry.SLIM_ARMS_STYLE_OPTION, ModRegistry.CROUCHING_STYLE_OPTION, ArmorStandStyleOptions.NO_GRAVITY, ArmorStandStyleOptions.SEALED)
                 .filter(option -> option.allowChanges(this.minecraft.player))
                 .toArray(ArmorStandStyleOption[]::new);
     }
 
     @Override
     public ArmorStandScreenType getScreenType() {
-        return StrawStatueData.STRAW_STATUE_STYLE_SCREEN_TYPE;
+        return ModRegistry.STRAW_STATUE_STYLE_SCREEN_TYPE;
     }
 }

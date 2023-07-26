@@ -1,8 +1,8 @@
 package fuzs.strawstatues.world.item;
 
+import fuzs.strawstatues.api.proxy.Proxy;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
-import fuzs.strawstatues.proxy.Proxy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Rotations;
@@ -61,8 +61,7 @@ public class StrawStatueItem extends Item {
                     level.playSound(null, armorStand.getX(), armorStand.getY(), armorStand.getZ(), SoundEvents.GRASS_PLACE, SoundSource.BLOCKS, 0.75F, 0.8F);
                     armorStand.gameEvent(GameEvent.ENTITY_PLACE, player);
                     if (player != null && !player.isShiftKeyDown()) {
-                        // don't apply random pose when opening menu, will lead to client desync as the menu still has old rotations and applies those to the entity client-side
-                        ArmorStandPose.selectRandomPose().applyToEntity(armorStand);
+                        ArmorStandPose.randomValue().applyToEntity(armorStand);
                     }
                 }
                 itemStack.shrink(1);
@@ -88,6 +87,6 @@ public class StrawStatueItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltipComponents, TooltipFlag isAdvanced) {
         super.appendHoverText(stack, level, tooltipComponents, isAdvanced);
-        Proxy.INSTANCE.appendStrawStatueHoverText(tooltipComponents);
+        tooltipComponents.add(Proxy.INSTANCE.getStatueHoverText());
     }
 }
