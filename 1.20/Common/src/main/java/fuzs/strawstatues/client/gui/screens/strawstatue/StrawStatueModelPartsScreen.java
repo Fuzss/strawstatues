@@ -33,8 +33,8 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
     @Override
     protected AbstractWidget makeTickBoxWidget(ArmorStand armorStand, int buttonStartY, int index, PlayerModelPart option) {
         StrawStatue strawStatue = (StrawStatue) armorStand;
-        return new TickBoxButton(this.leftPos + 96, this.topPos + buttonStartY + index * 22, 6, 76, option.getName(), strawStatue.isModelPartShown(option), (Button button) -> {
-            boolean value = ((TickBoxButton) button).isSelected();
+        return new TickBoxButton(this.leftPos + 96, this.topPos + buttonStartY + index * 22, 6, 76, option.getName(), () -> strawStatue.isModelPartShown(option), (Button button) -> {
+            boolean value = !strawStatue.isModelPartShown(option);
             strawStatue.setModelPart(option, value);
             StrawStatues.NETWORK.sendToServer(new C2SStrawStatueModelPartMessage(option, value));
         });
