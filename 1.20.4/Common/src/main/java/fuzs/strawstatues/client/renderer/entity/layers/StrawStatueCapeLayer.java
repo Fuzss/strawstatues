@@ -1,6 +1,5 @@
 package fuzs.strawstatues.client.renderer.entity.layers;
 
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -12,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -29,7 +29,7 @@ public class StrawStatueCapeLayer extends RenderLayer<StrawStatue, StrawStatueMo
 
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, StrawStatue livingEntity, float limbSwing, float pLimbSwingAmount, float pPartialTicks, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
-        Optional<ResourceLocation> texture = StrawStatueRenderer.getPlayerProfileTexture(livingEntity, MinecraftProfileTexture.Type.CAPE);
+        Optional<ResourceLocation> texture = StrawStatueRenderer.getPlayerProfileTexture(livingEntity).map(PlayerSkin::capeTexture);
         if (texture.isPresent() && !livingEntity.isInvisible() && livingEntity.isModelPartShown(PlayerModelPart.CAPE)) {
             ItemStack itemstack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
             if (!itemstack.is(Items.ELYTRA)) {

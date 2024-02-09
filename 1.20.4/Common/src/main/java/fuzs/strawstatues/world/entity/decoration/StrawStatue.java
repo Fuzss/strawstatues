@@ -2,12 +2,11 @@ package fuzs.strawstatues.world.entity.decoration;
 
 import com.google.common.collect.ImmutableSortedMap;
 import com.mojang.authlib.GameProfile;
-import fuzs.puzzlesapi.api.statues.v1.helper.ArmorStandInteractHelper;
-import fuzs.puzzlesapi.api.statues.v1.world.entity.decoration.ArmorStandDataProvider;
-import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.*;
 import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
+import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
+import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
+import fuzs.statuemenus.api.v1.world.inventory.data.*;
 import fuzs.strawstatues.init.ModRegistry;
-import fuzs.strawstatues.mixin.accessor.ArmorStandAccessor;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -35,7 +34,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.apache.commons.lang3.StringUtils;
@@ -55,7 +53,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final String MODEL_PARTS_KEY = "ModelParts";
     public static final String ENTITY_SCALE_KEY = "EntityScale";
     public static final String ENTITY_ROTATIONS_KEY = "EntityRotations";
-    public static final EntityDataAccessor<Optional<GameProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER);
+    public static final EntityDataAccessor<Optional<GameProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER.value());
     public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BYTE);
@@ -77,7 +75,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     public StrawStatue(Level level, double x, double y, double z) {
-        this(ModRegistry.STRAW_STATUE_ENTITY_TYPE.get(), level);
+        this(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), level);
         this.setPos(x, y, z);
     }
 
@@ -140,7 +138,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
         if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            this.verifyAndSetOwner(NbtUtils.readGameProfile(tag.getCompound(OWNER_KEY)));
+            this.setOwner(NbtUtils.readGameProfile(tag.getCompound(OWNER_KEY)));
         }
         if (tag.contains(ENTITY_SCALE_KEY, Tag.TAG_FLOAT)) {
             this.setEntityScale(tag.getFloat(ENTITY_SCALE_KEY));
@@ -185,14 +183,14 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             } else if (compoundTag.contains("SkullOwner", Tag.TAG_STRING) && !StringUtils.isBlank(compoundTag.getString("SkullOwner"))) {
                 gameProfile = new GameProfile(null, compoundTag.getString("SkullOwner"));
             }
-            if (gameProfile != null) this.verifyAndSetOwner(gameProfile);
+            if (gameProfile != null) this.setOwner(gameProfile);
         }
         return result;
     }
 
     public static EventResultHolder<InteractionResult> onUseEntityAt(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
-        if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.get()) {
-            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.get(), null);
+        if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()) {
+            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.value(), null);
         }
         return EventResultHolder.pass();
     }
@@ -211,25 +209,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         return this.entityData.get(DATA_OWNER);
     }
 
-    public void verifyAndSetOwner(@Nullable GameProfile gameProfile) {
-        // check for max name length here as client will crash when value is exceeded
-        if (gameProfile != null && (!gameProfile.isComplete() || gameProfile.getName().length() > 16)) {
-            if (gameProfile.getName().length() > 16) {
-                if (gameProfile.getId() != null) {
-                    // will throw exception if both uuid and name are empty
-                    gameProfile = new GameProfile(gameProfile.getId(), "");
-                } else {
-                    this.setOwner(null);
-                    return;
-                }
-            }
-            SkullBlockEntity.updateGameprofile(gameProfile, this::setOwner);
-        } else {
-            this.setOwner(gameProfile);
-        }
-    }
-
-    private void setOwner(@Nullable GameProfile gameProfile) {
+    public void setOwner(@Nullable GameProfile gameProfile) {
+        if (gameProfile != null && gameProfile.getName().length() > 16) gameProfile = null;
         this.entityData.set(DATA_OWNER, Optional.ofNullable(gameProfile));
     }
 
@@ -313,18 +294,18 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                 return false;
             } else if (!this.isInvulnerableTo(source) && !this.isInvisible() && !this.isMarker()) {
                 if (source.is(DamageTypeTags.IS_EXPLOSION)) {
-                    ((ArmorStandAccessor) this).strawstatues$callBrokenByAnything(source);
+                    this.brokenByAnything(source);
                     this.kill();
                     return false;
                 } else if (source.is(DamageTypeTags.IGNITES_ARMOR_STANDS)) {
                     if (this.isOnFire()) {
-                        ((ArmorStandAccessor) this).strawstatues$callCauseDamage(source, 0.15F);
+                        this.causeDamage(source, 0.15F);
                     } else {
                         this.setSecondsOnFire(5);
                     }
                     return false;
                 } else if (source.is(DamageTypeTags.BURNS_ARMOR_STANDS) && this.getHealth() > 0.5F) {
-                    ((ArmorStandAccessor) this).strawstatues$callCauseDamage(source, 4.0F);
+                    this.causeDamage(source, 4.0F);
                     return false;
                 } else {
                     boolean bl = source.getDirectEntity() instanceof AbstractArrow;
@@ -365,8 +346,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     private void brokenByPlayer(DamageSource source) {
-        Block.popResource(this.level(), this.blockPosition(), new ItemStack(ModRegistry.STRAW_STATUE_ITEM.get()));
-        ((ArmorStandAccessor) this).strawstatues$callBrokenByAnything(source);
+        Block.popResource(this.level(), this.blockPosition(), new ItemStack(ModRegistry.STRAW_STATUE_ITEM.value()));
+        this.brokenByAnything(source);
     }
 
     private void playBrokenSound() {
@@ -407,7 +388,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     @Override
     @Nullable
     public ItemStack getPickResult() {
-        return new ItemStack(ModRegistry.STRAW_STATUE_ITEM.get());
+        return new ItemStack(ModRegistry.STRAW_STATUE_ITEM.value());
     }
 
     @Override

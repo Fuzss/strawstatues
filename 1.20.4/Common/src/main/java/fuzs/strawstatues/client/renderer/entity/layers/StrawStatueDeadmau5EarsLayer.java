@@ -1,6 +1,5 @@
 package fuzs.strawstatues.client.renderer.entity.layers;
 
-import com.mojang.authlib.minecraft.MinecraftProfileTexture;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -12,6 +11,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 
@@ -26,7 +26,8 @@ public class StrawStatueDeadmau5EarsLayer extends RenderLayer<StrawStatue, Straw
     @Override
     public void render(PoseStack matrixStack, MultiBufferSource buffer, int packedLight, StrawStatue livingEntity, float limbSwing, float limbSwingAmount, float partialTicks, float ageInTicks, float netHeadYaw, float headPitch) {
         if ("deadmau5".equals(livingEntity.getName().getString()) && !livingEntity.isInvisible()) {
-            Optional<ResourceLocation> texture = StrawStatueRenderer.getPlayerProfileTexture(livingEntity, MinecraftProfileTexture.Type.SKIN);
+            Optional<ResourceLocation> texture = StrawStatueRenderer.getPlayerProfileTexture(livingEntity).map(
+                    PlayerSkin::texture);
             if (texture.isPresent()) {
                 matrixStack.pushPose();
                 if (this.getParentModel().young) {

@@ -1,7 +1,7 @@
 package fuzs.strawstatues.world.item;
 
-import fuzs.puzzlesapi.api.statues.v1.helper.ArmorStandInteractHelper;
-import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.ArmorStandPose;
+import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
+import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
@@ -49,12 +49,12 @@ public class StrawStatueItem extends Item {
             BlockPos blockPos = blockPlaceContext.getClickedPos();
             ItemStack itemStack = context.getItemInHand();
             Vec3 vec3 = Vec3.atBottomCenterOf(blockPos);
-            AABB aABB = ModRegistry.STRAW_STATUE_ENTITY_TYPE.get().getDimensions().makeBoundingBox(vec3.x(), vec3.y(), vec3.z());
+            AABB aABB = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value().getDimensions().makeBoundingBox(vec3.x(), vec3.y(), vec3.z());
             if (level.noCollision(null, aABB) && level.getEntities(null, aABB).isEmpty()) {
                 if (level instanceof ServerLevel serverLevel) {
                     Player player = context.getPlayer();
                     Consumer<StrawStatue> consumer = EntityType.createDefaultStackConfig(serverLevel, itemStack, context.getPlayer());
-                    ArmorStand armorStand = ModRegistry.STRAW_STATUE_ENTITY_TYPE.get().create(serverLevel, itemStack.getTag(), consumer, blockPos, MobSpawnType.SPAWN_EGG, true, true);
+                    ArmorStand armorStand = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value().create(serverLevel, itemStack.getTag(), consumer, blockPos, MobSpawnType.SPAWN_EGG, true, true);
                     if (armorStand == null) {
                         return InteractionResult.FAIL;
                     }
