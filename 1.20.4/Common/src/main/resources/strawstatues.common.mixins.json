@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "compatibilityLevel": "JAVA_17",
+  "package": "fuzs.strawstatues.mixin",
+  "refmap": "strawstatues.refmap.json",
+  "plugin": "fuzs.strawstatues.mixin.ModMixinConfigPlugin",
+  "mixins": [
+    "accessor.ArmorStandAccessor"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
