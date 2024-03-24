@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v8.0.3-1.20.1] - 2024-03-24
+### Fixed
+- Fix custom `EntityDataSerializer` id mismatch on Forge (`io.netty.handler.codec.DecoderException: Unknown serializer type`)
+
 ## [v8.0.2-1.20.1] - 2023-12-03
 ### Changed
 - Updated to Puzzles Api v8.1.4

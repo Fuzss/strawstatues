@@ -6,6 +6,7 @@ import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.ArmorStandPose;
 import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.ArmorStandScreenType;
 import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.ArmorStandStyleOption;
 import fuzs.puzzlesapi.api.statues.v1.world.inventory.data.PosePartMutator;
+import fuzs.puzzleslib.api.core.v1.ModLoaderEnvironment;
 import fuzs.puzzleslib.api.init.v2.RegistryManager;
 import fuzs.puzzleslib.api.init.v2.RegistryReference;
 import fuzs.strawstatues.StrawStatues;
@@ -95,6 +96,9 @@ public class ModRegistry {
     }, FriendlyByteBuf::readGameProfile);
 
     public static void touch() {
-        EntityDataSerializers.registerSerializer(GAME_PROFILE_ENTITY_DATA_SERIALIZER);
+        // registered using a custom registry on Forge
+        if (!ModLoaderEnvironment.INSTANCE.isForge()) {
+            EntityDataSerializers.registerSerializer(GAME_PROFILE_ENTITY_DATA_SERIALIZER);
+        }
     }
 }

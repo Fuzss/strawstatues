@@ -5,6 +5,7 @@ import fuzs.strawstatues.data.ModEntityTypeLootProvider;
 import fuzs.strawstatues.data.ModLanguageProvider;
 import fuzs.strawstatues.data.ModModelProvider;
 import fuzs.strawstatues.data.ModRecipeProvider;
+import fuzs.strawstatues.init.ForgeModRegistry;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -17,6 +18,7 @@ public class StrawStatuesForge {
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
         ModConstructor.construct(StrawStatues.MOD_ID, StrawStatues::new);
+        ForgeModRegistry.touch();
     }
 
     @SubscribeEvent
