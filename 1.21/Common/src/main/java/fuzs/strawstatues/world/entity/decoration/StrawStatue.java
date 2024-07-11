@@ -1,6 +1,7 @@
 package fuzs.strawstatues.world.entity.decoration;
 
 import com.google.common.collect.ImmutableSortedMap;
+import com.mojang.authlib.properties.PropertyMap;
 import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
@@ -49,7 +50,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final float DEFAULT_ENTITY_SCALE = 3.0F;
     public static final float MIN_MODEL_SCALE = 1.0F;
     public static final float MAX_MODEL_SCALE = 8.0F;
-    public static final String OWNER_KEY = "profile";
+    public static final String OWNER_KEY = "Owner";
+    public static final String PROFILE_KEY = "profile";
     public static final String SLIM_ARMS_KEY = "SlimArms";
     public static final String CROUCHING_KEY = "Crouching";
     public static final String MODEL_PARTS_KEY = "ModelParts";
@@ -116,7 +118,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         tag.putBoolean(CROUCHING_KEY, this.isCrouching());
         tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
         this.entityData.get(DATA_OWNER).ifPresent((ResolvableProfile resolvableProfile) -> {
-            tag.put(OWNER_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
+            tag.put(PROFILE_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
         });
         tag.putFloat(ENTITY_SCALE_KEY, this.getEntityScale());
         Rotations entityRotations = this.getEntityRotations();
@@ -137,10 +139,17 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         if (tag.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
             this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
-        if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get(OWNER_KEY)).resultOrPartial((string) -> {
+        if (tag.contains(PROFILE_KEY, Tag.TAG_COMPOUND)) {
+            ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get(PROFILE_KEY)).resultOrPartial((string) -> {
                 StrawStatues.LOGGER.error("Failed to load profile from player head: {}", string);
             }).ifPresent(this::setOwner);
+        } else if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
+            // some basic backwards compatibility with the old game profile format
+            String string = tag.getCompound(OWNER_KEY).getString("Name");
+            this.setOwner(new ResolvableProfile(Optional.of(string),
+                    Optional.empty(),
+                    new PropertyMap()
+            ));
         }
         if (tag.contains(ENTITY_SCALE_KEY, Tag.TAG_FLOAT)) {
             this.setEntityScale(tag.getFloat(ENTITY_SCALE_KEY));
