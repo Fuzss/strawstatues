@@ -15,6 +15,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
     @Override
     public void addTranslations(TranslationBuilder builder) {
         builder.add(ModRegistry.STRAW_STATUE_ITEM.value(), "Straw Statue");
+        builder.add(ModRegistry.STRAW_STATUE_ITEM.value(), "named", "%s's Statue");
         builder.add(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), "Straw Statue");
         builder.add(ModRegistry.MODEL_PARTS_SCREEN_TYPE.getTranslationKey(), "Model Parts");
         builder.add(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE.getTranslationKey(), "Scale & Rotations");

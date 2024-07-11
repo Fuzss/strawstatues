@@ -3,6 +3,7 @@ package fuzs.strawstatues.client;
 import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.EntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.LayerDefinitionsContext;
+import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandInInventoryRenderer;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandRotationsScreen;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandScreenFactory;
@@ -15,7 +16,6 @@ import fuzs.strawstatues.client.model.StrawStatueModel;
 import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.resources.PlayerSkin;
@@ -26,13 +26,8 @@ import net.minecraft.world.entity.player.PlayerModelPart;
 
 public class StrawStatuesClient implements ClientModConstructor {
 
-    @SuppressWarnings("Convert2MethodRef")
     @Override
     public void onClientSetup() {
-        // compiler doesn't like method reference :(
-        MenuScreens.register(ModRegistry.STRAW_STATUE_MENU_TYPE.value(), (ArmorStandMenu menu, Inventory inventory, Component component) -> {
-            return ArmorStandScreenFactory.createLastScreenType(menu, inventory, component);
-        });
         ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
@@ -57,6 +52,15 @@ public class StrawStatuesClient implements ClientModConstructor {
                 strawStatue.setEntityScale(modelScale);
                 strawStatue.setEntityRotations(entityRotations.getX(), entityRotations.getZ());
             }
+        });
+    }
+
+    @SuppressWarnings("Convert2MethodRef")
+    @Override
+    public void onRegisterMenuScreens(MenuScreensContext context) {
+        // compiler doesn't like method reference :(
+        context.registerMenuScreen(ModRegistry.STRAW_STATUE_MENU_TYPE.value(), (ArmorStandMenu menu, Inventory inventory, Component component) -> {
+            return ArmorStandScreenFactory.createLastScreenType(menu, inventory, component);
         });
     }
 

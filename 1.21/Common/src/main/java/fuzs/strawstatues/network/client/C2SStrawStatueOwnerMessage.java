@@ -1,14 +1,15 @@
 package fuzs.strawstatues.network.client;
 
-import com.mojang.authlib.GameProfile;
+import com.mojang.authlib.properties.PropertyMap;
 import fuzs.puzzleslib.api.network.v2.WritableMessage;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import net.minecraft.SharedConstants;
-import net.minecraft.Util;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.util.StringUtil;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.block.entity.SkullBlockEntity;
+import net.minecraft.world.item.component.ResolvableProfile;
+
+import java.util.Optional;
 
 public class C2SStrawStatueOwnerMessage implements WritableMessage<C2SStrawStatueOwnerMessage> {
     private final String name;
@@ -25,7 +26,7 @@ public class C2SStrawStatueOwnerMessage implements WritableMessage<C2SStrawStatu
     public void write(FriendlyByteBuf buf) {
         buf.writeUtf(this.name);
     }
-    
+
     @Override
     public MessageHandler<C2SStrawStatueOwnerMessage> makeHandler() {
         return new MessageHandler<>() {
@@ -33,15 +34,18 @@ public class C2SStrawStatueOwnerMessage implements WritableMessage<C2SStrawStatu
             @Override
             public void handle(C2SStrawStatueOwnerMessage message, Player player, Object gameInstance) {
                 if (player.containerMenu instanceof ArmorStandMenu menu && menu.stillValid(player)) {
-                    String s = SharedConstants.filterText(message.name);
-                    if (s.length() <= 16) {
-                        StrawStatue statue = (StrawStatue) menu.getArmorStand();
+                    String s = StringUtil.filterText(message.name);
+                    if (StringUtil.isValidPlayerName(s)) {
+                        ResolvableProfile resolvableProfile;
                         if (s.isEmpty()) {
-                            statue.setOwner(null);
+                            resolvableProfile = null;
                         } else {
-                            SkullBlockEntity.fetchGameProfile(message.name).thenApply(gameProfile -> gameProfile.orElse(new GameProfile(
-                                    Util.NIL_UUID, message.name))).thenAccept(statue::setOwner);
+                            resolvableProfile = new ResolvableProfile(Optional.of(s),
+                                    Optional.empty(),
+                                    new PropertyMap()
+                            );
                         }
+                        ((StrawStatue) menu.getArmorStand()).setOwner(resolvableProfile);
                     }
                 }
             }

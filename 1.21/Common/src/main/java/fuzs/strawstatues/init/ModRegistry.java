@@ -1,6 +1,5 @@
 package fuzs.strawstatues.init;
 
-import com.mojang.authlib.GameProfile;
 import fuzs.puzzleslib.api.init.v3.registry.RegistryManager;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
@@ -12,7 +11,7 @@ import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.item.StrawStatueItem;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -21,6 +20,7 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 
 import java.util.Optional;
@@ -34,8 +34,8 @@ public class ModRegistry {
     public static final Holder.Reference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerExtendedMenuType("straw_statue", () -> (containerId, inventory, data) -> {
         return ArmorStandMenu.create(ModRegistry.STRAW_STATUE_MENU_TYPE.value(), containerId, inventory, data, null);
     });
-    public static final Holder.Reference<EntityDataSerializer<Optional<GameProfile>>> GAME_PROFILE_ENTITY_DATA_SERIALIZER = REGISTRY.registerEntityDataSerializer("game_profile", () -> EntityDataSerializer.optional(
-            FriendlyByteBuf::writeGameProfile, FriendlyByteBuf::readGameProfile));
+    public static final Holder.Reference<EntityDataSerializer<Optional<ResolvableProfile>>> GAME_PROFILE_ENTITY_DATA_SERIALIZER = REGISTRY.registerEntityDataSerializer("game_profile", () -> EntityDataSerializer.forValueType(
+            ResolvableProfile.STREAM_CODEC.apply(ByteBufCodecs::optional)));
 
     public static final ArmorStandScreenType MODEL_PARTS_SCREEN_TYPE = new ArmorStandScreenType("modelParts", new ItemStack(Items.YELLOW_WOOL));
     public static final ArmorStandScreenType STRAW_STATUE_POSITION_SCREEN_TYPE = new ArmorStandScreenType("position", new ItemStack(Items.GRASS_BLOCK));

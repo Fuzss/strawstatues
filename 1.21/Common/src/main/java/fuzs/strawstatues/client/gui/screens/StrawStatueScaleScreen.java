@@ -42,7 +42,7 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
         super.init();
         this.resetButton = Util.make(this.addRenderableWidget(new NewTextureTickButton(this.leftPos + 6, this.topPos + 6, 20, 20, 240, 124, getArmorStandWidgetsLocation(), button -> {
             C2SStrawStatueScaleMessage.ScaleDataType.RESET.consumer.accept((StrawStatue) StrawStatueScaleScreen.this.holder.getArmorStand(), -1.0F);
-            C2SStrawStatueScaleMessage.sendReset();
+            C2SStrawStatueScaleMessage.getValueSender(C2SStrawStatueScaleMessage.ScaleDataType.RESET).accept(-1.0F);
             this.widgets.forEach(ArmorStandWidget::reset);
         })), widget -> {
             widget.setTooltip(Tooltip.create(Component.translatable(ArmorStandRotationsScreen.RESET_TRANSLATION_KEY)));
@@ -53,10 +53,13 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     protected List<ArmorStandWidgetsScreen.ArmorStandWidget> buildWidgets(ArmorStand armorStand) {
         StrawStatue strawStatue = (StrawStatue) armorStand;
         return Lists.newArrayList(
-                new ScaleWidget(Component.translatable(SCALE_TRANSLATION_KEY), strawStatue::getEntityScale, C2SStrawStatueScaleMessage::sendScale),
-                new StrawRotationWidget(Component.translatable(ROTATION_X_TRANSLATION_KEY), strawStatue::getEntityXRotation, C2SStrawStatueScaleMessage::sendRotationX, strawStatue::setEntityXRotation),
+                new ScaleWidget(Component.translatable(SCALE_TRANSLATION_KEY), strawStatue::getEntityScale, C2SStrawStatueScaleMessage.getValueSender(
+                        C2SStrawStatueScaleMessage.ScaleDataType.SCALE)),
+                new StrawRotationWidget(Component.translatable(ROTATION_X_TRANSLATION_KEY), strawStatue::getEntityXRotation, C2SStrawStatueScaleMessage.getValueSender(
+                        C2SStrawStatueScaleMessage.ScaleDataType.ROTATION_X), strawStatue::setEntityXRotation),
                 new RotationWidget(Component.translatable(ROTATION_Y_TRANSLATION_KEY), armorStand::getYRot, this.dataSyncHandler::sendRotation),
-                new StrawRotationWidget(Component.translatable(ROTATION_Z_TRANSLATION_KEY), strawStatue::getEntityZRotation, C2SStrawStatueScaleMessage::sendRotationZ, strawStatue::setEntityZRotation)
+                new StrawRotationWidget(Component.translatable(ROTATION_Z_TRANSLATION_KEY), strawStatue::getEntityZRotation, C2SStrawStatueScaleMessage.getValueSender(
+                        C2SStrawStatueScaleMessage.ScaleDataType.ROTATION_Z), strawStatue::setEntityZRotation)
         );
     }
 

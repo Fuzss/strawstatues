@@ -1,17 +1,18 @@
 package fuzs.strawstatues.world.entity.decoration;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.mojang.authlib.GameProfile;
 import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
 import fuzs.statuemenus.api.v1.world.inventory.data.*;
+import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.core.Rotations;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -28,18 +29,19 @@ import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
-import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.NavigableMap;
+import java.util.Objects;
 import java.util.Optional;
 
 public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
@@ -47,13 +49,13 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final float DEFAULT_ENTITY_SCALE = 3.0F;
     public static final float MIN_MODEL_SCALE = 1.0F;
     public static final float MAX_MODEL_SCALE = 8.0F;
-    public static final String OWNER_KEY = "Owner";
+    public static final String OWNER_KEY = "profile";
     public static final String SLIM_ARMS_KEY = "SlimArms";
     public static final String CROUCHING_KEY = "Crouching";
     public static final String MODEL_PARTS_KEY = "ModelParts";
     public static final String ENTITY_SCALE_KEY = "EntityScale";
     public static final String ENTITY_ROTATIONS_KEY = "EntityRotations";
-    public static final EntityDataAccessor<Optional<GameProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER.value());
+    public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER.value());
     public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BYTE);
@@ -89,14 +91,14 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        this.entityData.define(DATA_OWNER, Optional.empty());
-        this.entityData.define(DATA_SLIM_ARMS, false);
-        this.entityData.define(DATA_CROUCHING, false);
-        this.entityData.define(DATA_PLAYER_MODE_CUSTOMISATION, getAllModelParts());
-        this.entityData.define(DATA_ENTITY_SCALE, DEFAULT_ENTITY_SCALE);
-        this.entityData.define(DATA_ENTITY_ROTATIONS, DEFAULT_ENTITY_ROTATIONS);
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_OWNER, Optional.empty());
+        builder.define(DATA_SLIM_ARMS, false);
+        builder.define(DATA_CROUCHING, false);
+        builder.define(DATA_PLAYER_MODE_CUSTOMISATION, getAllModelParts());
+        builder.define(DATA_ENTITY_SCALE, DEFAULT_ENTITY_SCALE);
+        builder.define(DATA_ENTITY_ROTATIONS, DEFAULT_ENTITY_ROTATIONS);
     }
 
     private static byte getAllModelParts() {
@@ -113,10 +115,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         tag.putBoolean(SLIM_ARMS_KEY, this.slimArms());
         tag.putBoolean(CROUCHING_KEY, this.isCrouching());
         tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
-        this.entityData.get(DATA_OWNER).ifPresent(owner -> {
-            CompoundTag gameProfileTag = new CompoundTag();
-            NbtUtils.writeGameProfile(gameProfileTag, owner);
-            tag.put(OWNER_KEY, gameProfileTag);
+        this.entityData.get(DATA_OWNER).ifPresent((ResolvableProfile resolvableProfile) -> {
+            tag.put(OWNER_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
         });
         tag.putFloat(ENTITY_SCALE_KEY, this.getEntityScale());
         Rotations entityRotations = this.getEntityRotations();
@@ -138,7 +138,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
         if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            this.setOwner(NbtUtils.readGameProfile(tag.getCompound(OWNER_KEY)));
+            ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get(OWNER_KEY)).resultOrPartial((string) -> {
+                StrawStatues.LOGGER.error("Failed to load profile from player head: {}", string);
+            }).ifPresent(this::setOwner);
         }
         if (tag.contains(ENTITY_SCALE_KEY, Tag.TAG_FLOAT)) {
             this.setEntityScale(tag.getFloat(ENTITY_SCALE_KEY));
@@ -152,13 +154,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    protected float getStandingEyeHeight(Pose pose, EntityDimensions dimensions) {
-        return dimensions.height * 0.85F;
-    }
-
-    @Override
-    public EntityDimensions getDimensions(Pose pose) {
-        if (this.isMarker() || this.babyDimensions == null || this.defaultDimensions == null) return super.getDimensions(pose);
+    public EntityDimensions getDefaultDimensions(Pose pose) {
+        if (this.isMarker() || this.babyDimensions == null || this.defaultDimensions == null) return super.getDefaultDimensions(pose);
         NavigableMap<Float, EntityDimensions> dimensions = this.isBaby() ? this.babyDimensions : this.defaultDimensions;
         return dimensions.floorEntry(this.getEntityScale()).getValue();
     }
@@ -172,20 +169,20 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand hand) {
-        ItemStack itemInHand = player.getItemInHand(hand);
-        InteractionResult result = super.interactAt(player, vec, hand);
-        if (!player.level().isClientSide && !player.isSpectator() && result == InteractionResult.SUCCESS && itemInHand.is(Items.PLAYER_HEAD) && itemInHand.hasTag()) {
-            GameProfile gameProfile = null;
-            CompoundTag compoundTag = itemInHand.getTag();
-            if (compoundTag.contains("SkullOwner", Tag.TAG_COMPOUND)) {
-                gameProfile = NbtUtils.readGameProfile(compoundTag.getCompound("SkullOwner"));
-            } else if (compoundTag.contains("SkullOwner", Tag.TAG_STRING) && !StringUtils.isBlank(compoundTag.getString("SkullOwner"))) {
-                gameProfile = new GameProfile(null, compoundTag.getString("SkullOwner"));
+    public InteractionResult interactAt(Player player, Vec3 vec, InteractionHand interactionHand) {
+        // apply profile from a player head when clicked on the statue
+        if (!player.level().isClientSide && !player.isSpectator() && !this.isMarker()) {
+            ItemStack itemInHand = player.getItemInHand(interactionHand);
+            if (itemInHand.is(Items.PLAYER_HEAD)) {
+                ResolvableProfile resolvableProfile = itemInHand.get(DataComponents.PROFILE);
+                if (resolvableProfile != null && !Objects.equals(resolvableProfile.name(), this.getOwner().flatMap(ResolvableProfile::name))) {
+                    this.setOwner(resolvableProfile);
+                    return InteractionResult.SUCCESS;
+                }
             }
-            if (gameProfile != null) this.setOwner(gameProfile);
         }
-        return result;
+
+        return super.interactAt(player, vec, interactionHand);
     }
 
     public static EventResultHolder<InteractionResult> onUseEntityAt(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
@@ -205,13 +202,17 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         return true;
     }
 
-    public Optional<GameProfile> getOwner() {
+    public Optional<ResolvableProfile> getOwner() {
         return this.entityData.get(DATA_OWNER);
     }
 
-    public void setOwner(@Nullable GameProfile gameProfile) {
-        if (gameProfile != null && gameProfile.getName().length() > 16) gameProfile = null;
-        this.entityData.set(DATA_OWNER, Optional.ofNullable(gameProfile));
+    public void setOwner(@Nullable ResolvableProfile resolvableProfile) {
+        this.entityData.set(DATA_OWNER, Optional.ofNullable(resolvableProfile));
+        if (resolvableProfile != null && !resolvableProfile.isResolved()) {
+            resolvableProfile.resolve().thenAcceptAsync((ResolvableProfile newResolvableProfile) -> {
+                this.entityData.set(DATA_OWNER, Optional.of(newResolvableProfile));
+            }, SkullBlockEntity.CHECKED_MAIN_THREAD_EXECUTOR);
+        }
     }
 
     public boolean slimArms() {
@@ -288,30 +289,29 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (!this.level().isClientSide && !this.isRemoved()) {
+        if (this.level() instanceof ServerLevel serverLevel && !this.isRemoved()) {
             if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
                 this.kill();
                 return false;
             } else if (!this.isInvulnerableTo(source) && !this.isInvisible() && !this.isMarker()) {
                 if (source.is(DamageTypeTags.IS_EXPLOSION)) {
-                    this.brokenByAnything(source);
+                    this.brokenByAnything(serverLevel, source);
                     this.kill();
                     return false;
                 } else if (source.is(DamageTypeTags.IGNITES_ARMOR_STANDS)) {
                     if (this.isOnFire()) {
-                        this.causeDamage(source, 0.15F);
+                        this.causeDamage(serverLevel, source, 0.15F);
                     } else {
-                        this.setSecondsOnFire(5);
+                        this.igniteForSeconds(5.0F);
                     }
                     return false;
                 } else if (source.is(DamageTypeTags.BURNS_ARMOR_STANDS) && this.getHealth() > 0.5F) {
-                    this.causeDamage(source, 4.0F);
+                    this.causeDamage(serverLevel, source, 4.0F);
                     return false;
                 } else {
-                    boolean bl = source.getDirectEntity() instanceof AbstractArrow;
-                    boolean bl2 = bl && ((AbstractArrow) source.getDirectEntity()).getPierceLevel() > 0;
-                    boolean bl3 = "player".equals(source.getMsgId());
-                    if (!bl3 && !bl) {
+                    boolean bl = source.is(DamageTypeTags.CAN_BREAK_ARMOR_STAND);
+                    boolean bl2 = source.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
+                    if (!bl && !bl2) {
                         return false;
                     } else if (source.getEntity() instanceof Player && !((Player)source.getEntity()).getAbilities().mayBuild) {
                         return false;
@@ -319,10 +319,10 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                         this.playBrokenSound();
                         this.showBreakingParticles();
                         this.kill();
-                        return bl2;
+                        return true;
                     } else {
                         long gameTime = this.level().getGameTime();
-                        if (gameTime - this.lastHit > 5L && !bl) {
+                        if (gameTime - this.lastHit > 5L && !bl2) {
                             this.level().broadcastEntityEvent(this, EntityEvent.ARMORSTAND_WOBBLE);
                             this.gameEvent(GameEvent.ENTITY_DAMAGE, source.getEntity());
                             this.lastHit = gameTime;
@@ -330,7 +330,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                             this.hurtDuration = 10;
                             this.hurtTime = this.hurtDuration;
                         } else {
-                            this.brokenByPlayer(source);
+                            this.brokenByPlayer(serverLevel, source);
                             this.showBreakingParticles();
                             this.kill();
                         }
@@ -345,13 +345,15 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         }
     }
 
-    private void brokenByPlayer(DamageSource source) {
-        Block.popResource(this.level(), this.blockPosition(), new ItemStack(ModRegistry.STRAW_STATUE_ITEM.value()));
-        this.brokenByAnything(source);
+    private void brokenByPlayer(ServerLevel serverLevel, DamageSource damageSource) {
+        ItemStack itemStack = new ItemStack(ModRegistry.STRAW_STATUE_ITEM.value());
+        itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
+        Block.popResource(this.level(), this.blockPosition(), itemStack);
+        this.brokenByAnything(serverLevel, damageSource);
     }
 
     private void playBrokenSound() {
-        this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.GRASS_BREAK, this.getSoundSource(), 1.0F, 1.0F);
+        this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ARMOR_STAND_BREAK, this.getSoundSource(), 1.0F, 1.0F);
     }
 
     private void showBreakingParticles() {

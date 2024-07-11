@@ -8,13 +8,14 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScaleMessage> {
     private ScaleDataType type;
     private float value;
 
     public C2SStrawStatueScaleMessage() {
-
+        // NO-OP
     }
 
     private C2SStrawStatueScaleMessage(ScaleDataType type, float value) {
@@ -22,20 +23,10 @@ public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScale
         this.value = value;
     }
 
-    public static void sendScale(float value) {
-        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.SCALE, value));
-    }
-
-    public static void sendRotationX(float value) {
-        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.ROTATION_X, value));
-    }
-
-    public static void sendRotationZ(float value) {
-        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.ROTATION_Z, value));
-    }
-
-    public static void sendReset() {
-        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(ScaleDataType.RESET, -1.0F));
+    public static Consumer<Float> getValueSender(ScaleDataType type) {
+        return (Float value) -> {
+            StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(type, value).toServerboundMessage());
+        };
     }
 
     @Override
@@ -64,9 +55,14 @@ public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScale
     }
 
     public enum ScaleDataType {
-        SCALE(StrawStatue::setEntityScale), ROTATION_X(StrawStatue::setEntityXRotation), ROTATION_Z(StrawStatue::setEntityZRotation), RESET((strawStatue, value) -> {
+        SCALE(StrawStatue::setEntityScale),
+        ROTATION_X(StrawStatue::setEntityXRotation),
+        ROTATION_Z(StrawStatue::setEntityZRotation),
+        RESET((StrawStatue strawStatue, Float value) -> {
             strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
-            strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(), StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
+            strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
+                    StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ()
+            );
         });
 
         public final BiConsumer<StrawStatue, Float> consumer;

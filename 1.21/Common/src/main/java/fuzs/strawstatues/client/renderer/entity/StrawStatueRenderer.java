@@ -23,6 +23,7 @@ import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,13 +42,11 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
         this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemInHandRenderer()));
     }
 
-    public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue entity) {
-        GameProfile gameProfile = entity.getOwner().orElse(null);
-        if (gameProfile != null) {
+    public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
+        return strawStatue.getOwner().map(ResolvableProfile::gameProfile).map((GameProfile gameProfile) -> {
             Minecraft minecraft = Minecraft.getInstance();
-            return Optional.of(minecraft.getSkinManager().getInsecureSkin(gameProfile));
-        }
-        return Optional.empty();
+            return minecraft.getSkinManager().getInsecureSkin(gameProfile);
+        });
     }
 
     @Override
@@ -87,7 +86,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
     }
 
     @Override
-    protected void setupRotations(StrawStatue entityLiving, PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks) {
+    protected void setupRotations(StrawStatue entityLiving, PoseStack matrixStack, float ageInTicks, float rotationYaw, float partialTicks, float scale) {
         float entityZRotation = Mth.lerp(partialTicks, entityLiving.entityRotationsO.getZ(), entityLiving.getEntityZRotation());
         float entityXRotation = Mth.lerp(partialTicks, entityLiving.entityRotationsO.getX(), entityLiving.getEntityXRotation());
         matrixStack.mulPose(Axis.ZP.rotationDegrees(180.0F - entityZRotation));

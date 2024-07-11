@@ -12,7 +12,7 @@ public class C2SStrawStatueModelPartMessage implements MessageV2<C2SStrawStatueM
     private boolean value;
 
     public C2SStrawStatueModelPartMessage() {
-
+        // NO-OP
     }
 
     public C2SStrawStatueModelPartMessage(PlayerModelPart modelPart, boolean value) {

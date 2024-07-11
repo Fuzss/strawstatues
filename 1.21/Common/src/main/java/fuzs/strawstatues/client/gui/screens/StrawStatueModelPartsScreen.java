@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.component.ResolvableProfile;
 
 public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerModelPart> {
     public static final String TEXT_BOX_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.modelParts.name";
@@ -36,13 +37,13 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
         return new TickBoxButton(this.leftPos + 96, this.topPos + buttonStartY + index * 22, 6, 76, option.getName(), () -> strawStatue.isModelPartShown(option), (Button button) -> {
             boolean value = !strawStatue.isModelPartShown(option);
             strawStatue.setModelPart(option, value);
-            StrawStatues.NETWORK.sendToServer(new C2SStrawStatueModelPartMessage(option, value));
+            StrawStatues.NETWORK.sendToServer(new C2SStrawStatueModelPartMessage(option, value).toServerboundMessage());
         });
     }
 
     @Override
     protected void syncNameChange(String input) {
-        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueOwnerMessage(input));
+        StrawStatues.NETWORK.sendToServer(new C2SStrawStatueOwnerMessage(input).toServerboundMessage());
     }
 
     @Override
@@ -52,7 +53,7 @@ public class StrawStatueModelPartsScreen extends ArmorStandTickBoxScreen<PlayerM
 
     @Override
     protected String getNameDefaultValue() {
-        return ((StrawStatue) this.getHolder().getArmorStand()).getOwner().map(GameProfile::getName).orElse("");
+        return ((StrawStatue) this.getHolder().getArmorStand()).getOwner().map(ResolvableProfile::gameProfile).map(GameProfile::getName).orElse("");
     }
 
     @Override
