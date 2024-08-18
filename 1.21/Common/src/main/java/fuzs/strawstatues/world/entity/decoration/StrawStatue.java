@@ -1,7 +1,8 @@
 package fuzs.strawstatues.world.entity.decoration;
 
 import com.google.common.collect.ImmutableSortedMap;
-import com.mojang.authlib.properties.PropertyMap;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
@@ -23,6 +24,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.util.Mth;
+import net.minecraft.util.datafix.fixes.ItemStackComponentizationFix;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -57,12 +59,21 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final String MODEL_PARTS_KEY = "ModelParts";
     public static final String ENTITY_SCALE_KEY = "EntityScale";
     public static final String ENTITY_ROTATIONS_KEY = "EntityRotations";
-    public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_OWNER = SynchedEntityData.defineId(StrawStatue.class, ModRegistry.GAME_PROFILE_ENTITY_DATA_SERIALIZER.value());
-    public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BOOLEAN);
-    public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.BYTE);
-    public static final EntityDataAccessor<Float> DATA_ENTITY_SCALE = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.FLOAT);
-    public static final EntityDataAccessor<Rotations> DATA_ENTITY_ROTATIONS = SynchedEntityData.defineId(StrawStatue.class, EntityDataSerializers.ROTATIONS);
+    public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_OWNER = SynchedEntityData.defineId(
+            StrawStatue.class, ModRegistry.RESOLVABLE_PROFILE_ENTITY_DATA_SERIALIZER.value());
+    public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class,
+            EntityDataSerializers.BOOLEAN
+    );
+    public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class,
+            EntityDataSerializers.BOOLEAN
+    );
+    public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(
+            StrawStatue.class, EntityDataSerializers.BYTE);
+    public static final EntityDataAccessor<Float> DATA_ENTITY_SCALE = SynchedEntityData.defineId(StrawStatue.class,
+            EntityDataSerializers.FLOAT
+    );
+    public static final EntityDataAccessor<Rotations> DATA_ENTITY_ROTATIONS = SynchedEntityData.defineId(
+            StrawStatue.class, EntityDataSerializers.ROTATIONS);
 
     private final NavigableMap<Float, EntityDimensions> defaultDimensions;
     private final NavigableMap<Float, EntityDimensions> babyDimensions;
@@ -139,18 +150,21 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         if (tag.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
             this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
+        Optional<Dynamic<?>> optional;
         if (tag.contains(PROFILE_KEY, Tag.TAG_COMPOUND)) {
-            ResolvableProfile.CODEC.parse(NbtOps.INSTANCE, tag.get(PROFILE_KEY)).resultOrPartial((string) -> {
-                StrawStatues.LOGGER.error("Failed to load profile from player head: {}", string);
-            }).ifPresent(this::setOwner);
+            optional = Optional.of(new Dynamic<>(NbtOps.INSTANCE, tag.get(PROFILE_KEY)));
         } else if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
-            // some basic backwards compatibility with the old game profile format
-            String string = tag.getCompound(OWNER_KEY).getString("Name");
-            this.setOwner(new ResolvableProfile(Optional.of(string),
-                    Optional.empty(),
-                    new PropertyMap()
-            ));
+            // backwards compatibility with the old game profile format
+            optional = Optional.of(ItemStackComponentizationFix.fixProfile(
+                    new Dynamic<>(NbtOps.INSTANCE, tag.getCompound(OWNER_KEY))));
+        } else {
+            optional = Optional.empty();
         }
+        optional.map(ResolvableProfile.CODEC::parse)
+                .flatMap((DataResult<ResolvableProfile> dataResult) -> dataResult.resultOrPartial((string) -> {
+                    StrawStatues.LOGGER.error("Failed to load profile from player head: {}", string);
+                }))
+                .ifPresent(this::setOwner);
         if (tag.contains(ENTITY_SCALE_KEY, Tag.TAG_FLOAT)) {
             this.setEntityScale(tag.getFloat(ENTITY_SCALE_KEY));
             this.entityScaleO = this.getEntityScale();
@@ -164,7 +178,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public EntityDimensions getDefaultDimensions(Pose pose) {
-        if (this.isMarker() || this.babyDimensions == null || this.defaultDimensions == null) return super.getDefaultDimensions(pose);
+        if (this.isMarker() || this.babyDimensions == null || this.defaultDimensions == null) {
+            return super.getDefaultDimensions(pose);
+        }
         NavigableMap<Float, EntityDimensions> dimensions = this.isBaby() ? this.babyDimensions : this.defaultDimensions;
         return dimensions.floorEntry(this.getEntityScale()).getValue();
     }
@@ -184,7 +200,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             ItemStack itemInHand = player.getItemInHand(interactionHand);
             if (itemInHand.is(Items.PLAYER_HEAD)) {
                 ResolvableProfile resolvableProfile = itemInHand.get(DataComponents.PROFILE);
-                if (resolvableProfile != null && !Objects.equals(resolvableProfile.name(), this.getOwner().flatMap(ResolvableProfile::name))) {
+                if (resolvableProfile != null &&
+                        !Objects.equals(resolvableProfile.name(), this.getOwner().flatMap(ResolvableProfile::name))) {
                     this.setOwner(resolvableProfile);
                     return InteractionResult.SUCCESS;
                 }
@@ -196,7 +213,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     public static EventResultHolder<InteractionResult> onUseEntityAt(Player player, Level level, InteractionHand interactionHand, Entity target, Vec3 hitVector) {
         if (!player.isSpectator() && target.getType() == ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()) {
-            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target, ModRegistry.STRAW_STATUE_MENU_TYPE.value(), null);
+            return ArmorStandInteractHelper.tryOpenArmorStatueMenu(player, level, interactionHand, (ArmorStand) target,
+                    ModRegistry.STRAW_STATUE_MENU_TYPE.value(), null
+            );
         }
         return EventResultHolder.pass();
     }
@@ -237,7 +256,11 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     public void setModelPart(PlayerModelPart modelPart, boolean enable) {
-        this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, ArmorStandStyleOption.setBit(this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION), modelPart.getMask(), enable));
+        this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION,
+                ArmorStandStyleOption.setBit(this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION), modelPart.getMask(),
+                        enable
+                )
+        );
     }
 
     public float getEntityScale() {
@@ -322,7 +345,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                     boolean bl2 = source.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
                     if (!bl && !bl2) {
                         return false;
-                    } else if (source.getEntity() instanceof Player && !((Player)source.getEntity()).getAbilities().mayBuild) {
+                    } else if (source.getEntity() instanceof Player &&
+                            !((Player) source.getEntity()).getAbilities().mayBuild) {
                         return false;
                     } else if (source.isCreativePlayer()) {
                         this.playBrokenSound();
@@ -362,12 +386,19 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     private void playBrokenSound() {
-        this.level().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ARMOR_STAND_BREAK, this.getSoundSource(), 1.0F, 1.0F);
+        this.level()
+                .playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ARMOR_STAND_BREAK,
+                        this.getSoundSource(), 1.0F, 1.0F
+                );
     }
 
     private void showBreakingParticles() {
         if (this.level() instanceof ServerLevel) {
-            ((ServerLevel)this.level()).sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.HAY_BLOCK.defaultBlockState()), this.getX(), this.getY(0.6666666666666666), this.getZ(), 10, this.getBbWidth() / 4.0F, this.getBbHeight() / 4.0F, this.getBbWidth() / 4.0F, 0.05);
+            ((ServerLevel) this.level()).sendParticles(
+                    new BlockParticleOption(ParticleTypes.BLOCK, Blocks.HAY_BLOCK.defaultBlockState()), this.getX(),
+                    this.getY(0.6666666666666666), this.getZ(), 10, this.getBbWidth() / 4.0F, this.getBbHeight() / 4.0F,
+                    this.getBbWidth() / 4.0F, 0.05
+            );
         }
     }
 
@@ -404,12 +435,27 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public ArmorStandScreenType[] getScreenTypes() {
-        return new ArmorStandScreenType[]{ArmorStandScreenType.ROTATIONS, ArmorStandScreenType.POSES, ArmorStandScreenType.STYLE, ModRegistry.MODEL_PARTS_SCREEN_TYPE, ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, ArmorStandScreenType.EQUIPMENT};
+        return new ArmorStandScreenType[]{
+                ArmorStandScreenType.ROTATIONS,
+                ArmorStandScreenType.POSES,
+                ArmorStandScreenType.STYLE,
+                ModRegistry.MODEL_PARTS_SCREEN_TYPE,
+                ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE,
+                ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE,
+                ArmorStandScreenType.EQUIPMENT
+        };
     }
 
     @Override
     public PosePartMutator[] getPosePartMutators() {
-        return new PosePartMutator[]{PosePartMutator.HEAD, ModRegistry.CAPE_POSE_PART_MUTATOR, PosePartMutator.RIGHT_ARM, PosePartMutator.LEFT_ARM, PosePartMutator.RIGHT_LEG, PosePartMutator.LEFT_LEG};
+        return new PosePartMutator[]{
+                PosePartMutator.HEAD,
+                ModRegistry.CAPE_POSE_PART_MUTATOR,
+                PosePartMutator.RIGHT_ARM,
+                PosePartMutator.LEFT_ARM,
+                PosePartMutator.RIGHT_LEG,
+                PosePartMutator.LEFT_LEG
+        };
     }
 
     @Override
@@ -419,6 +465,13 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public ArmorStandStyleOption[] getStyleOptions() {
-        return new ArmorStandStyleOption[]{ArmorStandStyleOptions.SHOW_NAME, ArmorStandStyleOptions.SMALL, ModRegistry.SLIM_ARMS_STYLE_OPTION, ModRegistry.CROUCHING_STYLE_OPTION, ArmorStandStyleOptions.NO_GRAVITY, ArmorStandStyleOptions.SEALED};
+        return new ArmorStandStyleOption[]{
+                ArmorStandStyleOptions.SHOW_NAME,
+                ArmorStandStyleOptions.SMALL,
+                ModRegistry.SLIM_ARMS_STYLE_OPTION,
+                ModRegistry.CROUCHING_STYLE_OPTION,
+                ArmorStandStyleOptions.NO_GRAVITY,
+                ArmorStandStyleOptions.SEALED
+        };
     }
 }

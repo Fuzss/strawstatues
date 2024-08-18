@@ -78,7 +78,7 @@ public class StrawStatueItem extends Item {
                             armorStand.getX(),
                             armorStand.getY(),
                             armorStand.getZ(),
-                            SoundEvents.ARMOR_STAND_PLACE,
+                            SoundEvents.GRASS_PLACE,
                             SoundSource.BLOCKS,
                             0.75F,
                             0.8F
