@@ -59,7 +59,7 @@ public class StrawStatueItem extends Item {
                 if (level instanceof ServerLevel serverLevel) {
                     Player player = context.getPlayer();
                     Consumer<StrawStatue> consumer = EntityType.appendDefaultStackConfig((StrawStatue strawStatue) -> {
-                        strawStatue.setOwner(itemStack.get(DataComponents.PROFILE));
+                        strawStatue.setProfile(itemStack.get(DataComponents.PROFILE));
                         if (itemStack.has(DataComponents.CUSTOM_NAME)) {
                             strawStatue.setCustomNameVisible(true);
                         }

@@ -8,6 +8,7 @@ import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
 import fuzs.statuemenus.api.v1.world.inventory.data.*;
 import fuzs.strawstatues.StrawStatues;
+import fuzs.strawstatues.core.Proxy;
 import fuzs.strawstatues.init.ModRegistry;
 import net.minecraft.core.Rotations;
 import net.minecraft.core.component.DataComponents;
@@ -59,7 +60,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final String MODEL_PARTS_KEY = "ModelParts";
     public static final String ENTITY_SCALE_KEY = "EntityScale";
     public static final String ENTITY_ROTATIONS_KEY = "EntityRotations";
-    public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_OWNER = SynchedEntityData.defineId(
+    public static final EntityDataAccessor<Optional<ResolvableProfile>> DATA_PROFILE = SynchedEntityData.defineId(
             StrawStatue.class, ModRegistry.RESOLVABLE_PROFILE_ENTITY_DATA_SERIALIZER.value());
     public static final EntityDataAccessor<Boolean> DATA_SLIM_ARMS = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.BOOLEAN
@@ -106,7 +107,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_OWNER, Optional.empty());
+        builder.define(DATA_PROFILE, Optional.empty());
         builder.define(DATA_SLIM_ARMS, false);
         builder.define(DATA_CROUCHING, false);
         builder.define(DATA_PLAYER_MODE_CUSTOMISATION, getAllModelParts());
@@ -128,7 +129,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         tag.putBoolean(SLIM_ARMS_KEY, this.slimArms());
         tag.putBoolean(CROUCHING_KEY, this.isCrouching());
         tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
-        this.entityData.get(DATA_OWNER).ifPresent((ResolvableProfile resolvableProfile) -> {
+        this.entityData.get(DATA_PROFILE).ifPresent((ResolvableProfile resolvableProfile) -> {
             tag.put(PROFILE_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
         });
         tag.putFloat(ENTITY_SCALE_KEY, this.getEntityScale());
@@ -164,7 +165,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                 .flatMap((DataResult<ResolvableProfile> dataResult) -> dataResult.resultOrPartial((string) -> {
                     StrawStatues.LOGGER.error("Failed to load profile from player head: {}", string);
                 }))
-                .ifPresent(this::setOwner);
+                .ifPresent(this::setProfile);
         if (tag.contains(ENTITY_SCALE_KEY, Tag.TAG_FLOAT)) {
             this.setEntityScale(tag.getFloat(ENTITY_SCALE_KEY));
             this.entityScaleO = this.getEntityScale();
@@ -189,6 +190,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         if (DATA_ENTITY_SCALE.equals(key)) {
             this.refreshDimensions();
+        } else if (DATA_PROFILE.equals(key)) {
+            Proxy.INSTANCE.setModelPartsScreenGameProfile(this.getProfile());
         }
         super.onSyncedDataUpdated(key);
     }
@@ -201,8 +204,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             if (itemInHand.is(Items.PLAYER_HEAD)) {
                 ResolvableProfile resolvableProfile = itemInHand.get(DataComponents.PROFILE);
                 if (resolvableProfile != null &&
-                        !Objects.equals(resolvableProfile.name(), this.getOwner().flatMap(ResolvableProfile::name))) {
-                    this.setOwner(resolvableProfile);
+                        !Objects.equals(resolvableProfile.name(), this.getProfile().flatMap(ResolvableProfile::name))) {
+                    this.setProfile(resolvableProfile);
                     return InteractionResult.SUCCESS;
                 }
             }
@@ -230,15 +233,15 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         return true;
     }
 
-    public Optional<ResolvableProfile> getOwner() {
-        return this.entityData.get(DATA_OWNER);
+    public Optional<ResolvableProfile> getProfile() {
+        return this.entityData.get(DATA_PROFILE);
     }
 
-    public void setOwner(@Nullable ResolvableProfile resolvableProfile) {
-        this.entityData.set(DATA_OWNER, Optional.ofNullable(resolvableProfile));
+    public void setProfile(@Nullable ResolvableProfile resolvableProfile) {
+        this.entityData.set(DATA_PROFILE, Optional.ofNullable(resolvableProfile));
         if (resolvableProfile != null && !resolvableProfile.isResolved()) {
             resolvableProfile.resolve().thenAcceptAsync((ResolvableProfile newResolvableProfile) -> {
-                this.entityData.set(DATA_OWNER, Optional.of(newResolvableProfile));
+                this.entityData.set(DATA_PROFILE, Optional.of(newResolvableProfile));
             }, SkullBlockEntity.CHECKED_MAIN_THREAD_EXECUTOR);
         }
     }

@@ -10,6 +10,7 @@
   "statuemenus.screen.type.modelParts": "Model Parts",
   "statuemenus.screen.type.scale": "Scale & Rotations",
   "strawstatues.screen.modelParts.name": "Set a player name to take the statue skin from.",
+  "strawstatues.screen.modelParts.refreshSkin": "No statue skin was found. Click to try again.",
   "strawstatues.screen.position.rotationX": "X-Rotation:",
   "strawstatues.screen.position.rotationY": "Y-Rotation:",
   "strawstatues.screen.position.rotationZ": "Z-Rotation:",

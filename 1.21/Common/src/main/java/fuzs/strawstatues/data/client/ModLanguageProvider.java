@@ -20,6 +20,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(ModRegistry.MODEL_PARTS_SCREEN_TYPE.getTranslationKey(), "Model Parts");
         builder.add(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE.getTranslationKey(), "Scale & Rotations");
         builder.add(StrawStatueModelPartsScreen.TEXT_BOX_TRANSLATION_KEY, "Set a player name to take the statue skin from.");
+        builder.add(StrawStatueModelPartsScreen.REFRESH_SKIN_TRANSLATION_KEY, "No statue skin was found. Click to try again.");
         builder.add(ModRegistry.SLIM_ARMS_STYLE_OPTION.getTranslationKey(), "Slim Arms");
         builder.add(ModRegistry.SLIM_ARMS_STYLE_OPTION.getDescriptionKey(), "Makes the statue's arms a few pixels less wide, like Minecraft's Alex skin.");
         builder.add(ModRegistry.CROUCHING_STYLE_OPTION.getTranslationKey(), "Crouching");

@@ -43,7 +43,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Straw
     }
 
     public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
-        return strawStatue.getOwner().map(ResolvableProfile::gameProfile).map((GameProfile gameProfile) -> {
+        return strawStatue.getProfile().map(ResolvableProfile::gameProfile).map((GameProfile gameProfile) -> {
             Minecraft minecraft = Minecraft.getInstance();
             return minecraft.getSkinManager().getInsecureSkin(gameProfile);
         });

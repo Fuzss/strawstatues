@@ -11,7 +11,7 @@ import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
-import fuzs.strawstatues.network.client.C2SStrawStatueOwnerMessage;
+import fuzs.strawstatues.network.client.C2SStrawStatueSetProfileMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
@@ -38,7 +38,7 @@ public class StrawStatues implements ModConstructor {
 
     public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID)
             .registerLegacyServerbound(C2SStrawStatueModelPartMessage.class, C2SStrawStatueModelPartMessage::new)
-            .registerLegacyServerbound(C2SStrawStatueOwnerMessage.class, C2SStrawStatueOwnerMessage::new)
+            .registerLegacyServerbound(C2SStrawStatueSetProfileMessage.class, C2SStrawStatueSetProfileMessage::new)
             .registerLegacyServerbound(C2SStrawStatueScaleMessage.class, C2SStrawStatueScaleMessage::new);
     ;
 
