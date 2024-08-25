@@ -1,0 +1,16 @@
+{
+  "entity.strawstatues.straw_statue": "Соломенная статуя",
+  "item.strawstatues.straw_statue": "Соломенная статуя",
+  "puzzlesapi.screen.rotations.pose.cape": "Плащ",
+  "puzzlesapi.screen.style.crouching": "Приседание",
+  "puzzlesapi.screen.style.crouching.description": "Заставляет статую выглядеть так, как будто она приседает.",
+  "puzzlesapi.screen.style.slimArms": "Тонкие руки",
+  "puzzlesapi.screen.style.slimArms.description": "Делает руки статуи на несколько пикселей меньше в ширину, как у скина Алекса.",
+  "puzzlesapi.screen.type.modelParts": "Детали модели",
+  "puzzlesapi.screen.type.scale": "Масштабирование и повороты",
+  "strawstatues.screen.modelParts.name": "Задайте имя игрока, с которого будет взят скин статуи.",
+  "strawstatues.screen.position.rotationX": "Вращение по оси X:",
+  "strawstatues.screen.position.rotationY": "Вращение по оси Y:",
+  "strawstatues.screen.position.rotationZ": "Вращение по оси Z:",
+  "strawstatues.screen.position.scale": "Масштаб:"
+}
