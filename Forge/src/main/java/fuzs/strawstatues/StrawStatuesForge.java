@@ -6,6 +6,7 @@ import fuzs.strawstatues.data.ModItemModelProvider;
 import fuzs.strawstatues.data.ModLanguageProvider;
 import fuzs.strawstatues.data.ModLootTableProvider;
 import fuzs.strawstatues.data.ModRecipeProvider;
+import fuzs.strawstatues.init.ForgeModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.data.DataGenerator;
 import net.minecraftforge.common.MinecraftForge;
@@ -23,6 +24,7 @@ public class StrawStatuesForge {
 
     @SubscribeEvent
     public static void onConstructMod(final FMLConstructModEvent evt) {
+        ForgeModRegistry.touch();
         CommonFactories.INSTANCE.modConstructor(StrawStatues.MOD_ID).accept(new StatuesApi());
         CommonFactories.INSTANCE.modConstructor(StrawStatues.MOD_ID).accept(new StrawStatues());
         registerHandlers();

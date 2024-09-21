@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog].
 
+## [v4.0.13-1.19.2] - 2024-09-21
+### Fixed
+- Fix custom `EntityDataSerializer` id mismatch on Forge (`io.netty.handler.codec.DecoderException: Unknown serializer type`)
+
 ## [v4.0.12-1.19.2] - 2023-07-26
 ### Added
 - Added two buttons for aligning the statue on a block to the position screen

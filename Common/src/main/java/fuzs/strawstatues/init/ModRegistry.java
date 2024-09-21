@@ -1,11 +1,12 @@
 package fuzs.strawstatues.init;
 
 import com.mojang.authlib.GameProfile;
-import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.puzzleslib.core.CoreServices;
+import fuzs.puzzleslib.core.ModLoaderEnvironment;
 import fuzs.puzzleslib.init.RegistryManager;
 import fuzs.puzzleslib.init.RegistryReference;
 import fuzs.strawstatues.StrawStatues;
+import fuzs.strawstatues.api.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.api.world.inventory.data.ArmorStandStyleOption;
@@ -98,6 +99,8 @@ public class ModRegistry {
     }, FriendlyByteBuf::readGameProfile);
 
     public static void touch() {
-        EntityDataSerializers.registerSerializer(GAME_PROFILE_ENTITY_DATA_SERIALIZER);
+        if (!ModLoaderEnvironment.INSTANCE.getModLoader().isForge()) {
+            EntityDataSerializers.registerSerializer(GAME_PROFILE_ENTITY_DATA_SERIALIZER);
+        }
     }
 }
