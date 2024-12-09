@@ -11,8 +11,8 @@ import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
-import fuzs.strawstatues.network.client.C2SStrawStatueSetProfileMessage;
 import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
+import fuzs.strawstatues.network.client.C2SStrawStatueSetProfileMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,8 +20,8 @@ import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
@@ -44,7 +44,7 @@ public class StrawStatues implements ModConstructor {
 
     @Override
     public void onConstructMod() {
-        ModRegistry.touch();
+        ModRegistry.bootstrap();
         registerEventHandlers();
     }
 
@@ -69,7 +69,7 @@ public class StrawStatues implements ModConstructor {
                     ArmorStandPose.randomValue().applyToEntity(strawStatue);
                 }, serverLevel, itemStack, null);
                 StrawStatue strawStatue = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()
-                        .spawn(serverLevel, consumer, blockPos, MobSpawnType.DISPENSER, false, false);
+                        .spawn(serverLevel, consumer, blockPos, EntitySpawnReason.DISPENSER, false, false);
                 if (strawStatue != null) {
                     itemStack.shrink(1);
                 }

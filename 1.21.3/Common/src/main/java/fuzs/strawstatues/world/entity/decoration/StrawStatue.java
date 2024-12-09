@@ -68,7 +68,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public static final EntityDataAccessor<Boolean> DATA_CROUCHING = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.BOOLEAN
     );
-    public static final EntityDataAccessor<Byte> DATA_PLAYER_MODE_CUSTOMISATION = SynchedEntityData.defineId(
+    public static final EntityDataAccessor<Byte> DATA_PLAYER_MODEL_CUSTOMISATION = SynchedEntityData.defineId(
             StrawStatue.class, EntityDataSerializers.BYTE);
     public static final EntityDataAccessor<Float> DATA_ENTITY_SCALE = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.FLOAT
@@ -110,7 +110,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         builder.define(DATA_PROFILE, Optional.empty());
         builder.define(DATA_SLIM_ARMS, false);
         builder.define(DATA_CROUCHING, false);
-        builder.define(DATA_PLAYER_MODE_CUSTOMISATION, getAllModelParts());
+        builder.define(DATA_PLAYER_MODEL_CUSTOMISATION, getAllModelParts());
         builder.define(DATA_ENTITY_SCALE, DEFAULT_ENTITY_SCALE);
         builder.define(DATA_ENTITY_ROTATIONS, DEFAULT_ENTITY_ROTATIONS);
     }
@@ -128,7 +128,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         super.addAdditionalSaveData(tag);
         tag.putBoolean(SLIM_ARMS_KEY, this.slimArms());
         tag.putBoolean(CROUCHING_KEY, this.isCrouching());
-        tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION));
+        tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODEL_CUSTOMISATION));
         this.entityData.get(DATA_PROFILE).ifPresent((ResolvableProfile resolvableProfile) -> {
             tag.put(PROFILE_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
         });
@@ -149,7 +149,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             this.setCrouching(tag.getBoolean(CROUCHING_KEY));
         }
         if (tag.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
-            this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
+            this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
         }
         Optional<Dynamic<?>> optional;
         if (tag.contains(PROFILE_KEY, Tag.TAG_COMPOUND)) {
@@ -224,13 +224,13 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public boolean isShowArms() {
+    public boolean showArms() {
         return true;
     }
 
     @Override
-    public boolean isNoBasePlate() {
-        return true;
+    public boolean showBasePlate() {
+        return false;
     }
 
     public Optional<ResolvableProfile> getProfile() {
@@ -255,12 +255,12 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     public boolean isModelPartShown(PlayerModelPart part) {
-        return (this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION) & part.getMask()) == part.getMask();
+        return (this.getEntityData().get(DATA_PLAYER_MODEL_CUSTOMISATION) & part.getMask()) == part.getMask();
     }
 
     public void setModelPart(PlayerModelPart modelPart, boolean enable) {
-        this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION,
-                ArmorStandStyleOption.setBit(this.entityData.get(DATA_PLAYER_MODE_CUSTOMISATION), modelPart.getMask(),
+        this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION,
+                ArmorStandStyleOption.setBit(this.getEntityData().get(DATA_PLAYER_MODEL_CUSTOMISATION), modelPart.getMask(),
                         enable
                 )
         );
@@ -323,52 +323,52 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public boolean hurt(DamageSource source, float amount) {
-        if (this.level() instanceof ServerLevel serverLevel && !this.isRemoved()) {
-            if (source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
-                this.kill();
+    public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float damageAmount) {
+        if (!this.isRemoved()) {
+            if (damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+                this.kill(serverLevel);
                 return false;
-            } else if (!this.isInvulnerableTo(source) && !this.isInvisible() && !this.isMarker()) {
-                if (source.is(DamageTypeTags.IS_EXPLOSION)) {
-                    this.brokenByAnything(serverLevel, source);
-                    this.kill();
+            } else if (!this.isInvulnerableTo(serverLevel, damageSource) && !this.isInvisible() && !this.isMarker()) {
+                if (damageSource.is(DamageTypeTags.IS_EXPLOSION)) {
+                    this.brokenByAnything(serverLevel, damageSource);
+                    this.kill(serverLevel);
                     return false;
-                } else if (source.is(DamageTypeTags.IGNITES_ARMOR_STANDS)) {
+                } else if (damageSource.is(DamageTypeTags.IGNITES_ARMOR_STANDS)) {
                     if (this.isOnFire()) {
-                        this.causeDamage(serverLevel, source, 0.15F);
+                        this.causeDamage(serverLevel, damageSource, 0.15F);
                     } else {
                         this.igniteForSeconds(5.0F);
                     }
                     return false;
-                } else if (source.is(DamageTypeTags.BURNS_ARMOR_STANDS) && this.getHealth() > 0.5F) {
-                    this.causeDamage(serverLevel, source, 4.0F);
+                } else if (damageSource.is(DamageTypeTags.BURNS_ARMOR_STANDS) && this.getHealth() > 0.5F) {
+                    this.causeDamage(serverLevel, damageSource, 4.0F);
                     return false;
                 } else {
-                    boolean bl = source.is(DamageTypeTags.CAN_BREAK_ARMOR_STAND);
-                    boolean bl2 = source.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
+                    boolean bl = damageSource.is(DamageTypeTags.CAN_BREAK_ARMOR_STAND);
+                    boolean bl2 = damageSource.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
                     if (!bl && !bl2) {
                         return false;
-                    } else if (source.getEntity() instanceof Player &&
-                            !((Player) source.getEntity()).getAbilities().mayBuild) {
+                    } else if (damageSource.getEntity() instanceof Player &&
+                            !((Player) damageSource.getEntity()).getAbilities().mayBuild) {
                         return false;
-                    } else if (source.isCreativePlayer()) {
+                    } else if (damageSource.isCreativePlayer()) {
                         this.playBrokenSound();
                         this.showBreakingParticles();
-                        this.kill();
+                        this.kill(serverLevel);
                         return true;
                     } else {
                         long gameTime = this.level().getGameTime();
                         if (gameTime - this.lastHit > 5L && !bl2) {
                             this.level().broadcastEntityEvent(this, EntityEvent.ARMORSTAND_WOBBLE);
-                            this.gameEvent(GameEvent.ENTITY_DAMAGE, source.getEntity());
+                            this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
                             this.lastHit = gameTime;
                             this.invulnerableTime = 20;
                             this.hurtDuration = 10;
                             this.hurtTime = this.hurtDuration;
                         } else {
-                            this.brokenByPlayer(serverLevel, source);
+                            this.brokenByPlayer(serverLevel, damageSource);
                             this.showBreakingParticles();
-                            this.kill();
+                            this.kill(serverLevel);
                         }
                         return true;
                     }

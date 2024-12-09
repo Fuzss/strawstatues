@@ -28,7 +28,7 @@ import java.util.Optional;
 public class ModRegistry {
     static final RegistryManager REGISTRY = RegistryManager.from(StrawStatues.MOD_ID);
     public static final Holder.Reference<Item> STRAW_STATUE_ITEM = REGISTRY.registerItem("straw_statue",
-            () -> new StrawStatueItem(new Item.Properties().stacksTo(16))
+            StrawStatueItem::new, () -> new Item.Properties().stacksTo(16)
     );
     public static final Holder.Reference<EntityType<StrawStatue>> STRAW_STATUE_ENTITY_TYPE = REGISTRY.registerEntityType(
             "straw_statue", () -> {
@@ -108,7 +108,7 @@ public class ModRegistry {
             PosePartMutator.PosePartAxisRange.range(-120.0, 120.0)
     );
 
-    public static void touch() {
+    public static void bootstrap() {
         // NO-OP
     }
 }

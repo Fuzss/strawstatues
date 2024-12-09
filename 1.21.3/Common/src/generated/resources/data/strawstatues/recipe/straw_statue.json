@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "minecraft:hay_block"
-    },
-    "X": {
-      "item": "minecraft:stick"
-    }
+    "#": "minecraft:hay_block",
+    "X": "minecraft:stick"
   },
   "pattern": [
     "XXX",

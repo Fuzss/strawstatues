@@ -9,4 +9,5 @@ public class ModClientRegistry {
     public static final ModelLayerLocation STRAW_STATUE = REGISTRY.register("straw_statue");
     public static final ModelLayerLocation STRAW_STATUE_INNER_ARMOR = REGISTRY.registerInnerArmor("straw_statue");
     public static final ModelLayerLocation STRAW_STATUE_OUTER_ARMOR = REGISTRY.registerOuterArmor("straw_statue");
+    public static final ModelLayerLocation STRAW_STATUE_CAPE = REGISTRY.register("straw_statue", "cape");
 }

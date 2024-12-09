@@ -17,10 +17,12 @@ import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.client.model.ArmorStandArmorModel;
+import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
@@ -31,12 +33,13 @@ public class StrawStatuesClient implements ClientModConstructor {
         ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
-        ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR, armorStand -> {
+        ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR, (ArmorStand armorStand) -> {
             StrawStatue strawStatue = (StrawStatue) armorStand;
             if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
                 return StrawStatueRenderer.getPlayerProfileTexture(strawStatue).map(PlayerSkin::capeTexture).isPresent();
+            } else {
+                return false;
             }
-            return false;
         });
         ArmorStandInInventoryRenderer.setArmorStandRenderer((guiGraphics, posX, posY, scale, mouseX, mouseY, livingEntity) -> {
             float modelScale = 0.0F;
@@ -74,5 +77,6 @@ public class StrawStatuesClient implements ClientModConstructor {
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE, StrawStatueModel::createBodyLayer);
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_INNER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION));
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_CAPE, PlayerCapeModel::createCapeLayer);
     }
 }

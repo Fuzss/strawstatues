@@ -1,27 +1,22 @@
 package fuzs.strawstatues.client.model;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
 import com.mojang.blaze3d.vertex.PoseStack;
-import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.decoration.ArmorStand;
 
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.Collections;
 
-public class StrawStatueModel extends PlayerModel<StrawStatue> {
+public class StrawStatueModel extends PlayerModel {
     public final ModelPart slimLeftArm;
     public final ModelPart slimRightArm;
     public final ModelPart slimLeftSleeve;
     public final ModelPart slimRightSleeve;
-    private final ModelPart cloak;
 
     private boolean slim;
 
@@ -29,61 +24,51 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         super(modelPart, slim);
         this.slimLeftArm = modelPart.getChild("slim_left_arm");
         this.slimRightArm = modelPart.getChild("slim_right_arm");
-        this.slimLeftSleeve = modelPart.getChild("slim_left_sleeve");
-        this.slimRightSleeve = modelPart.getChild("slim_right_sleeve");
-        this.cloak = modelPart.getChild("cloak");
+        this.slimLeftSleeve = this.slimLeftArm.getChild("left_sleeve");
+        this.slimRightSleeve = this.slimRightArm.getChild("right_sleeve");
     }
 
     public static LayerDefinition createBodyLayer() {
         MeshDefinition meshDefinition = PlayerModel.createMesh(CubeDeformation.NONE, false);
-        PartDefinition partDefinition = meshDefinition.getRoot();
-        partDefinition.addOrReplaceChild("slim_left_arm", CubeListBuilder.create().texOffs(32, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, CubeDeformation.NONE), PartPose.offset(5.0F, 2.5F, 0.0F));
-        partDefinition.addOrReplaceChild("slim_right_arm", CubeListBuilder.create().texOffs(40, 16).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, CubeDeformation.NONE), PartPose.offset(-5.0F, 2.5F, 0.0F));
-        partDefinition.addOrReplaceChild("slim_left_sleeve", CubeListBuilder.create().texOffs(48, 48).addBox(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, CubeDeformation.NONE.extend(0.25F)), PartPose.offset(5.0F, 2.5F, 0.0F));
-        partDefinition.addOrReplaceChild("slim_right_sleeve", CubeListBuilder.create().texOffs(40, 32).addBox(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, CubeDeformation.NONE.extend(0.25F)), PartPose.offset(-5.0F, 2.5F, 0.0F));
+        MeshDefinition slimMeshDefinition = PlayerModel.createMesh(CubeDeformation.NONE, true);
+        PartDefinition root = meshDefinition.getRoot();
+        PartDefinition slimRoot = slimMeshDefinition.getRoot();
+        root.addOrReplaceChild("slim_left_arm", slimRoot.getChild("left_arm"));
+        root.addOrReplaceChild("slim_right_arm", slimRoot.getChild("right_arm"));
         return LayerDefinition.create(meshDefinition, 64, 64);
     }
 
     @Override
-    protected Iterable<ModelPart> headParts() {
-        return Iterables.concat(super.headParts(), ImmutableList.of(this.hat));
+    public void setupAnim(PlayerRenderState renderState) {
+        super.setupAnim(renderState);
+        setupPoseAnim(this, (StrawStatueRenderState) renderState);
+        this.setupSlimAnim((StrawStatueRenderState) renderState);
+//        this.setupCloakAnim((StrawStatueRenderState) renderState);
+//        this.hat.copyFrom(this.head);
+//        this.leftPants.copyFrom(this.leftLeg);
+//        this.rightPants.copyFrom(this.rightLeg);
+//        this.leftSleeve.copyFrom(this.leftArm);
+//        this.rightSleeve.copyFrom(this.rightArm);
+//        this.slimLeftSleeve.copyFrom(this.slimLeftArm);
+//        this.slimRightSleeve.copyFrom(this.slimRightArm);
+//        this.jacket.copyFrom(this.body);
+//        this.setupCrouchingAnimCape((StrawStatueRenderState) renderState);
     }
 
-    @Override
-    protected Iterable<ModelPart> bodyParts() {
-        return Stream.concat(StreamSupport.stream(super.bodyParts().spliterator(), false).filter(modelPart -> modelPart != this.hat), Stream.of(this.slimLeftArm, this.slimRightArm, this.slimLeftSleeve, this.slimRightSleeve)).collect(ImmutableList.toImmutableList());
-    }
-
-    @Override
-    public void setupAnim(StrawStatue entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        setupPoseAnim(this, entity);
-        this.setupSlimAnim(entity);
-        this.setupCloakAnim(entity);
-        this.hat.copyFrom(this.head);
-        this.leftPants.copyFrom(this.leftLeg);
-        this.rightPants.copyFrom(this.rightLeg);
-        this.leftSleeve.copyFrom(this.leftArm);
-        this.rightSleeve.copyFrom(this.rightArm);
-        this.slimLeftSleeve.copyFrom(this.slimLeftArm);
-        this.slimRightSleeve.copyFrom(this.slimRightArm);
-        this.jacket.copyFrom(this.body);
-        this.setupCrouchingAnimCape(entity);
-    }
-
-    private void setupSlimAnim(StrawStatue entity) {
+    private void setupSlimAnim(StrawStatueRenderState renderState) {
         this.leftArm.visible = this.slimLeftArm.visible = true;
         this.rightArm.visible = this.slimRightArm.visible = true;
         // very bad hack using slim like this, it only works as hand items are rendered after the main model,
         // so the field will have the correct value for the current entity when those render
         // vanilla does this using separate renderers/models, but multiple renderers for a single entity is hardcoded only for players
         // not worth a mixin though as this seems to work fine
-        this.slim = entity.slimArms();
-        this.slimLeftArm.xRot = 0.017453292F * entity.getLeftArmPose().getX();
-        this.slimLeftArm.yRot = 0.017453292F * entity.getLeftArmPose().getY();
-        this.slimLeftArm.zRot = 0.017453292F * entity.getLeftArmPose().getZ();
-        this.slimRightArm.xRot = 0.017453292F * entity.getRightArmPose().getX();
-        this.slimRightArm.yRot = 0.017453292F * entity.getRightArmPose().getY();
-        this.slimRightArm.zRot = 0.017453292F * entity.getRightArmPose().getZ();
+        this.slim = renderState.slimArms;
+        this.slimLeftArm.xRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getX();
+        this.slimLeftArm.yRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getY();
+        this.slimLeftArm.zRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getZ();
+        this.slimRightArm.xRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getX();
+        this.slimRightArm.yRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getY();
+        this.slimRightArm.zRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getZ();
         if (this.slim) {
             this.leftArm.visible = this.leftSleeve.visible = false;
             this.rightArm.visible = this.rightSleeve.visible = false;
@@ -93,36 +78,11 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         }
     }
 
-    private void setupCloakAnim(StrawStatue entity) {
-        // use cloak instead of body, changing body rotations looks just weird
-        this.cloak.xRot = -0.017453292F * entity.getBodyPose().getX();
-        this.cloak.yRot = 0.017453292F * entity.getBodyPose().getY();
-        this.cloak.zRot = -0.017453292F * entity.getBodyPose().getZ();
-    }
-
-    private void setupCrouchingAnimCape(StrawStatue entity) {
-        if (entity.getItemBySlot(EquipmentSlot.CHEST).isEmpty()) {
-            if (this.crouching) {
-                this.cloak.z = 1.4F;
-                this.cloak.y = 1.85F;
-            } else {
-                this.cloak.z = 0.0F;
-                this.cloak.y = 0.0F;
-            }
-        } else if (this.crouching) {
-            this.cloak.z = 0.3F;
-            this.cloak.y = 0.8F;
-        } else {
-            this.cloak.z = -1.1F;
-            this.cloak.y = -0.85F;
-        }
-    }
-
     @Override
-    public void translateToHand(HumanoidArm side, PoseStack poseStack) {
-        ModelPart modelPart = this.getArm(side);
+    public void translateToHand(HumanoidArm humanoidArm, PoseStack poseStack) {
+        ModelPart modelPart = this.getArm(humanoidArm);
         if (this.slim) {
-            float f = 0.5F * (float)(side == HumanoidArm.RIGHT ? 1 : -1);
+            float f = 0.5F * (float)(humanoidArm == HumanoidArm.RIGHT ? 1 : -1);
             modelPart.x += f;
             modelPart.translateAndRotate(poseStack);
             modelPart.x -= f;
@@ -131,27 +91,27 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
         }
     }
 
-    public static <T extends ArmorStand> void setupPoseAnim(HumanoidModel<T> model, T entity) {
-        model.head.xRot = 0.017453292F * entity.getHeadPose().getX();
-        model.head.yRot = 0.017453292F * entity.getHeadPose().getY();
-        model.head.zRot = 0.017453292F * entity.getHeadPose().getZ();
-        model.leftArm.xRot = 0.017453292F * entity.getLeftArmPose().getX();
-        model.leftArm.yRot = 0.017453292F * entity.getLeftArmPose().getY();
-        model.leftArm.zRot = 0.017453292F * entity.getLeftArmPose().getZ();
-        model.rightArm.xRot = 0.017453292F * entity.getRightArmPose().getX();
-        model.rightArm.yRot = 0.017453292F * entity.getRightArmPose().getY();
-        model.rightArm.zRot = 0.017453292F * entity.getRightArmPose().getZ();
-        model.leftLeg.xRot = 0.017453292F * entity.getLeftLegPose().getX();
-        model.leftLeg.yRot = 0.017453292F * entity.getLeftLegPose().getY();
-        model.leftLeg.zRot = 0.017453292F * entity.getLeftLegPose().getZ();
-        model.rightLeg.xRot = 0.017453292F * entity.getRightLegPose().getX();
-        model.rightLeg.yRot = 0.017453292F * entity.getRightLegPose().getY();
-        model.rightLeg.zRot = 0.017453292F * entity.getRightLegPose().getZ();
-        setupCrouchingAnim(model);
+    public static void setupPoseAnim(HumanoidModel<?> model, StrawStatueRenderState renderState) {
+        model.head.xRot = Mth.DEG_TO_RAD * renderState.headPose.getX();
+        model.head.yRot = Mth.DEG_TO_RAD * renderState.headPose.getY();
+        model.head.zRot = Mth.DEG_TO_RAD * renderState.headPose.getZ();
+        model.leftArm.xRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getX();
+        model.leftArm.yRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getY();
+        model.leftArm.zRot = Mth.DEG_TO_RAD * renderState.leftArmPose.getZ();
+        model.rightArm.xRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getX();
+        model.rightArm.yRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getY();
+        model.rightArm.zRot = Mth.DEG_TO_RAD * renderState.rightArmPose.getZ();
+        model.leftLeg.xRot = Mth.DEG_TO_RAD * renderState.leftLegPose.getX();
+        model.leftLeg.yRot = Mth.DEG_TO_RAD * renderState.leftLegPose.getY();
+        model.leftLeg.zRot = Mth.DEG_TO_RAD * renderState.leftLegPose.getZ();
+        model.rightLeg.xRot = Mth.DEG_TO_RAD * renderState.rightLegPose.getX();
+        model.rightLeg.yRot = Mth.DEG_TO_RAD * renderState.rightLegPose.getY();
+        model.rightLeg.zRot = Mth.DEG_TO_RAD * renderState.rightLegPose.getZ();
+        setupCrouchingAnim(model, renderState);
     }
 
-    private static <T extends ArmorStand> void setupCrouchingAnim(HumanoidModel<T> model) {
-        if (model.crouching) {
+    private static void setupCrouchingAnim(HumanoidModel<?> model, StrawStatueRenderState renderState) {
+        if (renderState.isCrouching) {
             model.body.xRot = 0.5F;
             model.rightArm.xRot += 0.4F;
             model.leftArm.xRot += 0.4F;
@@ -164,15 +124,15 @@ public class StrawStatueModel extends PlayerModel<StrawStatue> {
             model.leftArm.y = 5.2F;
             model.rightArm.y = 5.2F;
         } else {
-            model.body.xRot = 0.0F;
-            model.rightLeg.z = 0.1F;
-            model.leftLeg.z = 0.1F;
-            model.rightLeg.y = 12.0F;
-            model.leftLeg.y = 12.0F;
-            model.head.y = 0.0F;
-            model.body.y = 0.0F;
-            model.leftArm.y = 2.0F;
-            model.rightArm.y = 2.0F;
+//            model.body.xRot = 0.0F;
+//            model.rightLeg.z = 0.1F;
+//            model.leftLeg.z = 0.1F;
+//            model.rightLeg.y = 12.0F;
+//            model.leftLeg.y = 12.0F;
+//            model.head.y = 0.0F;
+//            model.body.y = 0.0F;
+//            model.leftArm.y = 2.0F;
+//            model.rightArm.y = 2.0F;
         }
     }
 }

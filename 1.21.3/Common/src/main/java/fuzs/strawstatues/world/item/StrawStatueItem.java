@@ -1,6 +1,7 @@
 package fuzs.strawstatues.world.item;
 
 import fuzs.puzzleslib.api.core.v1.Proxy;
+import fuzs.puzzleslib.api.util.v1.InteractionResultHelper;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
@@ -16,8 +17,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -65,7 +66,7 @@ public class StrawStatueItem extends Item {
                         }
                     }, serverLevel, itemStack, player);
                     ArmorStand armorStand = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()
-                            .create(serverLevel, consumer, blockPos, MobSpawnType.SPAWN_EGG, true, true);
+                            .create(serverLevel, consumer, blockPos, EntitySpawnReason.SPAWN_ITEM_USE, true, true);
                     if (armorStand == null) {
                         return InteractionResult.FAIL;
                     }
@@ -89,7 +90,7 @@ public class StrawStatueItem extends Item {
                     }
                 }
                 itemStack.shrink(1);
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                return InteractionResultHelper.sidedSuccess(level.isClientSide);
             } else {
                 return InteractionResult.FAIL;
             }

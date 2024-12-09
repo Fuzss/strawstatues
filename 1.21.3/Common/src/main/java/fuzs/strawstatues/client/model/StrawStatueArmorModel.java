@@ -1,17 +1,18 @@
 package fuzs.strawstatues.client.model;
 
+import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 
-public class StrawStatueArmorModel<T extends ArmorStand> extends HumanoidModel<T> {
+public class StrawStatueArmorModel extends HumanoidModel<PlayerRenderState> {
 
     public StrawStatueArmorModel(ModelPart modelPart) {
         super(modelPart);
     }
 
     @Override
-    public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        StrawStatueModel.setupPoseAnim(this, entity);
+    public void setupAnim(PlayerRenderState renderState) {
+        StrawStatueModel.setupPoseAnim(this, (StrawStatueRenderState) renderState);
     }
 }

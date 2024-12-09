@@ -17,13 +17,13 @@ public class ModRecipeProvider extends AbstractRecipeProvider {
 
     @Override
     public void addRecipes(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.DECORATIONS, ModRegistry.STRAW_STATUE_ITEM.value())
+        ShapedRecipeBuilder.shaped(this.items(), RecipeCategory.DECORATIONS, ModRegistry.STRAW_STATUE_ITEM.value())
                 .define('#', Blocks.HAY_BLOCK)
                 .define('X', Items.STICK)
                 .pattern("XXX")
                 .pattern(" X ")
                 .pattern("X#X")
-                .unlockedBy("has_hay_block", has(Blocks.HAY_BLOCK))
+                .unlockedBy(getHasName(Blocks.HAY_BLOCK), this.has(Blocks.HAY_BLOCK))
                 .save(recipeOutput);
     }
 }
