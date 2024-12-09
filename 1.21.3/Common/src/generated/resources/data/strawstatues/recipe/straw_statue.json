@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "minecraft:hay_block"
+    },
+    "X": {
+      "item": "minecraft:stick"
+    }
+  },
+  "pattern": [
+    "XXX",
+    " X ",
+    "X#X"
+  ],
+  "result": {
+    "count": 1,
+    "id": "strawstatues:straw_statue"
+  }
+}
