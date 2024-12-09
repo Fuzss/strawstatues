@@ -1,16 +1,15 @@
 package fuzs.strawstatues.client.model;
 
-import fuzs.strawstatues.client.init.ModClientRegistry;
 import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import net.minecraft.client.model.PlayerCapeModel;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
 import net.minecraft.util.Mth;
 
 public class StrawStatueCapeModel extends PlayerCapeModel<PlayerRenderState> {
 
-    public StrawStatueCapeModel(EntityRendererProvider.Context context) {
-        super(context.getModelSet().bakeLayer(ModClientRegistry.STRAW_STATUE_CAPE));
+    public StrawStatueCapeModel(ModelPart modelPart) {
+        super(modelPart);
     }
 
     @Override

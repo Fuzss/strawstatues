@@ -12,13 +12,16 @@ import fuzs.strawstatues.client.gui.screens.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatuePositionScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatueScaleScreen;
 import fuzs.strawstatues.client.init.ModClientRegistry;
-import fuzs.strawstatues.client.model.StrawStatueModel;
 import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.client.model.ArmorStandArmorModel;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerCapeModel;
+import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.LayerDefinitions;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
@@ -33,14 +36,17 @@ public class StrawStatuesClient implements ClientModConstructor {
         ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
-        ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR, (ArmorStand armorStand) -> {
-            StrawStatue strawStatue = (StrawStatue) armorStand;
-            if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
-                return StrawStatueRenderer.getPlayerProfileTexture(strawStatue).map(PlayerSkin::capeTexture).isPresent();
-            } else {
-                return false;
-            }
-        });
+        ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR,
+                (ArmorStand armorStand) -> {
+                    StrawStatue strawStatue = (StrawStatue) armorStand;
+                    if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
+                        return StrawStatueRenderer.getPlayerProfileTexture(strawStatue)
+                                .map(PlayerSkin::capeTexture)
+                                .isPresent();
+                    } else {
+                        return false;
+                    }
+                });
         ArmorStandInInventoryRenderer.setArmorStandRenderer((guiGraphics, posX, posY, scale, mouseX, mouseY, livingEntity) -> {
             float modelScale = 0.0F;
             Rotations entityRotations = null;
@@ -48,9 +54,16 @@ public class StrawStatuesClient implements ClientModConstructor {
                 modelScale = strawStatue.getEntityScale();
                 entityRotations = strawStatue.getEntityRotations();
                 strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
-                strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(), StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
+                strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
+                        StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
             }
-            ArmorStandInInventoryRenderer.SIMPLE.renderEntityInInventory(guiGraphics, posX, posY, scale, mouseX, mouseY, livingEntity);
+            ArmorStandInInventoryRenderer.SIMPLE.renderEntityInInventory(guiGraphics,
+                    posX,
+                    posY,
+                    scale,
+                    mouseX,
+                    mouseY,
+                    livingEntity);
             if (livingEntity instanceof StrawStatue strawStatue) {
                 strawStatue.setEntityScale(modelScale);
                 strawStatue.setEntityRotations(entityRotations.getX(), entityRotations.getZ());
@@ -62,9 +75,10 @@ public class StrawStatuesClient implements ClientModConstructor {
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
         // compiler doesn't like method reference :(
-        context.registerMenuScreen(ModRegistry.STRAW_STATUE_MENU_TYPE.value(), (ArmorStandMenu menu, Inventory inventory, Component component) -> {
-            return ArmorStandScreenFactory.createLastScreenType(menu, inventory, component);
-        });
+        context.registerMenuScreen(ModRegistry.STRAW_STATUE_MENU_TYPE.value(),
+                (ArmorStandMenu menu, Inventory inventory, Component component) -> {
+                    return ArmorStandScreenFactory.createLastScreenType(menu, inventory, component);
+                });
     }
 
     @Override
@@ -74,9 +88,31 @@ public class StrawStatuesClient implements ClientModConstructor {
 
     @Override
     public void onRegisterLayerDefinitions(LayerDefinitionsContext context) {
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE, StrawStatueModel::createBodyLayer);
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_INNER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR, () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_INNER_ARMOR,
+                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR,
+                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64)
+                        .apply(HumanoidModel.BABY_TRANSFORMER));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_INNER_ARMOR,
+                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION)
+                        .apply(HumanoidModel.BABY_TRANSFORMER));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_OUTER_ARMOR,
+                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION)
+                        .apply(HumanoidModel.BABY_TRANSFORMER));
+
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_SLIM,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64));
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_SLIM,
+                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64)
+                        .apply(HumanoidModel.BABY_TRANSFORMER));
+
         context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_CAPE, PlayerCapeModel::createCapeLayer);
+        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_CAPE,
+                () -> PlayerCapeModel.createCapeLayer().apply(HumanoidModel.BABY_TRANSFORMER));
     }
 }

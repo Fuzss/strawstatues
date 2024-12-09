@@ -13,6 +13,6 @@ public class StrawStatueArmorModel extends HumanoidModel<PlayerRenderState> {
 
     @Override
     public void setupAnim(PlayerRenderState renderState) {
-        StrawStatueModel.setupPoseAnim(this, (StrawStatueRenderState) renderState);
+        StrawStatueModel.setupAnim(this, (StrawStatueRenderState) renderState);
     }
 }

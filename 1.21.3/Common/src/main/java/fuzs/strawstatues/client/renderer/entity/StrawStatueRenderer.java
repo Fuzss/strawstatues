@@ -7,7 +7,7 @@ import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.client.init.ModClientRegistry;
 import fuzs.strawstatues.client.model.StrawStatueArmorModel;
 import fuzs.strawstatues.client.model.StrawStatueModel;
-import fuzs.strawstatues.client.model.StrawStatueCapeModel;
+import fuzs.strawstatues.client.renderer.entity.layers.StrawStatueCapeLayer;
 import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.client.Minecraft;
@@ -35,18 +35,32 @@ import java.util.function.Function;
 public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, PlayerRenderState, StrawStatueModel> {
     public static final ResourceLocation STRAW_STATUE_LOCATION = StrawStatues.id("textures/entity/straw_statue.png");
 
+    private final StrawStatueModel bigModel;
+    private final StrawStatueModel smallModel;
+    private final StrawStatueModel slimBigModel;
+    private final StrawStatueModel slimSmallModel;
+
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
         super(context, new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE), false), 0.0F);
-        this.addLayer(new HumanoidArmorLayer<>(this, new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_INNER_ARMOR)), new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR)), context.getEquipmentRenderer()));
+        this.bigModel = this.getModel();
+        this.smallModel = new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY), false);
+        this.slimBigModel = new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_SLIM), true);
+        this.slimSmallModel = new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_SLIM), true);
+        this.addLayer(new HumanoidArmorLayer<>(this,
+                new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_INNER_ARMOR)),
+                new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR)),
+                new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_INNER_ARMOR)),
+                new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_OUTER_ARMOR)),
+                context.getEquipmentRenderer()));
         this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
         this.addLayer(new WingsLayer<>(this, context.getModelSet(), context.getEquipmentRenderer()));
-        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new Deadmau5EarsLayer(entityRenderer, context.getModelSet()));
-        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new CapeLayer(entityRenderer, context.getModelSet(), context.getEquipmentModels()) {
-
-            {
-                this.model = new StrawStatueCapeModel(context);
-            }
-        });
+        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new Deadmau5EarsLayer(
+                entityRenderer,
+                context.getModelSet()));
+        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new StrawStatueCapeLayer(
+                entityRenderer,
+                context.getModelSet(),
+                context.getEquipmentModels()));
         this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
     }
 
@@ -73,13 +87,18 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
 
     @Override
     public void render(PlayerRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+        if (renderState.isBaby) {
+            this.model = ((StrawStatueRenderState) renderState).slimArms ? this.slimSmallModel : this.smallModel;
+        } else {
+            this.model = ((StrawStatueRenderState) renderState).slimArms ? this.slimBigModel : this.bigModel;
+        }
         super.render(renderState, poseStack, bufferSource, packedLight);
     }
 
     @Override
     public Vec3 getRenderOffset(PlayerRenderState renderState) {
         Vec3 vec3 = super.getRenderOffset(renderState);
-        return renderState.isCrouching ? vec3.add(0.0, (double)(renderState.scale * -2.0F) / 16.0, 0.0) : vec3;
+        return renderState.isCrouching ? vec3.add(0.0, (double) (renderState.scale * -2.0F) / 16.0, 0.0) : vec3;
     }
 
     @Override
@@ -99,9 +118,13 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         strawStatueRenderState.rightArmPose = strawStatue.getRightArmPose();
         strawStatueRenderState.leftLegPose = strawStatue.getLeftLegPose();
         strawStatueRenderState.rightLegPose = strawStatue.getRightLegPose();
-        strawStatueRenderState.wiggle = (float)(strawStatue.level().getGameTime() - strawStatue.lastHit) + partialTick;
-        strawStatueRenderState.rotationZ = Mth.lerp(partialTick, strawStatue.entityRotationsO.getZ(), strawStatue.getEntityZRotation());
-        strawStatueRenderState.rotationX = Mth.lerp(partialTick, strawStatue.entityRotationsO.getX(), strawStatue.getEntityXRotation());
+        strawStatueRenderState.wiggle = (float) (strawStatue.level().getGameTime() - strawStatue.lastHit) + partialTick;
+        strawStatueRenderState.rotationZ = Mth.lerp(partialTick,
+                strawStatue.entityRotationsO.getZ(),
+                strawStatue.getEntityZRotation());
+        strawStatueRenderState.rotationX = Mth.lerp(partialTick,
+                strawStatue.entityRotationsO.getX(),
+                strawStatue.getEntityXRotation());
         reusedState.skin = getPlayerProfileTexture(strawStatue).orElseGet(DefaultPlayerSkin::getDefaultSkin);
         reusedState.showHat = strawStatue.isModelPartShown(PlayerModelPart.HAT);
         reusedState.showJacket = strawStatue.isModelPartShown(PlayerModelPart.JACKET);
@@ -111,7 +134,9 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         reusedState.showRightSleeve = strawStatue.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
         reusedState.showCape = strawStatue.isModelPartShown(PlayerModelPart.CAPE);
         strawStatueRenderState.slimArms = strawStatue.slimArms();
-        strawStatueRenderState.entityScale = Mth.lerp(partialTick, strawStatue.entityScaleO, strawStatue.getEntityScale());
+        strawStatueRenderState.entityScale = Mth.lerp(partialTick,
+                strawStatue.entityScaleO,
+                strawStatue.getEntityScale());
     }
 
     @Override
@@ -133,7 +158,8 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         poseStack.mulPose(Axis.XP.rotationDegrees(180.0F - strawStatueRenderState.rotationX));
 
         if (strawStatueRenderState.wiggle < 5.0F) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(strawStatueRenderState.wiggle / 1.5F * (float) Math.PI) * 3.0F));
+            poseStack.mulPose(Axis.YP.rotationDegrees(
+                    Mth.sin(strawStatueRenderState.wiggle / 1.5F * (float) Math.PI) * 3.0F));
         }
 
         if (renderState.isUpsideDown) {
