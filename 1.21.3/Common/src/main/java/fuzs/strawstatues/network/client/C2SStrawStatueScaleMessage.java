@@ -25,7 +25,7 @@ public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScale
 
     public static Consumer<Float> getValueSender(ScaleDataType type) {
         return (Float value) -> {
-            StrawStatues.NETWORK.sendToServer(new C2SStrawStatueScaleMessage(type, value).toServerboundMessage());
+            StrawStatues.NETWORK.sendMessage(new C2SStrawStatueScaleMessage(type, value).toServerboundMessage());
         };
     }
 
@@ -55,11 +55,11 @@ public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScale
     }
 
     public enum ScaleDataType {
-        SCALE(StrawStatue::setEntityScale),
+        SCALE(StrawStatue::setScale),
         ROTATION_X(StrawStatue::setEntityXRotation),
         ROTATION_Z(StrawStatue::setEntityZRotation),
         RESET((StrawStatue strawStatue, Float value) -> {
-            strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
+            strawStatue.setScale(StrawStatue.DEFAULT_SCALE);
             strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
                     StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ()
             );

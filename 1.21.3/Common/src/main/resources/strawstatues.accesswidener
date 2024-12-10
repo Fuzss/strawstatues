@@ -6,3 +6,4 @@ accessible  field   net/minecraft/world/level/block/entity/SkullBlockEntity prof
 accessible  field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
 mutable field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
 accessible  field   net/minecraft/client/model/PlayerCapeModel  cape    Lnet/minecraft/client/model/geom/ModelPart;
+accessible  field   net/minecraft/world/entity/player/Player    POSES   Ljava/util/Map;

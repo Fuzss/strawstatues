@@ -82,8 +82,7 @@ public class StrawStatueItem extends Item {
                             SoundEvents.GRASS_PLACE,
                             SoundSource.BLOCKS,
                             0.75F,
-                            0.8F
-                    );
+                            0.8F);
                     armorStand.gameEvent(GameEvent.ENTITY_PLACE, player);
                     if (player != null && !player.isShiftKeyDown()) {
                         ArmorStandPose.randomValue().applyToEntity(armorStand);
@@ -129,8 +128,7 @@ public class StrawStatueItem extends Item {
         if (resolvableProfile != null && !resolvableProfile.isResolved()) {
             resolvableProfile.resolve()
                     .thenAcceptAsync(newResolvableProfile -> itemStack.set(DataComponents.PROFILE,
-                            newResolvableProfile
-                    ), SkullBlockEntity.CHECKED_MAIN_THREAD_EXECUTOR);
+                            newResolvableProfile), SkullBlockEntity.CHECKED_MAIN_THREAD_EXECUTOR);
         }
     }
 }

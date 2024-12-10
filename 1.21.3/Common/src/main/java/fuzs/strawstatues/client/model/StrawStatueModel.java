@@ -15,7 +15,10 @@ public class StrawStatueModel extends PlayerModel {
 
     @Override
     public void setupAnim(PlayerRenderState renderState) {
+        // we need the super call for model visibilities,
+        // all other model part modifications are immediately reset afterward
         super.setupAnim(renderState);
+        this.resetPose();
         setupAnim(this, (StrawStatueRenderState) renderState);
     }
 
@@ -39,14 +42,13 @@ public class StrawStatueModel extends PlayerModel {
             model.body.xRot = 0.5F;
             model.rightArm.xRot += 0.4F;
             model.leftArm.xRot += 0.4F;
-            model.rightLeg.z = 4.0F;
-            model.leftLeg.z = 4.0F;
-            model.rightLeg.y = 12.2F;
-            model.leftLeg.y = 12.2F;
-            model.head.y = 4.2F;
-            model.body.y = 3.2F;
-            model.leftArm.y = 5.2F;
-            model.rightArm.y = 5.2F;
+            float babyScale = renderState.isBaby ? 0.5F : 1.0F;
+            model.rightLeg.z += 4.0F * babyScale;
+            model.leftLeg.z += 4.0F * babyScale;
+            model.head.y += 4.2F * babyScale;
+            model.body.y += 3.2F * babyScale;
+            model.leftArm.y += 3.2F * babyScale;
+            model.rightArm.y += 3.2F * babyScale;
         }
     }
 }

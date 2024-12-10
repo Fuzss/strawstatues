@@ -10,7 +10,6 @@ public class StrawStatueRenderState extends PlayerRenderState {
     public float wiggle;
     public boolean isMarker;
     public boolean slimArms;
-    public float entityScale;
     public Rotations headPose = ArmorStand.DEFAULT_HEAD_POSE;
     public Rotations bodyPose = ArmorStand.DEFAULT_BODY_POSE;
     public Rotations leftArmPose = ArmorStand.DEFAULT_LEFT_ARM_POSE;

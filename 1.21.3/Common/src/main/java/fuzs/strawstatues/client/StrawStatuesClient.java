@@ -4,7 +4,6 @@ import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.EntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.LayerDefinitionsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
-import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandInInventoryRenderer;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandRotationsScreen;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandScreenFactory;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
@@ -23,7 +22,6 @@ import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.resources.PlayerSkin;
-import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Inventory;
@@ -38,37 +36,14 @@ public class StrawStatuesClient implements ClientModConstructor {
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
         ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR,
                 (ArmorStand armorStand) -> {
-                    StrawStatue strawStatue = (StrawStatue) armorStand;
-                    if (strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
-                        return StrawStatueRenderer.getPlayerProfileTexture(strawStatue)
+                    if (((StrawStatue) armorStand).isModelPartShown(PlayerModelPart.CAPE)) {
+                        return StrawStatueRenderer.getPlayerProfileTexture((StrawStatue) armorStand)
                                 .map(PlayerSkin::capeTexture)
                                 .isPresent();
                     } else {
                         return false;
                     }
                 });
-        ArmorStandInInventoryRenderer.setArmorStandRenderer((guiGraphics, posX, posY, scale, mouseX, mouseY, livingEntity) -> {
-            float modelScale = 0.0F;
-            Rotations entityRotations = null;
-            if (livingEntity instanceof StrawStatue strawStatue) {
-                modelScale = strawStatue.getEntityScale();
-                entityRotations = strawStatue.getEntityRotations();
-                strawStatue.setEntityScale(StrawStatue.DEFAULT_ENTITY_SCALE);
-                strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
-                        StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
-            }
-            ArmorStandInInventoryRenderer.SIMPLE.renderEntityInInventory(guiGraphics,
-                    posX,
-                    posY,
-                    scale,
-                    mouseX,
-                    mouseY,
-                    livingEntity);
-            if (livingEntity instanceof StrawStatue strawStatue) {
-                strawStatue.setEntityScale(modelScale);
-                strawStatue.setEntityRotations(entityRotations.getX(), entityRotations.getZ());
-            }
-        });
     }
 
     @SuppressWarnings("Convert2MethodRef")

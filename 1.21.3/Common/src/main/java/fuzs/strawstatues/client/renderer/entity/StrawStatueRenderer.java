@@ -64,6 +64,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
     }
 
+    @SuppressWarnings("unchecked")
     private boolean addPlayerLayer(Function<RenderLayerParent<PlayerRenderState, PlayerModel>, RenderLayer<PlayerRenderState, PlayerModel>> factory) {
         RenderLayer<PlayerRenderState, PlayerModel> layer = factory.apply((RenderLayerParent<PlayerRenderState, PlayerModel>) (RenderLayerParent<?, ?>) this);
         return this.layers.add((RenderLayer<PlayerRenderState, StrawStatueModel>) (RenderLayer<?, ?>) layer);
@@ -134,18 +135,10 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         reusedState.showRightSleeve = strawStatue.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
         reusedState.showCape = strawStatue.isModelPartShown(PlayerModelPart.CAPE);
         strawStatueRenderState.slimArms = strawStatue.slimArms();
-        strawStatueRenderState.entityScale = Mth.lerp(partialTick,
-                strawStatue.entityScaleO,
-                strawStatue.getEntityScale());
-    }
-
-    @Override
-    protected void scale(PlayerRenderState renderState, PoseStack poseStack) {
-        super.scale(renderState, poseStack);
-        float entityScale = ((StrawStatueRenderState) renderState).entityScale;
-        entityScale /= StrawStatue.DEFAULT_ENTITY_SCALE;
-        entityScale *= 0.9375F;
-        poseStack.scale(entityScale, entityScale, entityScale);
+        // override vanilla scale property, so we can lerp the value
+        strawStatueRenderState.scale = Mth.lerp(partialTick,
+                strawStatue.scaleO,
+                strawStatue.getScale());
     }
 
     @Override
