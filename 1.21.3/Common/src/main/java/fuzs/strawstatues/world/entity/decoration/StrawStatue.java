@@ -20,7 +20,6 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -31,9 +30,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.PlayerModelPart;
@@ -58,11 +54,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             .stream()
             .collect(ImmutableMap.toImmutableMap(Map.Entry::getKey,
                     (Map.Entry<Pose, EntityDimensions> entry) -> entry.getValue().scale(0.5F)));
-    protected static final ResourceLocation SCALE_BONUS_ID = StrawStatues.id("scale_bonus");
     public static final Rotations DEFAULT_ENTITY_ROTATIONS = new Rotations(180.0F, 0.0F, 180.0F);
-    public static final float DEFAULT_SCALE = (float) Attributes.SCALE.value().getDefaultValue();
-    public static final float MIN_SCALE = 0.0625F;
-    public static final float MAX_SCALE = 16.0F;
     public static final String OWNER_KEY = "Owner";
     public static final String PROFILE_KEY = "profile";
     public static final String SLIM_ARMS_KEY = "SlimArms";
@@ -280,18 +272,6 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         this.entityData.set(DATA_ENTITY_ROTATIONS, new Rotations(rotationX, 0.0F, rotationZ));
     }
 
-    public void setScale(float scale) {
-        scale = this.sanitizeScale(scale);
-        AttributeInstance attribute = this.getAttribute(Attributes.SCALE);
-        if (scale == DEFAULT_SCALE) {
-            attribute.removeModifier(SCALE_BONUS_ID);
-        } else {
-            attribute.addOrReplacePermanentModifier(new AttributeModifier(SCALE_BONUS_ID,
-                    scale - DEFAULT_SCALE,
-                    AttributeModifier.Operation.ADD_VALUE));
-        }
-    }
-
     @Override
     public void baseTick() {
         super.baseTick();
@@ -405,8 +385,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public LivingEntity.Fallsounds getFallSounds() {
-        return new LivingEntity.Fallsounds(SoundEvents.GRASS_FALL, SoundEvents.GRASS_FALL);
+    public Fallsounds getFallSounds() {
+        return new Fallsounds(SoundEvents.GRASS_FALL, SoundEvents.GRASS_FALL);
     }
 
     @Override
@@ -471,10 +451,12 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public Runnable setupInInventoryRendering(ArmorStand armorStand) {
+        Runnable runnable = ArmorStandDataProvider.super.setupInInventoryRendering(armorStand);
         final Rotations rotations = ((StrawStatue) armorStand).getEntityRotations();
         ((StrawStatue) armorStand).setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
                 StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
         return () -> {
+            runnable.run();
             ((StrawStatue) armorStand).setEntityRotations(rotations.getX(), rotations.getZ());
         };
     }

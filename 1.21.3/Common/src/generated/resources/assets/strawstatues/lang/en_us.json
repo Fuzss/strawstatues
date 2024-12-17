@@ -13,6 +13,5 @@
   "strawstatues.screen.modelParts.refreshSkin": "No statue skin was found. Click to try again.",
   "strawstatues.screen.position.rotationX": "X-Rotation:",
   "strawstatues.screen.position.rotationY": "Y-Rotation:",
-  "strawstatues.screen.position.rotationZ": "Z-Rotation:",
-  "strawstatues.screen.position.scale": "Scale:"
+  "strawstatues.screen.position.rotationZ": "Z-Rotation:"
 }

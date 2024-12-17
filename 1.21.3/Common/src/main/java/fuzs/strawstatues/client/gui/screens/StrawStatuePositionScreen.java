@@ -15,6 +15,23 @@ import java.util.EnumSet;
 import java.util.List;
 
 public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
+    protected static final ArmorStandWidgetFactory<StrawStatuePositionScreen> ALIGNMENTS_WIDGET_FACTORY = (StrawStatuePositionScreen screen, ArmorStand armorStand) -> {
+        return screen.new DoubleButtonWidget(Component.translatable(ArmorStandPositionScreen.CENTERED_TRANSLATION_KEY),
+                Component.translatable(ArmorStandPositionScreen.CORNERED_TRANSLATION_KEY),
+                Component.translatable(ArmorStandPositionScreen.CENTERED_DESCRIPTION_TRANSLATION_KEY),
+                Component.translatable(ArmorStandPositionScreen.CORNERED_DESCRIPTION_TRANSLATION_KEY),
+                Component.translatable(ArmorStandPositionScreen.ALIGNED_TRANSLATION_KEY),
+                button -> {
+                    Vec3 newPosition = armorStand.position()
+                            .align(EnumSet.allOf(Direction.Axis.class))
+                            .add(0.5, 0.0, 0.5);
+                    screen.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
+                },
+                button -> {
+                    Vec3 newPosition = armorStand.position().align(EnumSet.allOf(Direction.Axis.class));
+                    screen.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
+                });
+    };
 
     public StrawStatuePositionScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
         super(holder, inventory, component, dataSyncHandler);
@@ -22,16 +39,18 @@ public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
 
     @Override
     protected List<ArmorStandWidget> buildWidgets(ArmorStand armorStand) {
-        List<ArmorStandWidget> widgets = super.buildWidgets(armorStand);
-        widgets = widgets.subList(1, widgets.size());
-        widgets.add(new DoubleButtonWidget(Component.translatable(ArmorStandPositionScreen.CENTERED_TRANSLATION_KEY), Component.translatable(ArmorStandPositionScreen.CORNERED_TRANSLATION_KEY), Component.translatable(ArmorStandPositionScreen.CENTERED_DESCRIPTION_TRANSLATION_KEY), Component.translatable(ArmorStandPositionScreen.CORNERED_DESCRIPTION_TRANSLATION_KEY), Component.translatable(ArmorStandPositionScreen.ALIGNED_TRANSLATION_KEY), button -> {
-            Vec3 newPosition = this.holder.getArmorStand().position().align(EnumSet.allOf(Direction.Axis.class)).add(0.5, 0.0, 0.5);
-            this.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
-        }, button -> {
-            Vec3 newPosition = this.holder.getArmorStand().position().align(EnumSet.allOf(Direction.Axis.class));
-            this.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
-        }));
-        return widgets;
+        return buildWidgets(this,
+                armorStand,
+                List.of(POSITION_INCREMENT_WIDGET_FACTORY,
+                        POSITION_X_WIDGET_FACTORY,
+                        POSITION_Y_WIDGET_FACTORY,
+                        POSITION_Z_WIDGET_FACTORY,
+                        ALIGNMENTS_WIDGET_FACTORY));
+    }
+
+    @Override
+    protected boolean withCloseButton() {
+        return true;
     }
 
     @Override

@@ -79,11 +79,9 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         }
     }
 
-    public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
-        return strawStatue.getProfile().map(ResolvableProfile::gameProfile).map((GameProfile gameProfile) -> {
-            Minecraft minecraft = Minecraft.getInstance();
-            return minecraft.getSkinManager().getInsecureSkin(gameProfile);
-        });
+    @Override
+    protected void scale(PlayerRenderState renderState, PoseStack poseStack) {
+        poseStack.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
     @Override
@@ -139,6 +137,13 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         strawStatueRenderState.scale = Mth.lerp(partialTick,
                 strawStatue.scaleO,
                 strawStatue.getScale());
+    }
+
+    public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
+        return strawStatue.getProfile().map(ResolvableProfile::gameProfile).map((GameProfile gameProfile) -> {
+            Minecraft minecraft = Minecraft.getInstance();
+            return minecraft.getSkinManager().getInsecureSkin(gameProfile);
+        });
     }
 
     @Override

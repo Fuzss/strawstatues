@@ -1,6 +1,7 @@
 package fuzs.strawstatues.network.client;
 
 import fuzs.puzzleslib.api.network.v2.MessageV2;
+import fuzs.statuemenus.api.v1.helper.ScaleAttributeHelper;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
@@ -55,14 +56,12 @@ public class C2SStrawStatueScaleMessage implements MessageV2<C2SStrawStatueScale
     }
 
     public enum ScaleDataType {
-        SCALE(StrawStatue::setScale),
         ROTATION_X(StrawStatue::setEntityXRotation),
         ROTATION_Z(StrawStatue::setEntityZRotation),
         RESET((StrawStatue strawStatue, Float value) -> {
-            strawStatue.setScale(StrawStatue.DEFAULT_SCALE);
+            ScaleAttributeHelper.setScale(strawStatue, ScaleAttributeHelper.DEFAULT_SCALE);
             strawStatue.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
-                    StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ()
-            );
+                    StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
         });
 
         public final BiConsumer<StrawStatue, Float> consumer;
