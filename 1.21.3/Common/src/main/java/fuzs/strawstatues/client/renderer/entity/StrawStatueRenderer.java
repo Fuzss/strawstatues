@@ -132,11 +132,13 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         reusedState.showLeftSleeve = strawStatue.isModelPartShown(PlayerModelPart.LEFT_SLEEVE);
         reusedState.showRightSleeve = strawStatue.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE);
         reusedState.showCape = strawStatue.isModelPartShown(PlayerModelPart.CAPE);
+        reusedState.name = strawStatue.getProfile()
+                .map(ResolvableProfile::gameProfile)
+                .map(GameProfile::getName)
+                .orElse("Steve");
         strawStatueRenderState.slimArms = strawStatue.slimArms();
         // override vanilla scale property, so we can lerp the value
-        strawStatueRenderState.scale = Mth.lerp(partialTick,
-                strawStatue.scaleO,
-                strawStatue.getScale());
+        strawStatueRenderState.scale = Mth.lerp(partialTick, strawStatue.scaleO, strawStatue.getScale());
     }
 
     public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
