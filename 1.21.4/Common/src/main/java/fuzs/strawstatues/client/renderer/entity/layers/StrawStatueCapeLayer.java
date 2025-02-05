@@ -10,14 +10,14 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
 import net.minecraft.client.renderer.entity.state.PlayerRenderState;
-import net.minecraft.client.resources.model.EquipmentModelSet;
+import net.minecraft.client.resources.model.EquipmentAssetManager;
 
 public class StrawStatueCapeLayer extends CapeLayer {
     private final HumanoidModel<PlayerRenderState> bigModel;
     private final HumanoidModel<PlayerRenderState> smallModel;
 
-    public StrawStatueCapeLayer(RenderLayerParent<PlayerRenderState, PlayerModel> renderer, EntityModelSet entityModels, EquipmentModelSet equipmentModels) {
-        super(renderer, entityModels, equipmentModels);
+    public StrawStatueCapeLayer(RenderLayerParent<PlayerRenderState, PlayerModel> renderer, EntityModelSet entityModels, EquipmentAssetManager equipmentAssets) {
+        super(renderer, entityModels, equipmentAssets);
         this.bigModel = new StrawStatueCapeModel(entityModels.bakeLayer(ModClientRegistry.STRAW_STATUE_CAPE));
         this.smallModel = new StrawStatueCapeModel(entityModels.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_CAPE));
     }

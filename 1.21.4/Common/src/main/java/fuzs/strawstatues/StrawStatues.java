@@ -1,9 +1,9 @@
 package fuzs.strawstatues;
 
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
-import fuzs.puzzleslib.api.core.v1.context.BuildCreativeModeTabContentsContext;
 import fuzs.puzzleslib.api.core.v1.context.EntityAttributesCreateContext;
 import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
+import fuzs.puzzleslib.api.event.v1.BuildCreativeModeTabContentsCallback;
 import fuzs.puzzleslib.api.event.v1.core.EventPhase;
 import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
 import fuzs.puzzleslib.api.network.v3.NetworkHandler;
@@ -23,6 +23,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -51,6 +52,14 @@ public class StrawStatues implements ModConstructor {
     private static void registerEventHandlers() {
         // high priority so we run before the Quark mod
         PlayerInteractEvents.USE_ENTITY_AT.register(EventPhase.BEFORE, StrawStatue::onUseEntityAt);
+        BuildCreativeModeTabContentsCallback.buildCreativeModeTabContents(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+                .register(StrawStatues::onBuildCreativeModeTabContents);
+        BuildCreativeModeTabContentsCallback.buildCreativeModeTabContents(CreativeModeTabs.REDSTONE_BLOCKS)
+                .register(StrawStatues::onBuildCreativeModeTabContents);
+    }
+
+    private static void onBuildCreativeModeTabContents(CreativeModeTab creativeModeTab, CreativeModeTab.ItemDisplayParameters itemDisplayParameters, CreativeModeTab.Output output) {
+        output.accept(ModRegistry.STRAW_STATUE_ITEM.value());
     }
 
     @Override
@@ -82,16 +91,6 @@ public class StrawStatues implements ModConstructor {
     @Override
     public void onEntityAttributeCreation(EntityAttributesCreateContext context) {
         context.registerEntityAttributes(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), ArmorStand.createAttributes());
-    }
-
-    @Override
-    public void onBuildCreativeModeTabContents(BuildCreativeModeTabContentsContext context) {
-        context.registerBuildListener(CreativeModeTabs.FUNCTIONAL_BLOCKS, (itemDisplayParameters, output) -> {
-            output.accept(ModRegistry.STRAW_STATUE_ITEM.value());
-        });
-        context.registerBuildListener(CreativeModeTabs.REDSTONE_BLOCKS, (itemDisplayParameters, output) -> {
-            output.accept(ModRegistry.STRAW_STATUE_ITEM.value());
-        });
     }
 
     public static ResourceLocation id(String path) {

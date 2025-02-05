@@ -52,7 +52,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
                 new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_INNER_ARMOR)),
                 new StrawStatueArmorModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY_OUTER_ARMOR)),
                 context.getEquipmentRenderer()));
-        this.addLayer(new ItemInHandLayer<>(this, context.getItemRenderer()));
+        this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new WingsLayer<>(this, context.getModelSet(), context.getEquipmentRenderer()));
         this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new Deadmau5EarsLayer(
                 entityRenderer,
@@ -60,8 +60,8 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new StrawStatueCapeLayer(
                 entityRenderer,
                 context.getModelSet(),
-                context.getEquipmentModels()));
-        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet(), context.getItemRenderer()));
+                context.getEquipmentAssets()));
+        this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
     }
 
     @SuppressWarnings("unchecked")
@@ -108,7 +108,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
     @Override
     public void extractRenderState(StrawStatue strawStatue, PlayerRenderState reusedState, float partialTick) {
         super.extractRenderState(strawStatue, reusedState, partialTick);
-        HumanoidMobRenderer.extractHumanoidRenderState(strawStatue, reusedState, partialTick);
+        HumanoidMobRenderer.extractHumanoidRenderState(strawStatue, reusedState, partialTick, this.itemModelResolver);
         StrawStatueRenderState strawStatueRenderState = (StrawStatueRenderState) reusedState;
         strawStatueRenderState.isMarker = strawStatue.isMarker();
         strawStatueRenderState.bodyPose = strawStatue.getBodyPose();
