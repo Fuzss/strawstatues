@@ -1,0 +1,16 @@
+{
+  "entity.strawstatues.straw_statue": "Estatua de Paja",
+  "item.strawstatues.straw_statue": "Estatua de Paja",
+  "puzzlesapi.screen.rotations.pose.cape": "Capa",
+  "puzzlesapi.screen.style.crouching": "Agachado",
+  "puzzlesapi.screen.style.crouching.description": "Hace que la estatua se muestre como si estuviera agachada.",
+  "puzzlesapi.screen.style.slimArms": "Brazos Delgados",
+  "puzzlesapi.screen.style.slimArms.description": "Hace que los brazos de la estatua sean unos pocos píxeles menos anchos, como la piel de Alex en Minecraft.",
+  "puzzlesapi.screen.type.modelParts": "Partes del Modelo",
+  "puzzlesapi.screen.type.scale": "Escala y Rotaciones",
+  "strawstatues.screen.modelParts.name": "Establece un nombre de jugador para tomar la piel de la estatua.",
+  "strawstatues.screen.position.rotationX": "Rotación X:",
+  "strawstatues.screen.position.rotationY": "Rotación Y:",
+  "strawstatues.screen.position.rotationZ": "Rotación Z:",
+  "strawstatues.screen.position.scale": "Escala:"
+}
