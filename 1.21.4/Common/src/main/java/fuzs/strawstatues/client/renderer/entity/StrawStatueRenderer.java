@@ -41,7 +41,7 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
     private final StrawStatueModel slimSmallModel;
 
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
-        super(context, new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE), false), 0.0F);
+        super(context, new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE), false), 0.5F);
         this.bigModel = this.getModel();
         this.smallModel = new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_BABY), false);
         this.slimBigModel = new StrawStatueModel(context.bakeLayer(ModClientRegistry.STRAW_STATUE_SLIM), true);
