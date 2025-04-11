@@ -119,10 +119,10 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
         strawStatueRenderState.rightLegPose = strawStatue.getRightLegPose();
         strawStatueRenderState.wiggle = (float) (strawStatue.level().getGameTime() - strawStatue.lastHit) + partialTick;
         strawStatueRenderState.rotationZ = Mth.lerp(partialTick,
-                strawStatue.entityRotationsO.getZ(),
+                strawStatue.entityRotationsO.z(),
                 strawStatue.getEntityZRotation());
         strawStatueRenderState.rotationX = Mth.lerp(partialTick,
-                strawStatue.entityRotationsO.getX(),
+                strawStatue.entityRotationsO.x(),
                 strawStatue.getEntityXRotation());
         reusedState.skin = getPlayerProfileTexture(strawStatue).orElseGet(DefaultPlayerSkin::getDefaultSkin);
         reusedState.showHat = strawStatue.isModelPartShown(PlayerModelPart.HAT);

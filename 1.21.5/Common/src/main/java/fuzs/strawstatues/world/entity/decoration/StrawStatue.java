@@ -16,7 +16,6 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -113,31 +112,30 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
         this.entityData.get(DATA_PROFILE).ifPresent((ResolvableProfile resolvableProfile) -> {
             tag.put(PROFILE_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
         });
-        Rotations entityRotations = this.getEntityRotations();
-        if (!DEFAULT_ENTITY_ROTATIONS.equals(entityRotations)) {
-            tag.put(ENTITY_ROTATIONS_KEY, entityRotations.save());
+        if (!DEFAULT_ENTITY_ROTATIONS.equals(this.getEntityRotations())) {
+            tag.store(ENTITY_ROTATIONS_KEY, Rotations.CODEC, this.getEntityRotations());
         }
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(SLIM_ARMS_KEY, Tag.TAG_BYTE)) {
-            this.setSlimArms(tag.getBoolean(SLIM_ARMS_KEY));
+        if (tag.contains(SLIM_ARMS_KEY)) {
+            this.setSlimArms(tag.getBooleanOr(SLIM_ARMS_KEY, false));
         }
-        if (tag.contains(CROUCHING_KEY, Tag.TAG_BYTE)) {
-            this.setCrouching(tag.getBoolean(CROUCHING_KEY));
+        if (tag.contains(CROUCHING_KEY)) {
+            this.setCrouching(tag.getBooleanOr(CROUCHING_KEY, false));
         }
-        if (tag.contains(MODEL_PARTS_KEY, Tag.TAG_BYTE)) {
-            this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION, tag.getByte(MODEL_PARTS_KEY));
+        if (tag.contains(MODEL_PARTS_KEY)) {
+            this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION, tag.getByteOr(MODEL_PARTS_KEY, (byte) 0));
         }
         Optional<Dynamic<?>> optional;
-        if (tag.contains(PROFILE_KEY, Tag.TAG_COMPOUND)) {
+        if (tag.contains(PROFILE_KEY)) {
             optional = Optional.of(new Dynamic<>(NbtOps.INSTANCE, tag.get(PROFILE_KEY)));
-        } else if (tag.contains(OWNER_KEY, Tag.TAG_COMPOUND)) {
+        } else if (tag.contains(OWNER_KEY)) {
             // backwards compatibility with the old game profile format
             optional = Optional.of(ItemStackComponentizationFix.fixProfile(new Dynamic<>(NbtOps.INSTANCE,
-                    tag.getCompound(OWNER_KEY))));
+                    tag.getCompoundOrEmpty(OWNER_KEY))));
         } else {
             optional = Optional.empty();
         }
@@ -147,11 +145,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                 }))
                 .ifPresent(this::setProfile);
         this.scaleO = this.getScale();
-        if (tag.contains(ENTITY_ROTATIONS_KEY, Tag.TAG_LIST)) {
-            Rotations entityRotations = new Rotations(tag.getList(ENTITY_ROTATIONS_KEY, Tag.TAG_FLOAT));
-            this.setEntityRotations(entityRotations.getX(), entityRotations.getZ());
-            this.entityRotationsO = this.getEntityRotations();
-        }
+        this.entityData.set(DATA_ENTITY_ROTATIONS,
+                tag.read(ENTITY_ROTATIONS_KEY, Rotations.CODEC).orElse(DEFAULT_ENTITY_ROTATIONS));
+        this.entityRotationsO = this.getEntityRotations();
     }
 
     @Override
@@ -247,7 +243,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     public float getEntityXRotation() {
-        return this.getEntityRotations().getX();
+        return this.getEntityRotations().x();
     }
 
     public Rotations getEntityRotations() {
@@ -255,7 +251,7 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     public float getEntityZRotation() {
-        return this.getEntityRotations().getZ();
+        return this.getEntityRotations().z();
     }
 
     public void setEntityXRotation(float rotationX) {
@@ -453,11 +449,11 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     public Runnable setupInInventoryRendering(ArmorStand armorStand) {
         Runnable runnable = ArmorStandDataProvider.super.setupInInventoryRendering(armorStand);
         final Rotations rotations = ((StrawStatue) armorStand).getEntityRotations();
-        ((StrawStatue) armorStand).setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.getX(),
-                StrawStatue.DEFAULT_ENTITY_ROTATIONS.getZ());
+        ((StrawStatue) armorStand).setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.x(),
+                StrawStatue.DEFAULT_ENTITY_ROTATIONS.z());
         return () -> {
             runnable.run();
-            ((StrawStatue) armorStand).setEntityRotations(rotations.getX(), rotations.getZ());
+            ((StrawStatue) armorStand).setEntityRotations(rotations.x(), rotations.z());
         };
     }
 }

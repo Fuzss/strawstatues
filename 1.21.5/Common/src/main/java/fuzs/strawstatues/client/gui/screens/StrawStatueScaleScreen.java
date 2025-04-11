@@ -8,7 +8,7 @@ import fuzs.statuemenus.api.v1.world.inventory.ArmorStandHolder;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.init.ModRegistry;
-import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -28,7 +28,7 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_X_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
         return screen.new StrawStatueRotationWidget(Component.translatable(ROTATION_X_TRANSLATION_KEY),
                 ((StrawStatue) armorStand)::getEntityXRotation,
-                C2SStrawStatueScaleMessage.getValueSender(C2SStrawStatueScaleMessage.ScaleDataType.ROTATION_X),
+                ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.ROTATION_X),
                 ((StrawStatue) armorStand)::setEntityXRotation);
     };
     protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Y_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
@@ -39,7 +39,7 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Z_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
         return screen.new StrawStatueRotationWidget(Component.translatable(ROTATION_Z_TRANSLATION_KEY),
                 ((StrawStatue) armorStand)::getEntityZRotation,
-                C2SStrawStatueScaleMessage.getValueSender(C2SStrawStatueScaleMessage.ScaleDataType.ROTATION_Z),
+                ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.ROTATION_Z),
                 ((StrawStatue) armorStand)::setEntityZRotation);
     };
 
@@ -60,9 +60,9 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
                 124,
                 getArmorStandWidgetsLocation(),
                 button -> {
-                    C2SStrawStatueScaleMessage.ScaleDataType.RESET.consumer.accept((StrawStatue) StrawStatueScaleScreen.this.holder.getArmorStand(),
+                    ServerboundStrawStatueScaleMessage.DataType.RESET.consumer.accept((StrawStatue) StrawStatueScaleScreen.this.holder.getArmorStand(),
                             -1.0F);
-                    C2SStrawStatueScaleMessage.getValueSender(C2SStrawStatueScaleMessage.ScaleDataType.RESET)
+                    ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.RESET)
                             .accept(-1.0F);
                     this.widgets.forEach(ArmorStandWidget::reset);
                 })), widget -> {

@@ -1,18 +1,18 @@
 package fuzs.strawstatues;
 
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
-import fuzs.puzzleslib.api.core.v1.context.EntityAttributesCreateContext;
+import fuzs.puzzleslib.api.core.v1.context.EntityAttributesContext;
+import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
 import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import fuzs.puzzleslib.api.event.v1.BuildCreativeModeTabContentsCallback;
 import fuzs.puzzleslib.api.event.v1.core.EventPhase;
 import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
-import fuzs.puzzleslib.api.network.v3.NetworkHandler;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOption;
 import fuzs.strawstatues.init.ModRegistry;
-import fuzs.strawstatues.network.client.C2SStrawStatueModelPartMessage;
-import fuzs.strawstatues.network.client.C2SStrawStatueScaleMessage;
-import fuzs.strawstatues.network.client.C2SStrawStatueSetProfileMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueModelPartMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueSetProfileMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,12 +36,6 @@ public class StrawStatues implements ModConstructor {
     public static final String MOD_ID = "strawstatues";
     public static final String MOD_NAME = "Straw Statues";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
-
-    public static final NetworkHandler NETWORK = NetworkHandler.builder(MOD_ID)
-            .registerLegacyServerbound(C2SStrawStatueModelPartMessage.class, C2SStrawStatueModelPartMessage::new)
-            .registerLegacyServerbound(C2SStrawStatueSetProfileMessage.class, C2SStrawStatueSetProfileMessage::new)
-            .registerLegacyServerbound(C2SStrawStatueScaleMessage.class, C2SStrawStatueScaleMessage::new);
-    ;
 
     @Override
     public void onConstructMod() {
@@ -89,8 +83,17 @@ public class StrawStatues implements ModConstructor {
     }
 
     @Override
-    public void onEntityAttributeCreation(EntityAttributesCreateContext context) {
-        context.registerEntityAttributes(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), ArmorStand.createAttributes());
+    public void onRegisterPayloadTypes(PayloadTypesContext context) {
+        context.playToServer(ServerboundStrawStatueModelPartMessage.class,
+                ServerboundStrawStatueModelPartMessage.STREAM_CODEC);
+        context.playToServer(ServerboundStrawStatueSetProfileMessage.class,
+                ServerboundStrawStatueSetProfileMessage.STREAM_CODEC);
+        context.playToServer(ServerboundStrawStatueScaleMessage.class, ServerboundStrawStatueScaleMessage.STREAM_CODEC);
+    }
+
+    @Override
+    public void onRegisterEntityAttributes(EntityAttributesContext context) {
+        context.registerAttributes(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), ArmorStand.createAttributes());
     }
 
     public static ResourceLocation id(String path) {

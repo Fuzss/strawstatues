@@ -4,8 +4,10 @@ import fuzs.puzzleslib.api.client.core.v1.ClientModConstructor;
 import fuzs.puzzleslib.api.client.core.v1.context.EntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.LayerDefinitionsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
+import fuzs.puzzleslib.api.client.gui.v2.tooltip.ItemTooltipRegistry;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandRotationsScreen;
 import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandScreenFactory;
+import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
 import fuzs.strawstatues.client.gui.screens.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatuePositionScreen;
@@ -31,6 +33,8 @@ public class StrawStatuesClient implements ClientModConstructor {
 
     @Override
     public void onClientSetup() {
+        ItemTooltipRegistry.registerItemTooltip(ModRegistry.STRAW_STATUE_ITEM.value(),
+                ArmorStandInteractHelper.getArmorStandHoverText());
         ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);

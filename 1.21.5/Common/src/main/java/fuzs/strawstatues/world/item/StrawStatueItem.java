@@ -1,8 +1,6 @@
 package fuzs.strawstatues.world.item;
 
-import fuzs.puzzleslib.api.core.v1.Proxy;
 import fuzs.puzzleslib.api.util.v1.InteractionResultHelper;
-import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
@@ -23,7 +21,6 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.item.context.UseOnContext;
@@ -33,7 +30,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class StrawStatueItem extends Item {
@@ -72,7 +68,7 @@ public class StrawStatueItem extends Item {
                     }
                     float yRot = (float) Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F) *
                             45.0F;
-                    armorStand.moveTo(armorStand.getX(), armorStand.getY(), armorStand.getZ(), yRot, 0.0F);
+                    armorStand.snapTo(armorStand.getX(), armorStand.getY(), armorStand.getZ(), yRot, 0.0F);
                     this.randomizePose(armorStand, level.random);
                     serverLevel.addFreshEntityWithPassengers(armorStand);
                     level.playSound(null,
@@ -100,18 +96,12 @@ public class StrawStatueItem extends Item {
         Rotations rotations = armorStand.getHeadPose();
         float f = random.nextFloat() * 5.0F;
         float g = random.nextFloat() * 20.0F - 10.0F;
-        Rotations rotations2 = new Rotations(rotations.getX() + f, rotations.getY() + g, rotations.getZ());
+        Rotations rotations2 = new Rotations(rotations.x() + f, rotations.y() + g, rotations.z());
         armorStand.setHeadPose(rotations2);
         rotations = armorStand.getBodyPose();
         f = random.nextFloat() * 10.0F - 5.0F;
-        rotations2 = new Rotations(rotations.getX(), rotations.getY() + f, rotations.getZ());
+        rotations2 = new Rotations(rotations.x(), rotations.y() + f, rotations.z());
         armorStand.setBodyPose(rotations2);
-    }
-
-    @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.addAll(Proxy.INSTANCE.splitTooltipLines(ArmorStandInteractHelper.getArmorStandHoverText()));
     }
 
     @Override

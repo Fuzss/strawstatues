@@ -45,7 +45,7 @@ public class ModRegistry {
     public static final Holder.Reference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerExtendedMenuType(
             "straw_statue",
             () -> (containerId, inventory, data) -> {
-                return ArmorStandMenu.create(ModRegistry.STRAW_STATUE_MENU_TYPE.value(),
+                return new ArmorStandMenu(ModRegistry.STRAW_STATUE_MENU_TYPE.value(),
                         containerId,
                         inventory,
                         data,

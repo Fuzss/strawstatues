@@ -16,8 +16,8 @@ public class StrawStatueCapeModel extends PlayerCapeModel<PlayerRenderState> {
     public void setupAnim(PlayerRenderState playerRenderState) {
         super.setupAnim(playerRenderState);
         // use cloak instead of body, changing body rotations looks just weird
-        this.cape.xRot += -Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.getX();
-        this.cape.yRot += Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.getY();
-        this.cape.zRot += -Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.getZ();
+        this.cape.xRot += -Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.x();
+        this.cape.yRot += Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.y();
+        this.cape.zRot += -Mth.DEG_TO_RAD * ((StrawStatueRenderState) playerRenderState).bodyPose.z();
     }
 }
