@@ -1,0 +1,9 @@
+accessWidener   v2  named
+accessible  method  net/minecraft/world/entity/decoration/ArmorStand    brokenByAnything    (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;)V
+accessible  method  net/minecraft/world/entity/decoration/ArmorStand    causeDamage    (Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/damagesource/DamageSource;F)V
+accessible  field   net/minecraft/server/players/GameProfileCache   profilesByName  Ljava/util/Map;
+accessible  field   net/minecraft/world/level/block/entity/SkullBlockEntity profileCacheByName  Lcom/google/common/cache/LoadingCache;
+accessible  field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+mutable field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+accessible  field   net/minecraft/client/model/PlayerCapeModel  cape    Lnet/minecraft/client/model/geom/ModelPart;
+accessible  field   net/minecraft/world/entity/player/Player    POSES   Ljava/util/Map;
