@@ -11,15 +11,15 @@ import fuzs.strawstatues.client.renderer.entity.layers.StrawStatueCapeLayer;
 import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
-import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.entity.layers.*;
-import net.minecraft.client.renderer.entity.state.PlayerRenderState;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
+import net.minecraft.client.renderer.entity.layers.WingsLayer;
 import net.minecraft.client.resources.DefaultPlayerSkin;
 import net.minecraft.client.resources.PlayerSkin;
 import net.minecraft.resources.ResourceLocation;
@@ -30,9 +30,8 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
-import java.util.function.Function;
 
-public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, PlayerRenderState, StrawStatueModel> {
+public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, StrawStatueRenderState, StrawStatueModel> {
     public static final ResourceLocation STRAW_STATUE_LOCATION = StrawStatues.id("textures/entity/straw_statue.png");
 
     private final StrawStatueModel bigModel;
@@ -54,24 +53,12 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
                 context.getEquipmentRenderer()));
         this.addLayer(new ItemInHandLayer<>(this));
         this.addLayer(new WingsLayer<>(this, context.getModelSet(), context.getEquipmentRenderer()));
-        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new Deadmau5EarsLayer(
-                entityRenderer,
-                context.getModelSet()));
-        this.addPlayerLayer((RenderLayerParent<PlayerRenderState, PlayerModel> entityRenderer) -> new StrawStatueCapeLayer(
-                entityRenderer,
-                context.getModelSet(),
-                context.getEquipmentAssets()));
+        this.addLayer(new StrawStatueCapeLayer(this, context.getModelSet(), context.getEquipmentAssets()));
         this.addLayer(new CustomHeadLayer<>(this, context.getModelSet()));
     }
 
-    @SuppressWarnings("unchecked")
-    private boolean addPlayerLayer(Function<RenderLayerParent<PlayerRenderState, PlayerModel>, RenderLayer<PlayerRenderState, PlayerModel>> factory) {
-        RenderLayer<PlayerRenderState, PlayerModel> layer = factory.apply((RenderLayerParent<PlayerRenderState, PlayerModel>) (RenderLayerParent<?, ?>) this);
-        return this.layers.add((RenderLayer<PlayerRenderState, StrawStatueModel>) (RenderLayer<?, ?>) layer);
-    }
-
     @Override
-    public ResourceLocation getTextureLocation(PlayerRenderState renderState) {
+    public ResourceLocation getTextureLocation(StrawStatueRenderState renderState) {
         if (renderState.skin == DefaultPlayerSkin.getDefaultSkin()) {
             return STRAW_STATUE_LOCATION;
         } else {
@@ -80,48 +67,47 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
     }
 
     @Override
-    protected void scale(PlayerRenderState renderState, PoseStack poseStack) {
+    protected void scale(StrawStatueRenderState renderState, PoseStack poseStack) {
         poseStack.scale(0.9375F, 0.9375F, 0.9375F);
     }
 
     @Override
-    public void render(PlayerRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
+    public void render(StrawStatueRenderState renderState, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
         if (renderState.isBaby) {
-            this.model = ((StrawStatueRenderState) renderState).slimArms ? this.slimSmallModel : this.smallModel;
+            this.model = renderState.slimArms ? this.slimSmallModel : this.smallModel;
         } else {
-            this.model = ((StrawStatueRenderState) renderState).slimArms ? this.slimBigModel : this.bigModel;
+            this.model = renderState.slimArms ? this.slimBigModel : this.bigModel;
         }
         super.render(renderState, poseStack, bufferSource, packedLight);
     }
 
     @Override
-    public Vec3 getRenderOffset(PlayerRenderState renderState) {
+    public Vec3 getRenderOffset(StrawStatueRenderState renderState) {
         Vec3 vec3 = super.getRenderOffset(renderState);
         return renderState.isCrouching ? vec3.add(0.0, (double) (renderState.scale * -2.0F) / 16.0, 0.0) : vec3;
     }
 
     @Override
-    public PlayerRenderState createRenderState() {
+    public StrawStatueRenderState createRenderState() {
         return new StrawStatueRenderState();
     }
 
     @Override
-    public void extractRenderState(StrawStatue strawStatue, PlayerRenderState reusedState, float partialTick) {
+    public void extractRenderState(StrawStatue strawStatue, StrawStatueRenderState reusedState, float partialTick) {
         super.extractRenderState(strawStatue, reusedState, partialTick);
         HumanoidMobRenderer.extractHumanoidRenderState(strawStatue, reusedState, partialTick, this.itemModelResolver);
-        StrawStatueRenderState strawStatueRenderState = (StrawStatueRenderState) reusedState;
-        strawStatueRenderState.isMarker = strawStatue.isMarker();
-        strawStatueRenderState.bodyPose = strawStatue.getBodyPose();
-        strawStatueRenderState.headPose = strawStatue.getHeadPose();
-        strawStatueRenderState.leftArmPose = strawStatue.getLeftArmPose();
-        strawStatueRenderState.rightArmPose = strawStatue.getRightArmPose();
-        strawStatueRenderState.leftLegPose = strawStatue.getLeftLegPose();
-        strawStatueRenderState.rightLegPose = strawStatue.getRightLegPose();
-        strawStatueRenderState.wiggle = (float) (strawStatue.level().getGameTime() - strawStatue.lastHit) + partialTick;
-        strawStatueRenderState.rotationZ = Mth.lerp(partialTick,
+        reusedState.isMarker = strawStatue.isMarker();
+        reusedState.bodyPose = strawStatue.getBodyPose();
+        reusedState.headPose = strawStatue.getHeadPose();
+        reusedState.leftArmPose = strawStatue.getLeftArmPose();
+        reusedState.rightArmPose = strawStatue.getRightArmPose();
+        reusedState.leftLegPose = strawStatue.getLeftLegPose();
+        reusedState.rightLegPose = strawStatue.getRightLegPose();
+        reusedState.wiggle = (float) (strawStatue.level().getGameTime() - strawStatue.lastHit) + partialTick;
+        reusedState.rotationZ = Mth.lerp(partialTick,
                 strawStatue.entityRotationsO.z(),
                 strawStatue.getEntityZRotation());
-        strawStatueRenderState.rotationX = Mth.lerp(partialTick,
+        reusedState.rotationX = Mth.lerp(partialTick,
                 strawStatue.entityRotationsO.x(),
                 strawStatue.getEntityXRotation());
         reusedState.skin = getPlayerProfileTexture(strawStatue).orElseGet(DefaultPlayerSkin::getDefaultSkin);
@@ -136,9 +122,9 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
                 .map(ResolvableProfile::gameProfile)
                 .map(GameProfile::getName)
                 .orElse("Steve");
-        strawStatueRenderState.slimArms = strawStatue.slimArms();
+        reusedState.slimArms = strawStatue.slimArms();
         // override vanilla scale property, so we can lerp the value
-        strawStatueRenderState.scale = Mth.lerp(partialTick, strawStatue.scaleO, strawStatue.getScale());
+        reusedState.scale = Mth.lerp(partialTick, strawStatue.scaleO, strawStatue.getScale());
     }
 
     public static Optional<PlayerSkin> getPlayerProfileTexture(StrawStatue strawStatue) {
@@ -149,17 +135,13 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
     }
 
     @Override
-    protected void setupRotations(PlayerRenderState renderState, PoseStack poseStack, float bodyRot, float scale) {
-
-        StrawStatueRenderState strawStatueRenderState = (StrawStatueRenderState) renderState;
-
-        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F - strawStatueRenderState.rotationZ));
+    protected void setupRotations(StrawStatueRenderState renderState, PoseStack poseStack, float bodyRot, float scale) {
+        poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F - renderState.rotationZ));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
-        poseStack.mulPose(Axis.XP.rotationDegrees(180.0F - strawStatueRenderState.rotationX));
+        poseStack.mulPose(Axis.XP.rotationDegrees(180.0F - renderState.rotationX));
 
-        if (strawStatueRenderState.wiggle < 5.0F) {
-            poseStack.mulPose(Axis.YP.rotationDegrees(
-                    Mth.sin(strawStatueRenderState.wiggle / 1.5F * (float) Math.PI) * 3.0F));
+        if (renderState.wiggle < 5.0F) {
+            poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(renderState.wiggle / 1.5F * (float) Math.PI) * 3.0F));
         }
 
         if (renderState.isUpsideDown) {
@@ -170,13 +152,13 @@ public class StrawStatueRenderer extends LivingEntityRenderer<StrawStatue, Playe
 
     @Override
     protected boolean shouldShowName(StrawStatue entity, double distanceToCameraSq) {
-        float f = entity.isCrouching() ? 32.0F : 64.0F;
-        return !(distanceToCameraSq >= f * f) && entity.isCustomNameVisible();
+        float visibilityDistance = entity.isCrouching() ? 32.0F : 64.0F;
+        return !(distanceToCameraSq >= visibilityDistance * visibilityDistance) && entity.isCustomNameVisible();
     }
 
     @Override
-    protected @Nullable RenderType getRenderType(PlayerRenderState renderState, boolean isVisible, boolean renderTranslucent, boolean appearsGlowing) {
-        if (!((StrawStatueRenderState) renderState).isMarker) {
+    protected @Nullable RenderType getRenderType(StrawStatueRenderState renderState, boolean isVisible, boolean renderTranslucent, boolean appearsGlowing) {
+        if (!renderState.isMarker) {
             return super.getRenderType(renderState, isVisible, renderTranslucent, appearsGlowing);
         } else {
             ResourceLocation resourceLocation = this.getTextureLocation(renderState);

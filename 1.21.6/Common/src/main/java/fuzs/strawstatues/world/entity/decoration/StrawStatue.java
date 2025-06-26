@@ -445,13 +445,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
 
     @Override
     public Runnable setupInInventoryRendering(ArmorStand armorStand) {
-        Runnable runnable = ArmorStandDataProvider.super.setupInInventoryRendering(armorStand);
-        final Rotations rotations = ((StrawStatue) armorStand).getEntityRotations();
-        ((StrawStatue) armorStand).setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.x(),
-                StrawStatue.DEFAULT_ENTITY_ROTATIONS.z());
-        return () -> {
-            runnable.run();
-            ((StrawStatue) armorStand).setEntityRotations(rotations.x(), rotations.z());
-        };
+        Rotations rotations = this.getEntityRotations();
+        this.setEntityRotations(StrawStatue.DEFAULT_ENTITY_ROTATIONS.x(), StrawStatue.DEFAULT_ENTITY_ROTATIONS.z());
+        return () -> this.setEntityRotations(rotations.x(), rotations.z());
     }
 }
