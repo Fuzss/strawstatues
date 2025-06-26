@@ -5,6 +5,7 @@ import fuzs.statuemenus.api.v1.network.client.data.DataSyncHandler;
 import fuzs.statuemenus.api.v1.world.inventory.ArmorStandHolder;
 import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandScreenType;
 import fuzs.strawstatues.init.ModRegistry;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.decoration.ArmorStand;
@@ -21,13 +22,13 @@ public class StrawStatuePositionScreen extends ArmorStandPositionScreen {
                 Component.translatable(ArmorStandPositionScreen.CENTERED_DESCRIPTION_TRANSLATION_KEY),
                 Component.translatable(ArmorStandPositionScreen.CORNERED_DESCRIPTION_TRANSLATION_KEY),
                 Component.translatable(ArmorStandPositionScreen.ALIGNED_TRANSLATION_KEY),
-                button -> {
+                (Button button) -> {
                     Vec3 newPosition = armorStand.position()
                             .align(EnumSet.allOf(Direction.Axis.class))
                             .add(0.5, 0.0, 0.5);
                     screen.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
                 },
-                button -> {
+                (Button button) -> {
                     Vec3 newPosition = armorStand.position().align(EnumSet.allOf(Direction.Axis.class));
                     screen.dataSyncHandler.sendPosition(newPosition.x(), newPosition.y(), newPosition.z());
                 });

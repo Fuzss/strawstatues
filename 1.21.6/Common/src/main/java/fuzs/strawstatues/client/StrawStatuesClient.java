@@ -33,7 +33,7 @@ public class StrawStatuesClient implements ClientModConstructor {
 
     @Override
     public void onClientSetup() {
-        ItemTooltipRegistry.registerItemTooltip(ModRegistry.STRAW_STATUE_ITEM.value(),
+        ItemTooltipRegistry.ITEM.registerItemTooltip(ModRegistry.STRAW_STATUE_ITEM.value(),
                 ArmorStandInteractHelper.getArmorStandHoverText());
         ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
         ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);

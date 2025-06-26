@@ -6,7 +6,10 @@ import com.mojang.serialization.Dynamic;
 import fuzs.puzzleslib.api.event.v1.core.EventResultHolder;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.ArmorStandDataProvider;
-import fuzs.statuemenus.api.v1.world.inventory.data.*;
+import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandScreenType;
+import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOption;
+import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOptions;
+import fuzs.statuemenus.api.v1.world.inventory.data.PosePartMutator;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.core.Proxy;
 import fuzs.strawstatues.init.ModRegistry;
@@ -40,6 +43,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
@@ -104,49 +109,42 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.putBoolean(SLIM_ARMS_KEY, this.slimArms());
-        tag.putBoolean(CROUCHING_KEY, this.isCrouching());
-        tag.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODEL_CUSTOMISATION));
+    public void addAdditionalSaveData(ValueOutput valueOutput) {
+        super.addAdditionalSaveData(valueOutput);
+        valueOutput.putBoolean(SLIM_ARMS_KEY, this.slimArms());
+        valueOutput.putBoolean(CROUCHING_KEY, this.isCrouching());
+        valueOutput.putByte(MODEL_PARTS_KEY, this.entityData.get(DATA_PLAYER_MODEL_CUSTOMISATION));
         this.entityData.get(DATA_PROFILE).ifPresent((ResolvableProfile resolvableProfile) -> {
-            tag.put(PROFILE_KEY, ResolvableProfile.CODEC.encodeStart(NbtOps.INSTANCE, resolvableProfile).getOrThrow());
+            valueOutput.store(PROFILE_KEY, ResolvableProfile.CODEC, resolvableProfile);
         });
         if (!DEFAULT_ENTITY_ROTATIONS.equals(this.getEntityRotations())) {
-            tag.store(ENTITY_ROTATIONS_KEY, Rotations.CODEC, this.getEntityRotations());
+            valueOutput.store(ENTITY_ROTATIONS_KEY, Rotations.CODEC, this.getEntityRotations());
         }
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        if (tag.contains(SLIM_ARMS_KEY)) {
-            this.setSlimArms(tag.getBooleanOr(SLIM_ARMS_KEY, false));
-        }
-        if (tag.contains(CROUCHING_KEY)) {
-            this.setCrouching(tag.getBooleanOr(CROUCHING_KEY, false));
-        }
-        if (tag.contains(MODEL_PARTS_KEY)) {
-            this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION, tag.getByteOr(MODEL_PARTS_KEY, (byte) 0));
-        }
-        Optional<Dynamic<?>> optional;
-        if (tag.contains(PROFILE_KEY)) {
-            optional = Optional.of(new Dynamic<>(NbtOps.INSTANCE, tag.get(PROFILE_KEY)));
-        } else if (tag.contains(OWNER_KEY)) {
-            // backwards compatibility with the old game profile format
-            optional = Optional.of(ItemStackComponentizationFix.fixProfile(new Dynamic<>(NbtOps.INSTANCE,
-                    tag.getCompoundOrEmpty(OWNER_KEY))));
-        } else {
-            optional = Optional.empty();
-        }
+    public void readAdditionalSaveData(ValueInput valueInput) {
+        super.readAdditionalSaveData(valueInput);
+        this.setSlimArms(valueInput.getBooleanOr(SLIM_ARMS_KEY, false));
+        this.setCrouching(valueInput.getBooleanOr(CROUCHING_KEY, false));
+        this.entityData.set(DATA_PLAYER_MODEL_CUSTOMISATION, valueInput.getByteOr(MODEL_PARTS_KEY, (byte) 0));
+        Optional<Dynamic<?>> optional = valueInput.read(PROFILE_KEY, CompoundTag.CODEC)
+                .<Dynamic<?>>map((CompoundTag compoundTag) -> new Dynamic<>(NbtOps.INSTANCE, compoundTag))
+                .or(() -> {
+                    // backwards compatibility with the old game profile format
+                    return valueInput.read(OWNER_KEY, CompoundTag.CODEC)
+                            .<Dynamic<?>>map((CompoundTag compoundTag) -> ItemStackComponentizationFix.fixProfile(new Dynamic<>(
+                                    NbtOps.INSTANCE,
+                                    compoundTag)));
+                });
         optional.map(ResolvableProfile.CODEC::parse)
-                .flatMap((DataResult<ResolvableProfile> dataResult) -> dataResult.resultOrPartial((string) -> {
+                .flatMap((DataResult<ResolvableProfile> dataResult) -> dataResult.resultOrPartial((String string) -> {
                     StrawStatues.LOGGER.error("Failed to load profile from straw statue: {}", string);
                 }))
                 .ifPresent(this::setProfile);
         this.scaleO = this.getScale();
         this.entityData.set(DATA_ENTITY_ROTATIONS,
-                tag.read(ENTITY_ROTATIONS_KEY, Rotations.CODEC).orElse(DEFAULT_ENTITY_ROTATIONS));
+                valueInput.read(ENTITY_ROTATIONS_KEY, Rotations.CODEC).orElse(DEFAULT_ENTITY_ROTATIONS));
         this.entityRotationsO = this.getEntityRotations();
     }
 
@@ -171,8 +169,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
             ItemStack itemInHand = player.getItemInHand(interactionHand);
             if (itemInHand.is(Items.PLAYER_HEAD)) {
                 ResolvableProfile resolvableProfile = itemInHand.get(DataComponents.PROFILE);
-                if (resolvableProfile != null &&
-                        !Objects.equals(resolvableProfile.name(), this.getProfile().flatMap(ResolvableProfile::name))) {
+                if (resolvableProfile != null && !Objects.equals(resolvableProfile.name(),
+                        this.getProfile().flatMap(ResolvableProfile::name))) {
                     this.setProfile(resolvableProfile);
                     return InteractionResult.SUCCESS;
                 }
@@ -305,8 +303,8 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
                     boolean bl2 = damageSource.is(DamageTypeTags.ALWAYS_KILLS_ARMOR_STANDS);
                     if (!bl && !bl2) {
                         return false;
-                    } else if (damageSource.getEntity() instanceof Player &&
-                            !((Player) damageSource.getEntity()).getAbilities().mayBuild) {
+                    } else if (damageSource.getEntity() instanceof Player
+                            && !((Player) damageSource.getEntity()).getAbilities().mayBuild) {
                         return false;
                     } else if (damageSource.isCreativePlayer()) {
                         this.playBrokenSound();
@@ -398,7 +396,6 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    @Nullable
     public ItemStack getPickResult() {
         return new ItemStack(ModRegistry.STRAW_STATUE_ITEM.value());
     }
@@ -429,8 +426,9 @@ public class StrawStatue extends ArmorStand implements ArmorStandDataProvider {
     }
 
     @Override
-    public ArmorStandPose getRandomPose(boolean clampRotations) {
-        return ArmorStandPose.randomize(this.getPosePartMutators(), clampRotations);
+    public fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose getRandomPose(boolean clampRotations) {
+        return fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose.randomize(this.getPosePartMutators(),
+                clampRotations);
     }
 
     @Override

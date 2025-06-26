@@ -58,8 +58,8 @@ public class StrawStatues implements ModConstructor {
 
     @Override
     public void onCommonSetup() {
-        ArmorStandStyleOption.register(id("slimarms"), ModRegistry.SLIM_ARMS_STYLE_OPTION);
-        ArmorStandStyleOption.register(id("crouching"), ModRegistry.CROUCHING_STYLE_OPTION);
+        ArmorStandStyleOption.register(ModRegistry.SLIM_ARMS_STYLE_OPTION);
+        ArmorStandStyleOption.register(ModRegistry.CROUCHING_STYLE_OPTION);
         DispenserBlock.registerBehavior(ModRegistry.STRAW_STATUE_ITEM.value(), new DefaultDispenseItemBehavior() {
 
             @Override

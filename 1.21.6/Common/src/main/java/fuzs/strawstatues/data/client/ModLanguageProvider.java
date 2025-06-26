@@ -18,6 +18,7 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(ModRegistry.STRAW_STATUE_ITEM.value(), "named", "%s's Statue");
         builder.add(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), "Straw Statue");
         builder.add(ModRegistry.MODEL_PARTS_SCREEN_TYPE.getTranslationKey(), "Model Parts");
+        builder.add(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE.getTranslationKey(), "Position");
         builder.add(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE.getTranslationKey(), "Scale & Rotations");
         builder.add(StrawStatueModelPartsScreen.TEXT_BOX_TRANSLATION_KEY,
                 "Set a player name to take the statue skin from.");

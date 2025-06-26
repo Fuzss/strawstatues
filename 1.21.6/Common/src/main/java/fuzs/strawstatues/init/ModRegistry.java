@@ -13,9 +13,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
@@ -42,30 +44,32 @@ public class ModRegistry {
                         .vehicleAttachment(Player.DEFAULT_VEHICLE_ATTACHMENT)
                         .clientTrackingRange(10);
             });
-    public static final Holder.Reference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerExtendedMenuType(
+    public static final Holder.Reference<MenuType<ArmorStandMenu>> STRAW_STATUE_MENU_TYPE = REGISTRY.registerMenuType(
             "straw_statue",
-            () -> (containerId, inventory, data) -> {
+            (int containerId, Inventory inventory, ArmorStandMenu.ArmorStandData data) -> {
                 return new ArmorStandMenu(ModRegistry.STRAW_STATUE_MENU_TYPE.value(),
                         containerId,
                         inventory,
                         data,
                         null);
-            });
+            },
+            ArmorStandMenu.ArmorStandData.STREAM_CODEC);
     public static final Holder.Reference<EntityDataSerializer<Optional<ResolvableProfile>>> RESOLVABLE_PROFILE_ENTITY_DATA_SERIALIZER = REGISTRY.registerEntityDataSerializer(
             "resolvable_profile",
             () -> EntityDataSerializer.forValueType(ResolvableProfile.STREAM_CODEC.apply(ByteBufCodecs::optional)));
 
-    public static final ArmorStandScreenType MODEL_PARTS_SCREEN_TYPE = new ArmorStandScreenType("modelParts",
-            new ItemStack(Items.YELLOW_WOOL));
-    public static final ArmorStandScreenType STRAW_STATUE_POSITION_SCREEN_TYPE = new ArmorStandScreenType("position",
-            new ItemStack(Items.GRASS_BLOCK));
-    public static final ArmorStandScreenType STRAW_STATUE_SCALE_SCREEN_TYPE = new ArmorStandScreenType("scale",
-            new ItemStack(Items.HAY_BLOCK));
+    public static final ArmorStandScreenType MODEL_PARTS_SCREEN_TYPE = new ArmorStandScreenType(StrawStatues.id(
+            "model_parts"), new ItemStack(Items.YELLOW_WOOL));
+    public static final ArmorStandScreenType STRAW_STATUE_POSITION_SCREEN_TYPE = new ArmorStandScreenType(StrawStatues.id(
+            "position"), new ItemStack(Items.GRASS_BLOCK));
+    public static final ArmorStandScreenType STRAW_STATUE_SCALE_SCREEN_TYPE = new ArmorStandScreenType(StrawStatues.id(
+            "scale"), new ItemStack(Items.HAY_BLOCK));
     public static final ArmorStandStyleOption SLIM_ARMS_STYLE_OPTION = new ArmorStandStyleOption() {
+        private final ResourceLocation name = StrawStatues.id("slim_arms");
 
         @Override
-        public String getName() {
-            return "slimArms";
+        public ResourceLocation getName() {
+            return this.name;
         }
 
         @Override
@@ -84,10 +88,11 @@ public class ModRegistry {
         }
     };
     public static final ArmorStandStyleOption CROUCHING_STYLE_OPTION = new ArmorStandStyleOption() {
+        private final ResourceLocation name = StrawStatues.id("crouching");
 
         @Override
-        public String getName() {
-            return "crouching";
+        public ResourceLocation getName() {
+            return this.name;
         }
 
         @Override
