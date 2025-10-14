@@ -1,79 +1,82 @@
 package fuzs.strawstatues.client.gui.screens;
 
-import fuzs.statuemenus.api.v1.client.gui.components.NewTextureTickButton;
-import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandPositionScreen;
-import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandRotationsScreen;
+import fuzs.statuemenus.api.v1.client.gui.components.FlatTickButton;
+import fuzs.statuemenus.api.v1.client.gui.screens.StatuePositionScreen;
+import fuzs.statuemenus.api.v1.client.gui.screens.StatueRotationsScreen;
 import fuzs.statuemenus.api.v1.network.client.data.DataSyncHandler;
-import fuzs.statuemenus.api.v1.world.inventory.ArmorStandHolder;
-import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandScreenType;
-import fuzs.strawstatues.StrawStatues;
-import fuzs.strawstatues.init.ModRegistry;
+import fuzs.statuemenus.api.v1.world.inventory.StatueHolder;
+import fuzs.statuemenus.api.v1.world.inventory.data.StatueScreenType;
 import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.inventory.data.StrawStatueScreenTypes;
 import net.minecraft.Util;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
-public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
-    public static final String ROTATION_X_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationX";
-    public static final String ROTATION_Y_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationY";
-    public static final String ROTATION_Z_TRANSLATION_KEY = StrawStatues.MOD_ID + ".screen.position.rotationZ";
-    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_X_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
-        return screen.new StrawStatueRotationWidget(Component.translatable(ROTATION_X_TRANSLATION_KEY),
-                ((StrawStatue) armorStand)::getEntityXRotation,
+public class StrawStatueScaleScreen extends StatuePositionScreen {
+    public static final Component ROTATION_X_TRANSLATION_KEY = Component.translatable(StrawStatueScreenTypes.SCALE.id()
+            .toLanguageKey("screen", "rotation_x"));
+    public static final Component ROTATION_Y_TRANSLATION_KEY = Component.translatable(StrawStatueScreenTypes.SCALE.id()
+            .toLanguageKey("screen", "rotation_y"));
+    public static final Component ROTATION_Z_TRANSLATION_KEY = Component.translatable(StrawStatueScreenTypes.SCALE.id()
+            .toLanguageKey("screen", "rotation_z"));
+    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_X_WIDGET_FACTORY = (StrawStatueScaleScreen screen, LivingEntity livingEntity) -> {
+        return screen.new StrawStatueRotationWidget(ROTATION_X_TRANSLATION_KEY,
+                () -> ((StrawStatue) livingEntity).getEntityPose().x(),
                 ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.ROTATION_X),
-                ((StrawStatue) armorStand)::setEntityXRotation);
+                ((StrawStatue) livingEntity)::setPoseX);
     };
-    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Y_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
-        return screen.new RotationWidget(Component.translatable(ROTATION_Y_TRANSLATION_KEY),
-                armorStand::getYRot,
+    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Y_WIDGET_FACTORY = (StrawStatueScaleScreen screen, LivingEntity livingEntity) -> {
+        return screen.new RotationWidget(ROTATION_Y_TRANSLATION_KEY,
+                livingEntity::getYRot,
                 screen.dataSyncHandler::sendRotation);
     };
-    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Z_WIDGET_FACTORY = (StrawStatueScaleScreen screen, ArmorStand armorStand) -> {
-        return screen.new StrawStatueRotationWidget(Component.translatable(ROTATION_Z_TRANSLATION_KEY),
-                ((StrawStatue) armorStand)::getEntityZRotation,
+    protected static final ArmorStandWidgetFactory<StrawStatueScaleScreen> ROTATION_Z_WIDGET_FACTORY = (StrawStatueScaleScreen screen, LivingEntity livingEntity) -> {
+        return screen.new StrawStatueRotationWidget(ROTATION_Z_TRANSLATION_KEY,
+                () -> ((StrawStatue) livingEntity).getEntityPose().z(),
                 ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.ROTATION_Z),
-                ((StrawStatue) armorStand)::setEntityZRotation);
+                ((StrawStatue) livingEntity)::setPoseZ);
     };
 
     private AbstractWidget resetButton;
 
-    public StrawStatueScaleScreen(ArmorStandHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
-        super(holder, inventory, component, dataSyncHandler);
+    public StrawStatueScaleScreen(StatueHolder statueHolder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
+        super(statueHolder, inventory, component, dataSyncHandler);
     }
 
     @Override
     protected void init() {
         super.init();
-        this.resetButton = Util.make(this.addRenderableWidget(new NewTextureTickButton(this.leftPos + 6,
+        this.resetButton = Util.make(this.addRenderableWidget(new FlatTickButton(this.leftPos + 6,
                 this.topPos + 6,
                 20,
                 20,
                 240,
                 124,
                 getArmorStandWidgetsLocation(),
-                button -> {
-                    ServerboundStrawStatueScaleMessage.DataType.RESET.consumer.accept((StrawStatue) StrawStatueScaleScreen.this.holder.getArmorStand(),
+                (Button button) -> {
+                    ServerboundStrawStatueScaleMessage.DataType.RESET.consumer.accept((StrawStatue) StrawStatueScaleScreen.this.holder.getEntity(),
                             -1.0F);
                     ServerboundStrawStatueScaleMessage.getValueSender(ServerboundStrawStatueScaleMessage.DataType.RESET)
                             .accept(-1.0F);
                     this.widgets.forEach(ArmorStandWidget::reset);
                 })), widget -> {
-            widget.setTooltip(Tooltip.create(Component.translatable(ArmorStandRotationsScreen.RESET_TRANSLATION_KEY)));
+            widget.setTooltip(Tooltip.create(Component.translatable(StatueRotationsScreen.RESET_TRANSLATION_KEY)));
         });
     }
 
     @Override
-    protected List<ArmorStandWidget> buildWidgets(ArmorStand armorStand) {
+    protected List<ArmorStandWidget> buildWidgets(LivingEntity livingEntity) {
         return buildWidgets(this,
-                armorStand,
+                livingEntity,
                 List.of(SCALE_WIDGET_FACTORY,
                         ROTATION_X_WIDGET_FACTORY,
                         ROTATION_Y_WIDGET_FACTORY,
@@ -92,8 +95,8 @@ public class StrawStatueScaleScreen extends ArmorStandPositionScreen {
     }
 
     @Override
-    public ArmorStandScreenType getScreenType() {
-        return ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE;
+    public StatueScreenType getScreenType() {
+        return StrawStatueScreenTypes.SCALE;
     }
 
     protected class StrawStatueRotationWidget extends RotationWidget {

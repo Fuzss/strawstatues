@@ -5,15 +5,13 @@ import fuzs.puzzleslib.api.core.v1.context.EntityAttributesContext;
 import fuzs.puzzleslib.api.core.v1.context.PayloadTypesContext;
 import fuzs.puzzleslib.api.core.v1.utility.ResourceLocationHelper;
 import fuzs.puzzleslib.api.event.v1.BuildCreativeModeTabContentsCallback;
-import fuzs.puzzleslib.api.event.v1.core.EventPhase;
-import fuzs.puzzleslib.api.event.v1.entity.player.PlayerInteractEvents;
-import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandPose;
-import fuzs.statuemenus.api.v1.world.inventory.data.ArmorStandStyleOption;
+import fuzs.statuemenus.api.v1.world.inventory.data.StatuePose;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.ServerboundStrawStatueModelPartMessage;
 import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
-import fuzs.strawstatues.network.client.ServerboundStrawStatueSetProfileMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueProfileMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
+import fuzs.strawstatues.world.inventory.data.StrawStatueStyleOptions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.BlockSource;
@@ -44,8 +42,6 @@ public class StrawStatues implements ModConstructor {
     }
 
     private static void registerEventHandlers() {
-        // high priority so we run before the Quark mod
-        PlayerInteractEvents.USE_ENTITY_AT.register(EventPhase.BEFORE, StrawStatue::onUseEntityAt);
         BuildCreativeModeTabContentsCallback.buildCreativeModeTabContents(CreativeModeTabs.FUNCTIONAL_BLOCKS)
                 .register(StrawStatues::onBuildCreativeModeTabContents);
         BuildCreativeModeTabContentsCallback.buildCreativeModeTabContents(CreativeModeTabs.REDSTONE_BLOCKS)
@@ -58,10 +54,8 @@ public class StrawStatues implements ModConstructor {
 
     @Override
     public void onCommonSetup() {
-        ArmorStandStyleOption.register(ModRegistry.SLIM_ARMS_STYLE_OPTION);
-        ArmorStandStyleOption.register(ModRegistry.CROUCHING_STYLE_OPTION);
+        StrawStatueStyleOptions.bootstrap();
         DispenserBlock.registerBehavior(ModRegistry.STRAW_STATUE_ITEM.value(), new DefaultDispenseItemBehavior() {
-
             @Override
             public ItemStack execute(BlockSource blockSource, ItemStack itemStack) {
                 Direction direction = blockSource.state().getValue(DispenserBlock.FACING);
@@ -69,7 +63,7 @@ public class StrawStatues implements ModConstructor {
                 ServerLevel serverLevel = blockSource.level();
                 Consumer<StrawStatue> consumer = EntityType.appendDefaultStackConfig((StrawStatue strawStatue) -> {
                     strawStatue.setYRot(direction.toYRot());
-                    ArmorStandPose.randomValue().applyToEntity(strawStatue);
+                    StatuePose.randomValue().applyToEntity(strawStatue);
                 }, serverLevel, itemStack, null);
                 StrawStatue strawStatue = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()
                         .spawn(serverLevel, consumer, blockPos, EntitySpawnReason.DISPENSER, false, false);
@@ -86,8 +80,8 @@ public class StrawStatues implements ModConstructor {
     public void onRegisterPayloadTypes(PayloadTypesContext context) {
         context.playToServer(ServerboundStrawStatueModelPartMessage.class,
                 ServerboundStrawStatueModelPartMessage.STREAM_CODEC);
-        context.playToServer(ServerboundStrawStatueSetProfileMessage.class,
-                ServerboundStrawStatueSetProfileMessage.STREAM_CODEC);
+        context.playToServer(ServerboundStrawStatueProfileMessage.class,
+                ServerboundStrawStatueProfileMessage.STREAM_CODEC);
         context.playToServer(ServerboundStrawStatueScaleMessage.class, ServerboundStrawStatueScaleMessage.STREAM_CODEC);
     }
 

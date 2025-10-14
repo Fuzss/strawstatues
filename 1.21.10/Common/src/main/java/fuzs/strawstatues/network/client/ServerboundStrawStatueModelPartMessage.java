@@ -3,7 +3,7 @@ package fuzs.strawstatues.network.client;
 import fuzs.puzzleslib.api.network.v4.codec.ExtraStreamCodecs;
 import fuzs.puzzleslib.api.network.v4.message.MessageListener;
 import fuzs.puzzleslib.api.network.v4.message.play.ServerboundPlayMessage;
-import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
+import fuzs.statuemenus.api.v1.world.inventory.StatueMenu;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -24,9 +24,9 @@ public record ServerboundStrawStatueModelPartMessage(PlayerModelPart modelPart,
         return new MessageListener<Context>() {
             @Override
             public void accept(Context context) {
-                if (context.player().containerMenu instanceof ArmorStandMenu menu &&
-                        menu.stillValid(context.player())) {
-                    ((StrawStatue) menu.getArmorStand()).setModelPart(ServerboundStrawStatueModelPartMessage.this.modelPart,
+                if (context.player().containerMenu instanceof StatueMenu statueMenu
+                        && statueMenu.stillValid(context.player())) {
+                    ((StrawStatue) statueMenu.getEntity()).setModelPartShown(ServerboundStrawStatueModelPartMessage.this.modelPart,
                             ServerboundStrawStatueModelPartMessage.this.value);
                 }
             }

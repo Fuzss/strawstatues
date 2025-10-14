@@ -3,7 +3,7 @@ package fuzs.strawstatues.neoforge;
 import fuzs.puzzleslib.api.core.v1.ModConstructor;
 import fuzs.puzzleslib.neoforge.api.data.v2.core.DataProviderHelper;
 import fuzs.strawstatues.StrawStatues;
-import fuzs.strawstatues.data.ModEntityTypeLootProvider;
+import fuzs.strawstatues.data.loot.ModEntityTypeLootProvider;
 import fuzs.strawstatues.data.ModRecipeProvider;
 import net.neoforged.fml.common.Mod;
 

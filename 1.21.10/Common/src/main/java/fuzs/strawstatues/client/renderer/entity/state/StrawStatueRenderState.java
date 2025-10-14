@@ -1,23 +1,17 @@
 package fuzs.strawstatues.client.renderer.entity.state;
 
-import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
-import net.minecraft.client.resources.DefaultPlayerSkin;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.core.Rotations;
+import net.minecraft.world.entity.decoration.ArmorStand;
 
-public class StrawStatueRenderState extends ArmorStandRenderState {
-    public PlayerSkin skin = DefaultPlayerSkin.getDefaultSkin();
-    public float capeFlap;
-    public float capeLean;
-    public float capeLean2;
-    public boolean showHat = true;
-    public boolean showJacket = true;
-    public boolean showLeftPants = true;
-    public boolean showRightPants = true;
-    public boolean showLeftSleeve = true;
-    public boolean showRightSleeve = true;
-    public boolean showCape = true;
-    public String name = "Steve";
-    public float rotationZ;
-    public float rotationX;
-    public boolean slimArms;
+public class StrawStatueRenderState extends AvatarRenderState {
+    public float rotX;
+    public float rotZ;
+    public float wiggle;
+    public Rotations headPose = ArmorStand.DEFAULT_HEAD_POSE;
+    public Rotations bodyPose = ArmorStand.DEFAULT_BODY_POSE;
+    public Rotations leftArmPose = ArmorStand.DEFAULT_LEFT_ARM_POSE;
+    public Rotations rightArmPose = ArmorStand.DEFAULT_RIGHT_ARM_POSE;
+    public Rotations leftLegPose = ArmorStand.DEFAULT_LEFT_LEG_POSE;
+    public Rotations rightLegPose = ArmorStand.DEFAULT_RIGHT_LEG_POSE;
 }

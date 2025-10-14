@@ -5,29 +5,42 @@ import fuzs.puzzleslib.api.client.core.v1.context.EntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.LayerDefinitionsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.ItemTooltipRegistry;
-import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandRotationsScreen;
-import fuzs.statuemenus.api.v1.client.gui.screens.ArmorStandScreenFactory;
+import fuzs.statuemenus.api.v1.client.gui.screens.StatueRotationsScreen;
+import fuzs.statuemenus.api.v1.client.gui.screens.StatueScreenFactory;
+import fuzs.statuemenus.api.v1.client.gui.screens.StatueStyleScreen;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
-import fuzs.statuemenus.api.v1.world.inventory.ArmorStandMenu;
+import fuzs.statuemenus.api.v1.network.client.data.DataSyncHandler;
+import fuzs.statuemenus.api.v1.world.inventory.StatueHolder;
+import fuzs.statuemenus.api.v1.world.inventory.StatueMenu;
+import fuzs.statuemenus.api.v1.world.inventory.data.PosePartMutator;
+import fuzs.statuemenus.api.v1.world.inventory.data.StatuePose;
+import fuzs.statuemenus.api.v1.world.inventory.data.StatueScreenType;
+import fuzs.statuemenus.api.v1.world.inventory.data.StatueStyleOption;
+import fuzs.strawstatues.client.entity.ClientStrawStatue;
 import fuzs.strawstatues.client.gui.screens.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatuePositionScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatueScaleScreen;
-import fuzs.strawstatues.client.init.ModClientRegistry;
+import fuzs.strawstatues.client.model.geom.ModModelLayers;
 import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
-import net.minecraft.client.model.ArmorStandArmorModel;
+import fuzs.strawstatues.world.inventory.data.StrawStatuePosePartMutators;
+import fuzs.strawstatues.world.inventory.data.StrawStatueScreenTypes;
+import fuzs.strawstatues.world.inventory.data.StrawStatueStyleOptions;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
-import net.minecraft.client.resources.PlayerSkin;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.PlayerModelPart;
+
+import java.util.List;
 
 public class StrawStatuesClient implements ClientModConstructor {
 
@@ -35,63 +48,117 @@ public class StrawStatuesClient implements ClientModConstructor {
     public void onClientSetup() {
         ItemTooltipRegistry.ITEM.registerItemTooltip(ModRegistry.STRAW_STATUE_ITEM.value(),
                 ArmorStandInteractHelper.getArmorStandHoverText());
-        ArmorStandScreenFactory.register(ModRegistry.MODEL_PARTS_SCREEN_TYPE, StrawStatueModelPartsScreen::new);
-        ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_POSITION_SCREEN_TYPE, StrawStatuePositionScreen::new);
-        ArmorStandScreenFactory.register(ModRegistry.STRAW_STATUE_SCALE_SCREEN_TYPE, StrawStatueScaleScreen::new);
-        ArmorStandRotationsScreen.registerPosePartMutatorFilter(ModRegistry.CAPE_POSE_PART_MUTATOR,
-                (ArmorStand armorStand) -> {
-                    if (((StrawStatue) armorStand).isModelPartShown(PlayerModelPart.CAPE)) {
-                        return StrawStatueRenderer.getPlayerProfileTexture((StrawStatue) armorStand)
-                                .map(PlayerSkin::capeTexture)
-                                .isPresent();
-                    } else {
-                        return false;
-                    }
+        StatueScreenFactory.register(StrawStatueScreenTypes.MODEL_PARTS, StrawStatueModelPartsScreen::new);
+        StatueScreenFactory.register(StrawStatueScreenTypes.POSITION, StrawStatuePositionScreen::new);
+        StatueScreenFactory.register(StrawStatueScreenTypes.SCALE, StrawStatueScaleScreen::new);
+        StatueScreenFactory.register(StrawStatueScreenTypes.ROTATIONS,
+                (StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) -> {
+                    return new StatueRotationsScreen(holder, inventory, component, dataSyncHandler) {
+                        @Override
+                        public List<PosePartMutator> getPosePartMutators() {
+                            return StrawStatuePosePartMutators.TYPES;
+                        }
+
+                        @Override
+                        protected StatuePose setupRandomPose(StatuePose statuePose) {
+                            return statuePose;
+                        }
+
+                        @Override
+                        protected boolean isPosePartMutatorActive(PosePartMutator posePartMutator, LivingEntity livingEntity) {
+                            if (posePartMutator == StrawStatuePosePartMutators.CAPE) {
+                                if (livingEntity instanceof ClientStrawStatue strawStatue
+                                        && strawStatue.isModelPartShown(PlayerModelPart.CAPE)) {
+                                    return strawStatue.getSkin().cape() != null;
+                                } else {
+                                    return false;
+                                }
+                            } else {
+                                return super.isPosePartMutatorActive(posePartMutator, livingEntity);
+                            }
+                        }
+
+                        @Override
+                        public StatueScreenType getScreenType() {
+                            return StrawStatueScreenTypes.ROTATIONS;
+                        }
+                    };
+                });
+        StatueScreenFactory.register(StrawStatueScreenTypes.STYLE,
+                (StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) -> {
+                    return new StatueStyleScreen<StrawStatue>(holder, inventory, component, dataSyncHandler) {
+                        @Override
+                        protected List<StatueStyleOption<? super StrawStatue>> getStyleOptions() {
+                            return StrawStatueStyleOptions.TYPES;
+                        }
+
+                        @Override
+                        public StatueScreenType getScreenType() {
+                            return StrawStatueScreenTypes.STYLE;
+                        }
+                    };
                 });
     }
 
     @SuppressWarnings("Convert2MethodRef")
     @Override
     public void onRegisterMenuScreens(MenuScreensContext context) {
-        // compiler doesn't like method reference :(
         context.registerMenuScreen(ModRegistry.STRAW_STATUE_MENU_TYPE.value(),
-                (ArmorStandMenu menu, Inventory inventory, Component component) -> {
-                    return ArmorStandScreenFactory.createLastScreenType(menu, inventory, component);
-                });
+                (StatueMenu menu, Inventory inventory, Component component) -> StatueScreenFactory.createLastScreenType(
+                        menu,
+                        inventory,
+                        component));
     }
 
     @Override
     public void onRegisterEntityRenderers(EntityRenderersContext context) {
-        context.registerEntityRenderer(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), StrawStatueRenderer::new);
+        context.registerEntityRenderer((EntityType<ClientStrawStatue>) (EntityType<?>) ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(),
+                StrawStatueRenderer::new);
     }
 
     @Override
     public void onRegisterLayerDefinitions(LayerDefinitionsContext context) {
-
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE,
-                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_INNER_ARMOR,
-                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_OUTER_ARMOR,
-                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY,
-                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64)
-                        .apply(HumanoidModel.BABY_TRANSFORMER));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_INNER_ARMOR,
-                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.INNER_ARMOR_DEFORMATION)
-                        .apply(HumanoidModel.BABY_TRANSFORMER));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_OUTER_ARMOR,
-                () -> ArmorStandArmorModel.createBodyLayer(LayerDefinitions.OUTER_ARMOR_DEFORMATION)
-                        .apply(HumanoidModel.BABY_TRANSFORMER));
-
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_SLIM,
-                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64));
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_SLIM,
-                () -> LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64)
-                        .apply(HumanoidModel.BABY_TRANSFORMER));
-
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_CAPE, PlayerCapeModel::createCapeLayer);
-        context.registerLayerDefinition(ModClientRegistry.STRAW_STATUE_BABY_CAPE,
-                () -> PlayerCapeModel.createCapeLayer().apply(HumanoidModel.BABY_TRANSFORMER));
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE, () -> {
+            return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
+        });
+        context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_ARMOR,
+                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                        LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
+                    return LayerDefinition.create(meshDefinition, 64, 32);
+                }));
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE_SLIM, () -> {
+            return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
+        });
+        context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_SLIM_ARMOR,
+                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                        LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
+                    return LayerDefinition.create(meshDefinition, 64, 32);
+                }));
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE_CAPE, PlayerCapeModel::createCapeLayer);
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE_BABY, () -> {
+            return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64)
+                    .apply(HumanoidModel.BABY_TRANSFORMER);
+        });
+        context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_BABY_ARMOR,
+                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                        LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
+                    return LayerDefinition.create(meshDefinition, 64, 32);
+                }).map((LayerDefinition layerDefinition) -> {
+                    return layerDefinition.apply(HumanoidModel.BABY_TRANSFORMER);
+                }));
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE_BABY_SLIM, () -> {
+            return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64)
+                    .apply(HumanoidModel.BABY_TRANSFORMER);
+        });
+        context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_BABY_SLIM_ARMOR,
+                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                        LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
+                    return LayerDefinition.create(meshDefinition, 64, 32);
+                }).map((LayerDefinition layerDefinition) -> {
+                    return layerDefinition.apply(HumanoidModel.BABY_TRANSFORMER);
+                }));
+        context.registerLayerDefinition(ModModelLayers.STRAW_STATUE_BABY_CAPE, () -> {
+            return PlayerCapeModel.createCapeLayer().apply(HumanoidModel.BABY_TRANSFORMER);
+        });
     }
 }
