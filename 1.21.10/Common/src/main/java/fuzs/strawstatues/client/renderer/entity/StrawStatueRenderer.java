@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.layers.CapeLayer;
+import net.minecraft.client.renderer.entity.layers.Deadmau5EarsLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
@@ -34,7 +35,8 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
         super(context, false);
         this.models = bakeModels(context);
         this.layers.removeIf((RenderLayer<AvatarRenderState, PlayerModel> renderLayer) -> {
-            return renderLayer instanceof HumanoidArmorLayer<?, ?, ?> || renderLayer instanceof CapeLayer;
+            return renderLayer instanceof HumanoidArmorLayer<?, ?, ?> || renderLayer instanceof CapeLayer
+                    || renderLayer instanceof Deadmau5EarsLayer;
         });
         this.addHumanoidArmorLayer(context,
                 ModModelLayers.STRAW_STATUE_ARMOR,
@@ -44,15 +46,25 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
                 ModModelLayers.STRAW_STATUE_SLIM_ARMOR,
                 ModModelLayers.STRAW_STATUE_BABY_SLIM_ARMOR,
                 PlayerModelType.SLIM);
-        this.addLayer(new CapeLayer(this, context.getModelSet(), context.getEquipmentAssets()) {
-            private final HumanoidModel<AvatarRenderState> adultModel = new StrawStatueCapeModel(context.bakeLayer(
-                    ModModelLayers.STRAW_STATUE_CAPE));
-            private final HumanoidModel<AvatarRenderState> babyModel = new StrawStatueCapeModel(context.bakeLayer(
-                    ModModelLayers.STRAW_STATUE_BABY_CAPE));
+        this.addLayer(new Deadmau5EarsLayer(this, context.getModelSet()) {
+            private final AdultAndBabyModelPair<HumanoidModel<AvatarRenderState>> models = new AdultAndBabyModelPair<>(
+                    new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_EARS), false),
+                    new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY_EARS), false));
 
             @Override
             public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, AvatarRenderState renderState, float yRot, float xRot) {
-                this.model = renderState.isBaby ? this.babyModel : this.adultModel;
+                this.model = this.models.getModel(renderState.isBaby);
+                super.submit(poseStack, nodeCollector, packedLight, renderState, yRot, xRot);
+            }
+        });
+        this.addLayer(new CapeLayer(this, context.getModelSet(), context.getEquipmentAssets()) {
+            private final AdultAndBabyModelPair<HumanoidModel<AvatarRenderState>> models = new AdultAndBabyModelPair<>(
+                    new StrawStatueCapeModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_CAPE)),
+                    new StrawStatueCapeModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY_CAPE)));
+
+            @Override
+            public void submit(PoseStack poseStack, SubmitNodeCollector nodeCollector, int packedLight, AvatarRenderState renderState, float yRot, float xRot) {
+                this.model = this.models.getModel(renderState.isBaby);
                 super.submit(poseStack, nodeCollector, packedLight, renderState, yRot, xRot);
             }
         });
@@ -60,24 +72,20 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
 
     private static Map<PlayerModelType, AdultAndBabyModelPair<StrawStatueModel>> bakeModels(EntityRendererProvider.Context context) {
         return Maps.newEnumMap(Map.of(PlayerModelType.WIDE,
-                new AdultAndBabyModelPair<>(new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE),
-                        PlayerModelType.WIDE),
-                        new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY),
-                                PlayerModelType.WIDE)),
+                new AdultAndBabyModelPair<>(new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE), false),
+                        new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY), false)),
                 PlayerModelType.SLIM,
                 new AdultAndBabyModelPair<>(new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_SLIM),
-                        PlayerModelType.SLIM),
-                        new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY_SLIM),
-                                PlayerModelType.SLIM))));
+                        true), new StrawStatueModel(context.bakeLayer(ModModelLayers.STRAW_STATUE_BABY_SLIM), true))));
     }
 
     private void addHumanoidArmorLayer(EntityRendererProvider.Context context, ArmorModelSet<ModelLayerLocation> armorModelSet, ArmorModelSet<ModelLayerLocation> babyArmorModelSet, PlayerModelType modelType) {
         this.addLayer(new HumanoidArmorLayer<>(this,
                 ArmorModelSet.bake(armorModelSet, context.getModelSet(), (ModelPart modelPart) -> {
-                    return new StrawStatueModel(modelPart, modelType);
+                    return new StrawStatueModel(modelPart, modelType == PlayerModelType.SLIM);
                 }),
                 ArmorModelSet.bake(babyArmorModelSet, context.getModelSet(), (ModelPart modelPart) -> {
-                    return new StrawStatueModel(modelPart, modelType);
+                    return new StrawStatueModel(modelPart, modelType == PlayerModelType.SLIM);
                 }),
                 context.getEquipmentRenderer()) {
             @Override
@@ -122,7 +130,6 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
         poseStack.mulPose(Axis.ZP.rotationDegrees(180.0F - ((StrawStatueRenderState) renderState).rotZ));
         poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - bodyRot));
         poseStack.mulPose(Axis.XP.rotationDegrees(180.0F - ((StrawStatueRenderState) renderState).rotX));
-
         float wiggle = ((StrawStatueRenderState) renderState).wiggle;
         if (wiggle < 5.0F) {
             poseStack.mulPose(Axis.YP.rotationDegrees(Mth.sin(wiggle / 1.5F * Mth.PI) * 3.0F));

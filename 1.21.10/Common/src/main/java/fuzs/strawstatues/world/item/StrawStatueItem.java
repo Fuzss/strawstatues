@@ -1,20 +1,17 @@
 package fuzs.strawstatues.world.item;
 
 import fuzs.puzzleslib.api.util.v1.InteractionResultHelper;
-import fuzs.statuemenus.api.v1.world.entity.decoration.StatueEntity;
 import fuzs.statuemenus.api.v1.world.inventory.data.StatuePose;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Rotations;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
@@ -61,11 +58,8 @@ public class StrawStatueItem extends Item {
                                     true);
                     if (strawStatue != null) {
                         float yRot =
-                                (float) Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F)
-                                        * 45.0F;
+                                Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
                         strawStatue.snapTo(strawStatue.getX(), strawStatue.getY(), strawStatue.getZ(), yRot, 0.0F);
-                        this.randomizePose(strawStatue, level.random);
-                        serverLevel.addFreshEntityWithPassengers(strawStatue);
                         level.playSound(null,
                                 strawStatue.getX(),
                                 strawStatue.getY(),
@@ -75,8 +69,7 @@ public class StrawStatueItem extends Item {
                                 0.75F,
                                 0.8F);
                         strawStatue.gameEvent(GameEvent.ENTITY_PLACE, player);
-                        if (player != null && !player.isShiftKeyDown()
-                                && !itemInHand.has(ModRegistry.POSE_DATA_COMPONENT_TYPE.value())) {
+                        if (player != null && !player.isShiftKeyDown()) {
                             StatuePose.randomValue().applyToEntity(strawStatue);
                         }
                     } else {
@@ -90,18 +83,6 @@ public class StrawStatueItem extends Item {
                 return InteractionResult.FAIL;
             }
         }
-    }
-
-    private void randomizePose(StatueEntity statueEntity, RandomSource random) {
-        Rotations rotations = statueEntity.getHeadPose();
-        float f = random.nextFloat() * 5.0F;
-        float g = random.nextFloat() * 20.0F - 10.0F;
-        Rotations rotations2 = new Rotations(rotations.x() + f, rotations.y() + g, rotations.z());
-        statueEntity.setHeadPose(rotations2);
-        rotations = statueEntity.getBodyPose();
-        f = random.nextFloat() * 10.0F - 5.0F;
-        rotations2 = new Rotations(rotations.x(), rotations.y() + f, rotations.z());
-        statueEntity.setBodyPose(rotations2);
     }
 
     /**

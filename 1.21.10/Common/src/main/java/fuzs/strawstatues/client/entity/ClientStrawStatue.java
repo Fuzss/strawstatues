@@ -6,6 +6,7 @@ import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.ClientAvatarEntity;
 import net.minecraft.client.entity.ClientAvatarState;
+import net.minecraft.client.entity.ClientMannequin;
 import net.minecraft.client.renderer.PlayerSkinRenderCache;
 import net.minecraft.core.Rotations;
 import net.minecraft.network.chat.Component;
@@ -31,6 +32,7 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     @Nullable
     private CompletableFuture<Optional<PlayerSkin>> skinLookup;
     private PlayerSkin skin = DEFAULT_SKIN;
+    private boolean showExtraEars;
     private final PlayerSkinRenderCache skinRenderCache;
     private float oldScale = 1.0F;
     private Rotations oldEntityPose = DEFAULT_ENTITY_POSE;
@@ -49,16 +51,18 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     @Override
     public void tick() {
         super.tick();
-        this.oldScale = this.getScale();
-        this.oldEntityPose = this.getEntityPose();
-        this.oldHeadPose = this.getHeadPose();
-        this.oldBodyPose = this.getBodyPose();
-        this.oldLeftArmPose = this.getLeftArmPose();
-        this.oldRightArmPose = this.getRightArmPose();
-        this.oldLeftLegPose = this.getLeftLegPose();
-        this.oldRightLegPose = this.getRightLegPose();
-        this.avatarState.tick(this.position(), this.getDeltaMovement());
-        this.lookupSkin();
+        if (this.level().isClientSide()) {
+            this.oldScale = this.getScale();
+            this.oldEntityPose = this.getEntityPose();
+            this.oldHeadPose = this.getHeadPose();
+            this.oldBodyPose = this.getBodyPose();
+            this.oldLeftArmPose = this.getLeftArmPose();
+            this.oldRightArmPose = this.getRightArmPose();
+            this.oldLeftLegPose = this.getLeftLegPose();
+            this.oldRightLegPose = this.getRightLegPose();
+            this.avatarState.tick(this.position(), this.getDeltaMovement());
+            this.lookupSkin();
+        }
     }
 
     private void lookupSkin() {
@@ -75,14 +79,23 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> dataAccessor) {
         super.onSyncedDataUpdated(dataAccessor);
-        if (Objects.equals(dataAccessor, DATA_PROFILE)) {
-            this.updateSkin();
-            if (Minecraft.getInstance().screen instanceof StrawStatueModelPartsScreen screen) {
-                screen.applyNameValue();
+        if (this.level().isClientSide()) {
+            if (Objects.equals(dataAccessor, DATA_PROFILE) || Objects.equals(dataAccessor, DATA_DYNAMIC_PROFILE)) {
+                this.updateProfile();
             }
         }
     }
 
+    private void updateProfile() {
+        this.updateSkin();
+        if (Minecraft.getInstance().screen instanceof StrawStatueModelPartsScreen screen) {
+            screen.applyNameValue();
+        }
+    }
+
+    /**
+     * @see ClientMannequin#updateSkin()
+     */
     private void updateSkin() {
         if (this.skinLookup != null) {
             CompletableFuture<Optional<PlayerSkin>> completableFuture = this.skinLookup;
@@ -90,21 +103,17 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
             completableFuture.cancel(false);
         }
 
-        ResolvableProfile resolvableProfile = this.getProfile();
-        if (Objects.equals(resolvableProfile, DEFAULT_PROFILE)) {
+        if (Objects.equals(this.getProfile(), DEFAULT_PROFILE)) {
             this.setSkin(DEFAULT_SKIN);
         } else {
-            ResolvableProfile lookupProfile;
-            if (this.isDynamic()) {
-                lookupProfile = ResolvableProfile.createUnresolved(resolvableProfile.name()
-                        .orElseGet(resolvableProfile.partialProfile()::name));
-            } else {
-                lookupProfile = resolvableProfile;
-            }
-
-            this.skinLookup = this.skinRenderCache.lookup(lookupProfile)
+            this.skinLookup = this.skinRenderCache.lookup(this.getSkinProfile())
                     .thenApply(optional -> optional.map(PlayerSkinRenderCache.RenderInfo::playerSkin));
+            this.showExtraEars = Objects.equals("deadmau5", this.getProfileName());
         }
+    }
+
+    private ResolvableProfile getSkinProfile() {
+        return this.isDynamicProfile() ? ResolvableProfile.createUnresolved(this.getProfileName()) : this.getProfile();
     }
 
     public float getScale(float partialTick) {
@@ -120,30 +129,30 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     }
 
     public Rotations getHeadPose(float partialTick) {
-        return lerp(partialTick, this.oldHeadPose, this.getHeadPose());
+        return lerpRotations(partialTick, this.oldHeadPose, this.getHeadPose());
     }
 
     public Rotations getBodyPose(float partialTick) {
-        return lerp(partialTick, this.oldBodyPose, this.getBodyPose());
+        return lerpRotations(partialTick, this.oldBodyPose, this.getBodyPose());
     }
 
     public Rotations getLeftArmPose(float partialTick) {
-        return lerp(partialTick, this.oldLeftArmPose, this.getLeftArmPose());
+        return lerpRotations(partialTick, this.oldLeftArmPose, this.getLeftArmPose());
     }
 
     public Rotations getRightArmPose(float partialTick) {
-        return lerp(partialTick, this.oldRightArmPose, this.getRightArmPose());
+        return lerpRotations(partialTick, this.oldRightArmPose, this.getRightArmPose());
     }
 
     public Rotations getLeftLegPose(float partialTick) {
-        return lerp(partialTick, this.oldLeftLegPose, this.getLeftLegPose());
+        return lerpRotations(partialTick, this.oldLeftLegPose, this.getLeftLegPose());
     }
 
     public Rotations getRightLegPose(float partialTick) {
-        return lerp(partialTick, this.oldRightLegPose, this.getRightLegPose());
+        return lerpRotations(partialTick, this.oldRightLegPose, this.getRightLegPose());
     }
 
-    private static Rotations lerp(float partialTick, Rotations oldRotations, Rotations newRotations) {
+    private static Rotations lerpRotations(float partialTick, Rotations oldRotations, Rotations newRotations) {
         float x = Mth.lerp(partialTick, oldRotations.x(), newRotations.x());
         float y = Mth.lerp(partialTick, oldRotations.y(), newRotations.y());
         float z = Mth.lerp(partialTick, oldRotations.z(), newRotations.z());
@@ -157,7 +166,7 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
 
     @Override
     public PlayerSkin getSkin() {
-        return this.skin;
+        return this.skin.with(this.getSkinPatch());
     }
 
     private void setSkin(PlayerSkin skin) {
@@ -178,6 +187,6 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
 
     @Override
     public boolean showExtraEars() {
-        return false;
+        return this.showExtraEars;
     }
 }

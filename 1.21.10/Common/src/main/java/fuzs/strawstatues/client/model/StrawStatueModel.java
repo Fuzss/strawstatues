@@ -9,8 +9,8 @@ import net.minecraft.world.entity.player.PlayerModelType;
 
 public class StrawStatueModel extends PlayerModel {
 
-    public StrawStatueModel(ModelPart modelPart, PlayerModelType modelType) {
-        super(modelPart, modelType == PlayerModelType.SLIM);
+    public StrawStatueModel(ModelPart modelPart, boolean slim) {
+        super(modelPart, slim);
     }
 
     @Override

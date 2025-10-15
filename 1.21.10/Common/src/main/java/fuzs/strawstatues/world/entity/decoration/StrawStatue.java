@@ -3,6 +3,7 @@ package fuzs.strawstatues.world.entity.decoration;
 import com.mojang.authlib.GameProfile;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
+import fuzs.puzzleslib.api.util.v1.CommonHelper;
 import fuzs.statuemenus.api.v1.helper.ArmorStandInteractHelper;
 import fuzs.statuemenus.api.v1.world.entity.decoration.StatueEntity;
 import fuzs.statuemenus.api.v1.world.inventory.data.StatueScreenType;
@@ -10,18 +11,14 @@ import fuzs.statuemenus.api.v1.world.inventory.data.StatueStyleOption;
 import fuzs.strawstatues.StrawStatues;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.inventory.data.StrawStatueScreenTypes;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Rotations;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -56,7 +53,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class StrawStatue extends Mannequin implements StatueEntity {
@@ -67,14 +63,11 @@ public class StrawStatue extends Mannequin implements StatueEntity {
             PlayerModelType.WIDE,
             true);
     public static final Rotations DEFAULT_ENTITY_POSE = new Rotations(180.0F, 0.0F, 180.0F);
-    // old keys
-    public static final String OWNER_KEY = "Owner";
-    public static final String PROFILE_KEY = "profile";
-    // new keys
     public static final String SMALL_KEY = "Small";
     public static final String PUSHABLE_KEY = "pushable";
     public static final String DYNAMIC_PROFILE_KEY = "dynamic_profile";
     public static final String SEALED_KEY = "sealed";
+    public static final String SKIN_PATCH_KEY = "skin_patch";
     public static final String ARMOR_STAND_POSE_KEY = "Pose";
     public static final String CROUCHING_KEY = "Crouching";
     public static final String ENTITY_POSE_KEY = "EntityRotations";
@@ -86,6 +79,8 @@ public class StrawStatue extends Mannequin implements StatueEntity {
             EntityDataSerializers.BOOLEAN);
     public static final EntityDataAccessor<Boolean> DATA_SEALED = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<PlayerSkin.Patch> DATA_SKIN_PATCH = SynchedEntityData.defineId(StrawStatue.class,
+            ModRegistry.SKIN_PATCH_ENTITY_DATA_SERIALIZER.value());
     public static final EntityDataAccessor<Rotations> DATA_ENTITY_POSE = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.ROTATIONS);
     public static final EntityDataAccessor<Rotations> DATA_HEAD_POSE = SynchedEntityData.defineId(StrawStatue.class,
@@ -100,20 +95,6 @@ public class StrawStatue extends Mannequin implements StatueEntity {
             EntityDataSerializers.ROTATIONS);
     public static final EntityDataAccessor<Rotations> DATA_RIGHT_LEG_POSE = SynchedEntityData.defineId(StrawStatue.class,
             EntityDataSerializers.ROTATIONS);
-    public static final StreamCodec<ByteBuf, ArmorStand.ArmorStandPose> POSE_STREAM_CODEC = StreamCodec.composite(
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::head,
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::body,
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::leftArm,
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::rightArm,
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::leftLeg,
-            Rotations.STREAM_CODEC,
-            ArmorStand.ArmorStandPose::rightLeg,
-            ArmorStand.ArmorStandPose::new);
 
     @Nullable
     private CompletableFuture<GameProfile> profileLookup;
@@ -121,12 +102,8 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     public StrawStatue(EntityType<? extends StrawStatue> entityType, Level level) {
         super((EntityType<Mannequin>) (EntityType<?>) entityType, level);
-    }
-
-    public StrawStatue(Level level, double x, double y, double z) {
-        this(ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(), level);
-        this.setPos(x, y, z);
         this.setNoGravity(true);
+        this.setHideDescription(true);
     }
 
     @Override
@@ -136,6 +113,7 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         builder.define(DATA_PUSHABLE, false);
         builder.define(DATA_DYNAMIC_PROFILE, false);
         builder.define(DATA_SEALED, false);
+        builder.define(DATA_SKIN_PATCH, PlayerSkin.Patch.EMPTY);
         builder.define(DATA_ENTITY_POSE, DEFAULT_ENTITY_POSE);
         builder.define(DATA_HEAD_POSE, ArmorStand.DEFAULT_HEAD_POSE);
         builder.define(DATA_BODY_POSE, ArmorStand.DEFAULT_BODY_POSE);
@@ -150,11 +128,17 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         super.addAdditionalSaveData(valueOutput);
         valueOutput.putBoolean(SMALL_KEY, this.isBaby());
         valueOutput.putBoolean(PUSHABLE_KEY, this.entityData.get(DATA_PUSHABLE));
-        valueOutput.putBoolean(DYNAMIC_PROFILE_KEY, this.isDynamic());
+        valueOutput.putBoolean(DYNAMIC_PROFILE_KEY, this.isDynamicProfile());
         valueOutput.putBoolean(SEALED_KEY, this.isSealed());
+        if (!Objects.equals(this.getSkinPatch(), PlayerSkin.Patch.EMPTY)) {
+            valueOutput.store(SKIN_PATCH_KEY, PlayerSkin.Patch.MAP_CODEC.codec(), this.getSkinPatch());
+        }
+
         valueOutput.store(ARMOR_STAND_POSE_KEY, ArmorStand.ArmorStandPose.CODEC, this.getArmorStandPose());
         valueOutput.putBoolean(CROUCHING_KEY, this.isCrouching());
-        valueOutput.store(ENTITY_POSE_KEY, Rotations.CODEC, this.getEntityPose());
+        if (!Objects.equals(this.getEntityPose(), DEFAULT_ENTITY_POSE)) {
+            valueOutput.store(ENTITY_POSE_KEY, Rotations.CODEC, this.getEntityPose());
+        }
     }
 
     @Override
@@ -162,8 +146,9 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         super.readAdditionalSaveData(valueInput);
         this.setBaby(valueInput.getBooleanOr(SMALL_KEY, false));
         this.setPushable(valueInput.getBooleanOr(PUSHABLE_KEY, false));
-        this.setDynamic(valueInput.getBooleanOr(DYNAMIC_PROFILE_KEY, false));
+        this.setDynamicProfile(valueInput.getBooleanOr(DYNAMIC_PROFILE_KEY, false));
         this.setSealed(valueInput.getBooleanOr(SEALED_KEY, false));
+        valueInput.read(SKIN_PATCH_KEY, PlayerSkin.Patch.MAP_CODEC.codec()).ifPresent(this::setSkinPatch);
         valueInput.read(ARMOR_STAND_POSE_KEY, ArmorStand.ArmorStandPose.CODEC).ifPresent(this::setArmorStandPose);
         this.setCrouching(valueInput.getBooleanOr(CROUCHING_KEY, false));
         valueInput.read(ENTITY_POSE_KEY, Rotations.CODEC).ifPresent(this::setEntityPose);
@@ -172,31 +157,31 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Deprecated
     private void readLegacySaveData(ValueInput valueInput) {
-        // TODO what to do with old profiles
-        Optional<Dynamic<?>> optional = valueInput.read(PROFILE_KEY, CompoundTag.CODEC)
-                .<Dynamic<?>>map((CompoundTag compoundTag) -> new Dynamic<>(NbtOps.INSTANCE, compoundTag))
-                .or(() -> {
-                    // backwards compatibility with the old game profile format
-                    return valueInput.read(OWNER_KEY, CompoundTag.CODEC)
-                            .<Dynamic<?>>map((CompoundTag compoundTag) -> ItemStackComponentizationFix.fixProfile(new Dynamic<>(
-                                    NbtOps.INSTANCE,
-                                    compoundTag)));
-                });
-        optional.map(ResolvableProfile.CODEC::parse)
+        // backwards compatibility with the old game profile format
+        valueInput.read("Owner", CompoundTag.CODEC)
+                .<Dynamic<?>>map((CompoundTag compoundTag) -> ItemStackComponentizationFix.fixProfile(new Dynamic<>(
+                        NbtOps.INSTANCE,
+                        compoundTag)))
+                .map(ResolvableProfile.CODEC::parse)
                 .flatMap((DataResult<ResolvableProfile> dataResult) -> dataResult.resultOrPartial((String string) -> {
                     StrawStatues.LOGGER.error("Failed to load profile from straw statue: {}", string);
                 }))
                 .ifPresent(this::setProfile);
     }
 
+    /**
+     * @see ArmorStand#refreshDimensions()
+     */
     @Override
     public void refreshDimensions() {
         if (this.isPushable()) {
             super.refreshDimensions();
         } else {
-            Vec3 position = this.getPosition(1.0F);
+            double x = this.getX();
+            double y = this.getY();
+            double z = this.getZ();
             super.refreshDimensions();
-            this.setPos(position);
+            this.setPos(x, y, z);
         }
     }
 
@@ -222,18 +207,30 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Override
     protected void doPush(Entity entity) {
-        if (this.isPushable()) {
+        if (this.isPushable() && !this.isNoGravity()) {
             super.doPush(entity);
         }
     }
 
     @Override
     protected void pushEntities() {
-        if (this.isPushable()) {
+        if (this.isPushable() && !this.isNoGravity()) {
             for (Entity entity : this.level().getPushableEntities(this, this.getBoundingBox())) {
                 this.doPush(entity);
             }
         }
+    }
+
+    @Override
+    public void travel(Vec3 travelVector) {
+        if (!this.isNoGravity()) {
+            super.travel(travelVector);
+        }
+    }
+
+    @Override
+    public boolean isEffectiveAi() {
+        return super.isEffectiveAi() && !this.isNoGravity();
     }
 
     @Override
@@ -273,9 +270,11 @@ public class StrawStatue extends Mannequin implements StatueEntity {
     }
 
     @Override
-    protected void serverAiStep() {
-        super.serverAiStep();
-        this.lookupProfile();
+    public void tick() {
+        super.tick();
+        if (this.level() instanceof ServerLevel) {
+            this.lookupProfile();
+        }
     }
 
     private void lookupProfile() {
@@ -291,26 +290,33 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Override
     public void setProfile(ResolvableProfile resolvableProfile) {
+        GameProfile oldGameProfile = this.getProfile().partialProfile();
         super.setProfile(resolvableProfile);
         if (this.level() instanceof ServerLevel serverLevel) {
-            if (!Objects.equals(resolvableProfile.partialProfile(), this.getProfile().partialProfile())) {
-                ProfileResolver profileResolver = serverLevel.getServer().services().profileResolver();
-                if (this.profileLookup != null) {
-                    CompletableFuture<GameProfile> completableFuture = this.profileLookup;
-                    this.profileLookup = null;
-                    completableFuture.cancel(false);
-                }
-
-                this.profileLookup = resolvableProfile.resolveProfile(profileResolver);
+            if (!Objects.equals(resolvableProfile.partialProfile(), oldGameProfile)) {
+                this.updateProfile(serverLevel, resolvableProfile);
             }
         }
     }
 
-    public boolean isDynamic() {
+    private void updateProfile(ServerLevel serverLevel, ResolvableProfile resolvableProfile) {
+        ProfileResolver profileResolver = serverLevel.getServer().services().profileResolver();
+        if (this.profileLookup != null) {
+            CompletableFuture<GameProfile> completableFuture = this.profileLookup;
+            this.profileLookup = null;
+            completableFuture.cancel(false);
+        }
+
+        if (!Objects.equals(resolvableProfile, DEFAULT_PROFILE)) {
+            this.profileLookup = resolvableProfile.resolveProfile(profileResolver);
+        }
+    }
+
+    public boolean isDynamicProfile() {
         return this.entityData.get(DATA_DYNAMIC_PROFILE);
     }
 
-    public void setDynamic(boolean isDynamic) {
+    public void setDynamicProfile(boolean isDynamic) {
         this.entityData.set(DATA_DYNAMIC_PROFILE, isDynamic);
     }
 
@@ -321,6 +327,14 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     public void setSealed(boolean isSealed) {
         this.entityData.set(DATA_SEALED, isSealed);
+    }
+
+    public PlayerSkin.Patch getSkinPatch() {
+        return this.entityData.get(DATA_SKIN_PATCH);
+    }
+
+    public void setSkinPatch(PlayerSkin.Patch skinPatch) {
+        this.entityData.set(DATA_SKIN_PATCH, skinPatch);
     }
 
     @Override
@@ -360,24 +374,20 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     public void setCrouching(boolean isCrouching) {
         this.setPose(isCrouching ? Pose.CROUCHING : Pose.STANDING);
+        this.setShiftKeyDown(isCrouching);
     }
 
     public Rotations getEntityPose() {
         return this.entityData.get(DATA_ENTITY_POSE);
     }
 
-    public void setPoseX(float xRot) {
-        this.setEntityPose(new Rotations(xRot, 0.0F, this.getEntityPose().z()));
-    }
-
-    public void setPoseZ(float zRot) {
-        this.setEntityPose(new Rotations(this.getEntityPose().x(), 0.0F, zRot));
-    }
-
     public void setEntityPose(Rotations rotations) {
         this.entityData.set(DATA_ENTITY_POSE, rotations);
     }
 
+    /**
+     * @see ArmorStand#hurtServer(ServerLevel, DamageSource, float)
+     */
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float damageAmount) {
         if (!this.isRemoved()) {
@@ -408,8 +418,8 @@ public class StrawStatue extends Mannequin implements StatueEntity {
                             && !((Player) damageSource.getEntity()).getAbilities().mayBuild) {
                         return false;
                     } else if (damageSource.isCreativePlayer()) {
-                        this.playBrokenSound();
-                        this.showBreakingParticles();
+                        this.playBrokenSound(serverLevel);
+                        this.showBreakingParticles(serverLevel);
                         this.kill(serverLevel);
                         return true;
                     } else {
@@ -423,7 +433,7 @@ public class StrawStatue extends Mannequin implements StatueEntity {
                             this.hurtTime = this.hurtDuration;
                         } else {
                             this.brokenByPlayer(serverLevel, damageSource);
-                            this.showBreakingParticles();
+                            this.showBreakingParticles(serverLevel);
                             this.kill(serverLevel);
                         }
 
@@ -438,6 +448,9 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         }
     }
 
+    /**
+     * @see ArmorStand#handleEntityEvent(byte)
+     */
     @Override
     public void handleEntityEvent(byte id) {
         if (id == EntityEvent.ARMORSTAND_WOBBLE) {
@@ -458,45 +471,51 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         super.handleEntityEvent(id);
     }
 
-    private void showBreakingParticles() {
-        if (this.level() instanceof ServerLevel serverLevel) {
-            serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK,
-                            Blocks.HAY_BLOCK.defaultBlockState()),
-                    this.getX(),
-                    this.getY(0.67),
-                    this.getZ(),
-                    10,
-                    this.getBbWidth() / 4.0F,
-                    this.getBbHeight() / 4.0F,
-                    this.getBbWidth() / 4.0F,
-                    0.05);
-        }
+    /**
+     * @see ArmorStand#showBreakingParticles()
+     */
+    private void showBreakingParticles(ServerLevel serverLevel) {
+        serverLevel.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, Blocks.HAY_BLOCK.defaultBlockState()),
+                this.getX(),
+                this.getY(0.67),
+                this.getZ(),
+                10,
+                this.getBbWidth() / 4.0F,
+                this.getBbHeight() / 4.0F,
+                this.getBbWidth() / 4.0F,
+                0.05);
     }
 
-    private void causeDamage(ServerLevel level, DamageSource damageSource, float damageAmount) {
+    /**
+     * @see ArmorStand#causeDamage(ServerLevel, DamageSource, float)
+     */
+    private void causeDamage(ServerLevel serverLevel, DamageSource damageSource, float damageAmount) {
         float f = this.getHealth();
         f -= damageAmount;
         if (f <= 0.5F) {
-            this.brokenByAnything(level, damageSource);
-            this.kill(level);
+            this.brokenByAnything(serverLevel, damageSource);
+            this.kill(serverLevel);
         } else {
             this.setHealth(f);
             this.gameEvent(GameEvent.ENTITY_DAMAGE, damageSource.getEntity());
         }
     }
 
+    /**
+     * @see ArmorStand#brokenByPlayer(ServerLevel, DamageSource)
+     */
     private void brokenByPlayer(ServerLevel serverLevel, DamageSource damageSource) {
-        // custom name is missing on purpose, so the profile can show as such
-        // might revert if the profile is not stored on the item after all
         ItemStack itemStack = new ItemStack(ModRegistry.STRAW_STATUE_ITEM);
-        itemStack.set(DataComponents.PROFILE, this.getProfile());
-        itemStack.set(ModRegistry.POSE_DATA_COMPONENT_TYPE.value(), this.getArmorStandPose());
+        itemStack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
         Block.popResource(this.level(), this.blockPosition(), itemStack);
         this.brokenByAnything(serverLevel, damageSource);
     }
 
+    /**
+     * @see ArmorStand#brokenByAnything(ServerLevel, DamageSource)
+     */
     private void brokenByAnything(ServerLevel serverLevel, DamageSource damageSource) {
-        this.playBrokenSound();
+        this.playBrokenSound(serverLevel);
         this.dropAllDeathLoot(serverLevel, damageSource);
         for (EquipmentSlot equipmentSlot : EquipmentSlot.VALUES) {
             ItemStack itemStack = this.equipment.set(equipmentSlot, ItemStack.EMPTY);
@@ -506,42 +525,59 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         }
     }
 
-    private void playBrokenSound() {
-        this.level()
-                .playSound(null,
-                        this.getX(),
-                        this.getY(),
-                        this.getZ(),
-                        this.getDeathSound(),
-                        this.getSoundSource(),
-                        1.0F,
-                        1.0F);
+    /**
+     * @see ArmorStand#playBrokenSound()
+     */
+    private void playBrokenSound(ServerLevel serverLevel) {
+        serverLevel.playSound(null,
+                this.getX(),
+                this.getY(),
+                this.getZ(),
+                this.getDeathSound(),
+                this.getSoundSource(),
+                1.0F,
+                1.0F);
     }
 
+    /**
+     * @see ArmorStand#tickHeadTurn(float)
+     */
     @Override
     protected void tickHeadTurn(float yBodyRot) {
         this.yBodyRotO = this.yRotO;
         this.yBodyRot = this.getYRot();
     }
 
+    /**
+     * @see ArmorStand#setYBodyRot(float)
+     */
     @Override
     public void setYBodyRot(float yBodyRot) {
         this.yBodyRotO = this.yRotO = yBodyRot;
         this.yHeadRotO = this.yHeadRot = yBodyRot;
     }
 
+    /**
+     * @see ArmorStand#setYHeadRot(float)
+     */
     @Override
     public void setYHeadRot(float yHeadRot) {
         this.yBodyRotO = this.yRotO = yHeadRot;
         this.yHeadRotO = this.yHeadRot = yHeadRot;
     }
 
+    /**
+     * @see ArmorStand#kill(ServerLevel)
+     */
     @Override
     public void kill(ServerLevel level) {
         this.remove(Entity.RemovalReason.KILLED);
         this.gameEvent(GameEvent.ENTITY_DIE);
     }
 
+    /**
+     * @see ArmorStand#ignoreExplosion(Explosion)
+     */
     @Override
     public boolean ignoreExplosion(Explosion explosion) {
         return !explosion.shouldAffectBlocklikeEntities() || super.ignoreExplosion(explosion);
@@ -607,6 +643,9 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         return this.entityData.get(DATA_RIGHT_LEG_POSE);
     }
 
+    /**
+     * @see ArmorStand#skipAttackInteraction(Entity)
+     */
     @Override
     public boolean skipAttackInteraction(Entity entity) {
         return entity instanceof Player player && !this.level().mayInteract(player, this.blockPosition());
@@ -646,32 +685,18 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Override
     public ItemStack getPickResult() {
-        return new ItemStack(ModRegistry.STRAW_STATUE_ITEM);
-    }
+        ItemStack itemStack = new ItemStack(ModRegistry.STRAW_STATUE_ITEM);
+        if (CommonHelper.hasControlDown()) {
+            if (!Objects.equals(this.getProfile(), DEFAULT_PROFILE)) {
+                itemStack.set(DataComponents.PROFILE, this.getProfile());
+            }
 
-    @Override
-    public @Nullable <T> T get(DataComponentType<? extends T> component) {
-        if (component == ModRegistry.POSE_DATA_COMPONENT_TYPE.value()) {
-            return castComponentValue(component, this.getArmorStandPose());
-        } else {
-            return super.get(component);
+            if (!Objects.equals(this.getSkinPatch(), PlayerSkin.Patch.EMPTY)) {
+                itemStack.set(ModRegistry.SKIN_PATCH_DATA_COMPONENT_TYPE.value(), this.getSkinPatch());
+            }
         }
-    }
 
-    @Override
-    protected void applyImplicitComponents(DataComponentGetter componentGetter) {
-        this.applyImplicitComponentIfPresent(componentGetter, ModRegistry.POSE_DATA_COMPONENT_TYPE.value());
-        super.applyImplicitComponents(componentGetter);
-    }
-
-    @Override
-    protected <T> boolean applyImplicitComponent(DataComponentType<T> component, T value) {
-        if (component == ModRegistry.POSE_DATA_COMPONENT_TYPE.value()) {
-            this.setArmorStandPose(castComponentValue(ModRegistry.POSE_DATA_COMPONENT_TYPE.value(), value));
-            return true;
-        } else {
-            return super.applyImplicitComponent(component, value);
-        }
+        return itemStack;
     }
 
     @Override

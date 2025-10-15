@@ -42,16 +42,12 @@ public class StrawStatuePositionScreen extends StatuePositionScreen {
     protected List<ArmorStandWidget> buildWidgets(LivingEntity livingEntity) {
         return buildWidgets(this,
                 livingEntity,
-                List.of(POSITION_INCREMENT_WIDGET_FACTORY,
+                List.of(SCALE_WIDGET_FACTORY,
+                        POSITION_INCREMENT_WIDGET_FACTORY,
                         POSITION_X_WIDGET_FACTORY,
                         POSITION_Y_WIDGET_FACTORY,
                         POSITION_Z_WIDGET_FACTORY,
                         ALIGNMENTS_WIDGET_FACTORY));
-    }
-
-    @Override
-    protected boolean withCloseButton() {
-        return true;
     }
 
     @Override

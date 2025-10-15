@@ -14,6 +14,7 @@ public class ModModelLayers {
     public static final ArmorModelSet<ModelLayerLocation> STRAW_STATUE_SLIM_ARMOR = MODEL_LAYERS.registerArmorSet(
             "straw_statue_slim");
     public static final ModelLayerLocation STRAW_STATUE_CAPE = MODEL_LAYERS.registerModelLayer("straw_statue", "cape");
+    public static final ModelLayerLocation STRAW_STATUE_EARS = MODEL_LAYERS.registerModelLayer("straw_statue", "ears");
     public static final ModelLayerLocation STRAW_STATUE_BABY = MODEL_LAYERS.registerModelLayer("straw_statue_baby");
     public static final ArmorModelSet<ModelLayerLocation> STRAW_STATUE_BABY_ARMOR = MODEL_LAYERS.registerArmorSet(
             "straw_statue_baby");
@@ -21,5 +22,8 @@ public class ModModelLayers {
             "straw_statue_baby_slim");
     public static final ArmorModelSet<ModelLayerLocation> STRAW_STATUE_BABY_SLIM_ARMOR = MODEL_LAYERS.registerArmorSet(
             "straw_statue_baby_slim");
-    public static final ModelLayerLocation STRAW_STATUE_BABY_CAPE = MODEL_LAYERS.registerModelLayer("straw_statue_baby", "cape");
+    public static final ModelLayerLocation STRAW_STATUE_BABY_CAPE = MODEL_LAYERS.registerModelLayer("straw_statue_baby",
+            "cape");
+    public static final ModelLayerLocation STRAW_STATUE_BABY_EARS = MODEL_LAYERS.registerModelLayer("straw_statue_baby",
+            "ears");
 }

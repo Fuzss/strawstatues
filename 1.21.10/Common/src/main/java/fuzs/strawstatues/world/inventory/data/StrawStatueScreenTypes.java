@@ -16,13 +16,13 @@ public class StrawStatueScreenTypes {
             new ItemStack(Items.GRASS_BLOCK));
     public static final StatueScreenType MODEL_PARTS = new StatueScreenType(StrawStatues.id("model_parts"),
             new ItemStack(Items.YELLOW_WOOL));
-    public static final StatueScreenType SCALE = new StatueScreenType(StrawStatues.id("scale"),
+    public static final StatueScreenType TEXTURES = new StatueScreenType(StrawStatues.id("textures"),
             new ItemStack(Items.HAY_BLOCK));
     public static final List<StatueScreenType> TYPES = List.of(ROTATIONS,
             StatueScreenType.POSES,
             STYLE,
             MODEL_PARTS,
             POSITION,
-            SCALE,
+            TEXTURES,
             StatueScreenType.EQUIPMENT);
 }

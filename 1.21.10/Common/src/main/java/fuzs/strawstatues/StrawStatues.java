@@ -8,8 +8,9 @@ import fuzs.puzzleslib.api.event.v1.BuildCreativeModeTabContentsCallback;
 import fuzs.statuemenus.api.v1.world.inventory.data.StatuePose;
 import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.network.client.ServerboundStrawStatueModelPartMessage;
-import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
 import fuzs.strawstatues.network.client.ServerboundStrawStatueProfileMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueScaleMessage;
+import fuzs.strawstatues.network.client.ServerboundStrawStatueSkinPatchMessage;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.inventory.data.StrawStatueStyleOptions;
 import net.minecraft.core.BlockPos;
@@ -83,6 +84,8 @@ public class StrawStatues implements ModConstructor {
         context.playToServer(ServerboundStrawStatueProfileMessage.class,
                 ServerboundStrawStatueProfileMessage.STREAM_CODEC);
         context.playToServer(ServerboundStrawStatueScaleMessage.class, ServerboundStrawStatueScaleMessage.STREAM_CODEC);
+        context.playToServer(ServerboundStrawStatueSkinPatchMessage.class,
+                ServerboundStrawStatueSkinPatchMessage.STREAM_CODEC);
     }
 
     @Override

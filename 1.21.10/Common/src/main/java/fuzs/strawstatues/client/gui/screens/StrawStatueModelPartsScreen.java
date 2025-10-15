@@ -75,6 +75,7 @@ public class StrawStatueModelPartsScreen extends StatueTickBoxScreen<PlayerModel
         }
     }
 
+    @Override
     protected Component getNameHint() {
         return TEXT_BOX_HINT_TRANSLATION_KEY;
     }
