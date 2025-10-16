@@ -13,6 +13,8 @@ import fuzs.strawstatues.init.ModRegistry;
 import fuzs.strawstatues.world.inventory.data.StrawStatueScreenTypes;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.core.Rotations;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
@@ -697,6 +699,31 @@ public class StrawStatue extends Mannequin implements StatueEntity {
         }
 
         return itemStack;
+    }
+
+    @Override
+    public @Nullable <T> T get(DataComponentType<? extends T> component) {
+        if (component == ModRegistry.SKIN_PATCH_DATA_COMPONENT_TYPE.value()) {
+            return castComponentValue(component, this.getSkinPatch());
+        } else {
+            return super.get(component);
+        }
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentGetter componentGetter) {
+        this.applyImplicitComponentIfPresent(componentGetter, ModRegistry.SKIN_PATCH_DATA_COMPONENT_TYPE.value());
+        super.applyImplicitComponents(componentGetter);
+    }
+
+    @Override
+    protected <T> boolean applyImplicitComponent(DataComponentType<T> component, T value) {
+        if (component == ModRegistry.SKIN_PATCH_DATA_COMPONENT_TYPE.value()) {
+            this.setSkinPatch(castComponentValue(ModRegistry.SKIN_PATCH_DATA_COMPONENT_TYPE.value(), value));
+            return true;
+        } else {
+            return super.applyImplicitComponent(component, value);
+        }
     }
 
     @Override
