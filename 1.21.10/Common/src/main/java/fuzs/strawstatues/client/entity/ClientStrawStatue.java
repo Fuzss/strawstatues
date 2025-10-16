@@ -121,11 +121,11 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     }
 
     public float getPoseX(float partialTick) {
-        return Mth.lerp(partialTick, this.oldEntityPose.x(), this.getEntityPose().x());
+        return Mth.rotLerp(partialTick, this.oldEntityPose.x(), this.getEntityPose().x());
     }
 
     public float getPoseZ(float partialTick) {
-        return Mth.lerp(partialTick, this.oldEntityPose.z(), this.getEntityPose().z());
+        return Mth.rotLerp(partialTick, this.oldEntityPose.z(), this.getEntityPose().z());
     }
 
     public Rotations getHeadPose(float partialTick) {
@@ -153,9 +153,9 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
     }
 
     private static Rotations lerpRotations(float partialTick, Rotations oldRotations, Rotations newRotations) {
-        float x = Mth.lerp(partialTick, oldRotations.x(), newRotations.x());
-        float y = Mth.lerp(partialTick, oldRotations.y(), newRotations.y());
-        float z = Mth.lerp(partialTick, oldRotations.z(), newRotations.z());
+        float x = Mth.rotLerp(partialTick, oldRotations.x(), newRotations.x());
+        float y = Mth.rotLerp(partialTick, oldRotations.y(), newRotations.y());
+        float z = Mth.rotLerp(partialTick, oldRotations.z(), newRotations.z());
         return new Rotations(x, y, z);
     }
 

@@ -2,10 +2,7 @@ package fuzs.strawstatues.client.gui.screens;
 
 import fuzs.puzzleslib.api.client.gui.v2.components.SpritelessImageButton;
 import fuzs.puzzleslib.api.network.v4.MessageSender;
-import fuzs.puzzleslib.api.util.v1.CommonHelper;
-import fuzs.statuemenus.api.v1.client.gui.components.FlatTickButton;
 import fuzs.statuemenus.api.v1.client.gui.screens.StatuePositionScreen;
-import fuzs.statuemenus.api.v1.client.gui.screens.StatueRotationsScreen;
 import fuzs.statuemenus.api.v1.network.client.data.DataSyncHandler;
 import fuzs.statuemenus.api.v1.world.inventory.StatueHolder;
 import fuzs.statuemenus.api.v1.world.inventory.data.StatueScreenType;
@@ -18,7 +15,6 @@ import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.chat.Component;
@@ -30,6 +26,7 @@ import net.minecraft.world.entity.player.PlayerSkin;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 public class StrawStatueTexturesScreen extends StatuePositionScreen {
     public static final Component SKIN_TEXTURE_COMPONENT = Component.translatable(StrawStatueScreenTypes.TEXTURES.id()
@@ -44,8 +41,6 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
             .toLanguageKey("screen", "rotation.y"));
     public static final Component ROTATION_Z_COMPONENT = Component.translatable(StrawStatueScreenTypes.TEXTURES.id()
             .toLanguageKey("screen", "rotation.z"));
-    public static final Component SAVE_COMPONENT = Component.translatable(StrawStatueScreenTypes.TEXTURES.id()
-            .toLanguageKey("screen", "save"));
     protected static final ArmorStandWidgetFactory<StrawStatueTexturesScreen> SKIN_TEXTURE_WIDGET_FACTORY = (StrawStatueTexturesScreen screen, LivingEntity livingEntity) -> {
         return screen.new TextureWidget(SKIN_TEXTURE_COMPONENT, ServerboundStrawStatueSkinPatchMessage.DataType.SKIN);
     };
@@ -57,7 +52,7 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
                 ServerboundStrawStatueSkinPatchMessage.DataType.ELYTRA);
     };
     protected static final ArmorStandWidgetFactory<StrawStatueTexturesScreen> ROTATION_X_WIDGET_FACTORY = (StrawStatueTexturesScreen screen, LivingEntity livingEntity) -> {
-        return screen.new StrawStatueRotationWidget(ROTATION_X_COMPONENT,
+        return screen.new CustomRotationWidget(ROTATION_X_COMPONENT,
                 (StrawStatue) livingEntity,
                 ServerboundStrawStatueScaleMessage.ValueAccessor.ROTATION_X);
     };
@@ -67,7 +62,7 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
                 screen.dataSyncHandler::sendRotation);
     };
     protected static final ArmorStandWidgetFactory<StrawStatueTexturesScreen> ROTATION_Z_WIDGET_FACTORY = (StrawStatueTexturesScreen screen, LivingEntity livingEntity) -> {
-        return screen.new StrawStatueRotationWidget(ROTATION_Z_COMPONENT,
+        return screen.new CustomRotationWidget(ROTATION_Z_COMPONENT,
                 (StrawStatue) livingEntity,
                 ServerboundStrawStatueScaleMessage.ValueAccessor.ROTATION_Z);
     };
@@ -93,11 +88,10 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
         return StrawStatueScreenTypes.TEXTURES;
     }
 
-    protected class StrawStatueRotationWidget extends RotationWidget {
+    protected class CustomRotationWidget extends RotationWidget {
         private final ServerboundStrawStatueScaleMessage.ValueAccessor valueAccessor;
-        private Button resetButton;
 
-        public StrawStatueRotationWidget(Component title, StrawStatue strawStatue, ServerboundStrawStatueScaleMessage.ValueAccessor valueAccessor) {
+        public CustomRotationWidget(Component title, StrawStatue strawStatue, ServerboundStrawStatueScaleMessage.ValueAccessor valueAccessor) {
             super(title, () -> valueAccessor.getRotationsComponent(strawStatue.getEntityPose()), (Float value) -> {
                 strawStatue.setEntityPose(valueAccessor.setRotationsComponent(strawStatue.getEntityPose(), value));
             });
@@ -105,51 +99,19 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
         }
 
         @Override
-        public void tick() {
-            super.tick();
-            this.setupButtonVisibility();
-        }
-
-        // TODO make the base method non-final
-//        @Override
-//        public void setVisible(boolean visible) {
-//            this.setupButtonVisibility();
-//        }
-
-        private void setupButtonVisibility() {
-            this.resetButton.visible = CommonHelper.hasAltDown();
-            this.toggleButton.visible = !this.resetButton.visible;
-        }
-
-        @Override
-        public void init(int posX, int posY) {
-            super.init(posX, posY);
-            this.resetButton = this.addRenderableWidget(new FlatTickButton(posX + 174,
-                    posY + 1,
-                    20,
-                    20,
-                    240,
-                    124,
-                    getArmorStandWidgetsLocation(),
-                    (Button button) -> {
-                        float resetValue =
-                                this.valueAccessor.getRotationsComponent(StrawStatue.DEFAULT_ENTITY_POSE) / 360.0F;
-                        this.setNewValue(resetValue);
-                        this.applyClientValue(resetValue);
-                        this.reset();
-                    }));
-            this.resetButton.setTooltip(Tooltip.create(Component.translatable(StatueRotationsScreen.RESET_TRANSLATION_KEY)));
-            this.setupButtonVisibility();
+        protected OptionalDouble getDefaultValue() {
+            return OptionalDouble.of(
+                    this.valueAccessor.getRotationsComponent(StrawStatue.DEFAULT_ENTITY_POSE) / 360.0F);
         }
 
         @Override
         protected double getCurrentValue() {
-            return this.currentValue.getAsDouble() / 360.0;
+            return this.valueGetter.getAsDouble() / 360.0;
         }
 
         @Override
         protected void setNewValue(double newValue) {
-            this.newValue.accept((float) (newValue * 360.0));
+            this.valueSetter.accept((float) (newValue * 360.0));
         }
 
         @Override

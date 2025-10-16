@@ -32,29 +32,41 @@ public class StrawStatueStyleOptions {
         }
 
         @Override
-        public boolean mayEdit(Player player) {
-            // TODO only enable if skin texture is overridden
-//            return strawStatue.getSkinPatch().body().isPresent();
-            return super.mayEdit(player);
+        public boolean mayEdit(StrawStatue strawStatue, Player player) {
+            return strawStatue.getSkinPatch().body().isPresent();
         }
     };
     public static final StatueStyleOption<StrawStatue> PUSHABLE = StatueStyleOption.create(StrawStatues.id("pushable"),
             StrawStatue::setPushable,
             StrawStatue::isPushable);
-    public static final StatueStyleOption<StrawStatue> DYNAMIC_PROFILE = StatueStyleOption.create(StrawStatues.id(
-            "dynamic_profile"), StrawStatue::setDynamicProfile, StrawStatue::isDynamicProfile);
+    public static final StatueStyleOption<StrawStatue> DYNAMIC = StatueStyleOption.create(StrawStatues.id("dynamic"),
+            StrawStatue::setDynamicProfile,
+            StrawStatue::isDynamicProfile);
     public static final StatueStyleOption<StrawStatue> CROUCHING = StatueStyleOption.create(StrawStatues.id("crouching"),
             StrawStatue::setCrouching,
             Entity::isCrouching);
-    public static final StatueStyleOption<StrawStatue> SEALED = StatueStyleOption.create(StrawStatues.id("sealed"),
-            StrawStatue::setSealed,
-            StrawStatue::isSealed);
+    public static final StatueStyleOption<StrawStatue> SEALED = new StatueStyleOption<>(StrawStatues.id("sealed")) {
+        @Override
+        public void setOption(StrawStatue strawStatue, boolean value) {
+            strawStatue.setSealed(value);
+        }
+
+        @Override
+        public boolean getOption(StrawStatue strawStatue) {
+            return strawStatue.isSealed();
+        }
+
+        @Override
+        public boolean mayEdit(StrawStatue livingEntity, Player player) {
+            return player.getAbilities().instabuild;
+        }
+    };
     public static final List<StatueStyleOption<? super StrawStatue>> TYPES = List.of(SMALL,
             CROUCHING,
             PUSHABLE,
             StatueStyleOption.IMMOVABLE,
             StatueStyleOption.INVULNERABLE,
-            DYNAMIC_PROFILE,
+            DYNAMIC,
             SLIM,
             SEALED);
 
@@ -62,7 +74,7 @@ public class StrawStatueStyleOptions {
         StatueStyleOption.register(StrawStatueStyleOptions.SMALL);
         StatueStyleOption.register(StrawStatueStyleOptions.SLIM);
         StatueStyleOption.register(StrawStatueStyleOptions.PUSHABLE);
-        StatueStyleOption.register(StrawStatueStyleOptions.DYNAMIC_PROFILE);
+        StatueStyleOption.register(StrawStatueStyleOptions.DYNAMIC);
         StatueStyleOption.register(StrawStatueStyleOptions.CROUCHING);
         StatueStyleOption.register(StrawStatueStyleOptions.SEALED);
     }

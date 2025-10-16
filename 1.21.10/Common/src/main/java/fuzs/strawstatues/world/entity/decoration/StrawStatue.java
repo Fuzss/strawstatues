@@ -157,7 +157,7 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Deprecated
     private void readLegacySaveData(ValueInput valueInput) {
-        // backwards compatibility with the old game profile format
+        // backwards compatibility with the old game profile format from before 1.20.5
         valueInput.read("Owner", CompoundTag.CODEC)
                 .<Dynamic<?>>map((CompoundTag compoundTag) -> ItemStackComponentizationFix.fixProfile(new Dynamic<>(
                         NbtOps.INSTANCE,

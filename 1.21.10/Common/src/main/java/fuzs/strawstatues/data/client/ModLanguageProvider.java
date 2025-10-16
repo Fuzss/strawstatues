@@ -36,8 +36,8 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(StrawStatueStyleOptions.PUSHABLE.getTranslationKey(), "Pushable");
         builder.add(StrawStatueStyleOptions.PUSHABLE.getDescriptionKey(),
                 "Allows other entities to push the statue around. This enables it to enter vehicles such as minecarts and boats.");
-        builder.add(StrawStatueStyleOptions.DYNAMIC_PROFILE.getTranslationKey(), "Dynamic");
-        builder.add(StrawStatueStyleOptions.DYNAMIC_PROFILE.getDescriptionKey(),
+        builder.add(StrawStatueStyleOptions.DYNAMIC.getTranslationKey(), "Dynamic");
+        builder.add(StrawStatueStyleOptions.DYNAMIC.getDescriptionKey(),
                 "Have the statue automatically resolve to the current skin of the targeted player. Otherwise the player skin at the time it is set is kept forever.");
         builder.add(StrawStatueStyleOptions.CROUCHING.getTranslationKey(), "Crouching");
         builder.add(StrawStatueStyleOptions.CROUCHING.getDescriptionKey(),
@@ -52,6 +52,5 @@ public class ModLanguageProvider extends AbstractLanguageProvider {
         builder.add(StrawStatueTexturesScreen.ROTATION_X_COMPONENT, "X-Rotation:");
         builder.add(StrawStatueTexturesScreen.ROTATION_Y_COMPONENT, "Y-Rotation:");
         builder.add(StrawStatueTexturesScreen.ROTATION_Z_COMPONENT, "Z-Rotation:");
-        builder.add(StrawStatueTexturesScreen.SAVE_COMPONENT, "Save");
     }
 }

@@ -14,6 +14,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -24,6 +25,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.function.Consumer;
 
 public class StrawStatueItem extends Item {
 
@@ -47,19 +50,18 @@ public class StrawStatueItem extends Item {
                     .makeBoundingBox(vec3.x(), vec3.y(), vec3.z());
             if (level.noCollision(null, aABB) && level.getEntities(null, aABB).isEmpty()) {
                 if (level instanceof ServerLevel serverLevel) {
+                    // do not use EntityType::spawn which adds the entity directly, as it will not send the initial rotations correctly
                     Player player = context.getPlayer();
+                    Consumer<StrawStatue> consumer = EntityType.createDefaultStackConfig(serverLevel,
+                            itemInHand,
+                            context.getPlayer());
                     StrawStatue strawStatue = ModRegistry.STRAW_STATUE_ENTITY_TYPE.value()
-                            .spawn(serverLevel,
-                                    itemInHand,
-                                    player,
-                                    blockPos,
-                                    EntitySpawnReason.SPAWN_ITEM_USE,
-                                    true,
-                                    true);
+                            .create(serverLevel, consumer, blockPos, EntitySpawnReason.SPAWN_ITEM_USE, true, true);
                     if (strawStatue != null) {
                         float yRot =
                                 Mth.floor((Mth.wrapDegrees(context.getRotation() - 180.0F) + 22.5F) / 45.0F) * 45.0F;
                         strawStatue.snapTo(strawStatue.getX(), strawStatue.getY(), strawStatue.getZ(), yRot, 0.0F);
+                        serverLevel.addFreshEntityWithPassengers(strawStatue);
                         level.playSound(null,
                                 strawStatue.getX(),
                                 strawStatue.getY(),

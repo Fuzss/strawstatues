@@ -5,8 +5,8 @@
   "screen.statuemenus.rotations.pose.strawstatues.cape": "Cape",
   "screen.statuemenus.style.strawstatues.crouching": "Crouching",
   "screen.statuemenus.style.strawstatues.crouching.description": "Makes the statue show as if it were crouching.",
-  "screen.statuemenus.style.strawstatues.dynamic_profile": "Dynamic",
-  "screen.statuemenus.style.strawstatues.dynamic_profile.description": "Have the statue automatically resolve to the current skin of the targeted player. Otherwise the player skin at the time it is set is kept forever.",
+  "screen.statuemenus.style.strawstatues.dynamic": "Dynamic",
+  "screen.statuemenus.style.strawstatues.dynamic.description": "Have the statue automatically resolve to the current skin of the targeted player. Otherwise the player skin at the time it is set is kept forever.",
   "screen.statuemenus.style.strawstatues.pushable": "Pushable",
   "screen.statuemenus.style.strawstatues.pushable.description": "Allows other entities to push the statue around. This enables it to enter vehicles such as minecarts and boats.",
   "screen.statuemenus.style.strawstatues.sealed": "Sealed",
@@ -25,7 +25,6 @@
   "screen.strawstatues.textures.rotation.x": "X-Rotation:",
   "screen.strawstatues.textures.rotation.y": "Y-Rotation:",
   "screen.strawstatues.textures.rotation.z": "Z-Rotation:",
-  "screen.strawstatues.textures.save": "Save",
   "screen.strawstatues.textures.texture.cape": "Cape Path:",
   "screen.strawstatues.textures.texture.elytra": "Elytra Path:",
   "screen.strawstatues.textures.texture.skin": "Skin Path:"

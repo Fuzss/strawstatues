@@ -22,7 +22,6 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
-import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelType;
 
@@ -97,10 +96,20 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
         });
     }
 
-    @Override
-    public void submit(AvatarRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+    // TODO enable this again when fixed on NeoForge
+//    @Override
+//    public void submit(AvatarRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+//        this.setupSubmit(renderState);
+//        super.submit(renderState, poseStack, nodeCollector, cameraRenderState);
+//    }
+
+    public void setupSubmit(AvatarRenderState renderState) {
         this.model = this.models.get(renderState.skin.model()).getModel(renderState.isBaby);
-        super.submit(renderState, poseStack, nodeCollector, cameraRenderState);
+    }
+
+    @Override
+    protected float getShadowRadius(AvatarRenderState renderState) {
+        return super.getShadowRadius(renderState) * renderState.ageScale;
     }
 
     @Override
