@@ -27,8 +27,8 @@ import net.minecraft.world.entity.player.PlayerModelType;
 
 import java.util.Map;
 
-public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
-    private final Map<PlayerModelType, AdultAndBabyModelPair<StrawStatueModel>> models;
+public abstract class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
+    protected final Map<PlayerModelType, AdultAndBabyModelPair<StrawStatueModel>> models;
 
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
         super(context, false);
@@ -94,17 +94,6 @@ public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
                 }
             }
         });
-    }
-
-    // TODO enable this again when fixed on NeoForge
-//    @Override
-//    public void submit(AvatarRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
-//        this.setupSubmit(renderState);
-//        super.submit(renderState, poseStack, nodeCollector, cameraRenderState);
-//    }
-
-    public void setupSubmit(AvatarRenderState renderState) {
-        this.model = this.models.get(renderState.skin.model()).getModel(renderState.isBaby);
     }
 
     @Override
