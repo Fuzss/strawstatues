@@ -159,6 +159,11 @@ public class StrawStatue extends Mannequin implements StatueEntity {
 
     @Deprecated
     private void readLegacySaveData(ValueInput valueInput) {
+        byte modelParts = valueInput.getByteOr("ModelParts", (byte) 0);
+        if (modelParts != 0) {
+            this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION, modelParts);
+        }
+
         // backwards compatibility with the old game profile format from before 1.20.5
         valueInput.read("Owner", CompoundTag.CODEC)
                 .<Dynamic<?>>map((CompoundTag compoundTag) -> ItemStackComponentizationFix.fixProfile(new Dynamic<>(
@@ -368,10 +373,9 @@ public class StrawStatue extends Mannequin implements StatueEntity {
     }
 
     public void setModelPartShown(PlayerModelPart modelPart, boolean value) {
+        byte modelParts = this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION);
         this.entityData.set(DATA_PLAYER_MODE_CUSTOMISATION,
-                StatueStyleOption.setBit(this.getEntityData().get(DATA_PLAYER_MODE_CUSTOMISATION),
-                        modelPart.getMask(),
-                        value));
+                StatueStyleOption.setBit(modelParts, modelPart.getMask(), value));
     }
 
     public void setCrouching(boolean isCrouching) {
