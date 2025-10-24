@@ -246,17 +246,6 @@ public class StrawStatue extends Mannequin implements StatueEntity {
     }
 
     @Override
-    public boolean isEquippableInSlot(ItemStack itemStack, EquipmentSlot slot) {
-        if (slot.getType() == EquipmentSlot.Type.HAND) {
-            return true;
-        } else if (slot == EquipmentSlot.HEAD && itemStack.get(DataComponents.EQUIPPABLE) == null) {
-            return true;
-        } else {
-            return super.isEquippableInSlot(itemStack, slot);
-        }
-    }
-
-    @Override
     public InteractionResult interact(Player player, InteractionHand interactionHand) {
         InteractionResult interactionResult = super.interact(player, interactionHand);
         if (interactionResult.consumesAction()) {

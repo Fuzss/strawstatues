@@ -7,5 +7,4 @@ accessible  field   net/minecraft/client/renderer/entity/layers/CapeLayer   mode
 mutable field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
 accessible  field   net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer   model   Lnet/minecraft/client/model/HumanoidModel;
 mutable field   net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer   model   Lnet/minecraft/client/model/HumanoidModel;
-extendable  method  net/minecraft/world/entity/LivingEntity isEquippableInSlot  (Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/EquipmentSlot;)Z
 accessible  field   net/minecraft/client/renderer/entity/EntityRenderDispatcher equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
