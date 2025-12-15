@@ -1,0 +1,10 @@
+accessWidener   v2  named
+accessible  method  net/minecraft/world/entity/decoration/Mannequin getProfile  ()Lnet/minecraft/world/item/component/ResolvableProfile;
+accessible  method  net/minecraft/world/entity/decoration/Mannequin setProfile  (Lnet/minecraft/world/item/component/ResolvableProfile;)V
+extendable  method  net/minecraft/world/entity/decoration/Mannequin setProfile  (Lnet/minecraft/world/item/component/ResolvableProfile;)V
+extendable  method  net/minecraft/world/entity/decoration/Mannequin setHideDescription  (Z)V
+accessible  field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+mutable field   net/minecraft/client/renderer/entity/layers/CapeLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+accessible  field   net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+mutable field   net/minecraft/client/renderer/entity/layers/Deadmau5EarsLayer   model   Lnet/minecraft/client/model/HumanoidModel;
+accessible  field   net/minecraft/client/renderer/entity/EntityRenderDispatcher equipmentAssets Lnet/minecraft/client/resources/model/EquipmentAssetManager;
