@@ -5,6 +5,7 @@ import fuzs.puzzleslib.api.client.core.v1.context.EntityRenderersContext;
 import fuzs.puzzleslib.api.client.core.v1.context.LayerDefinitionsContext;
 import fuzs.puzzleslib.api.client.core.v1.context.MenuScreensContext;
 import fuzs.puzzleslib.api.client.gui.v2.tooltip.ItemTooltipRegistry;
+import fuzs.statuemenus.api.v1.client.gui.screens.AbstractStatueScreen;
 import fuzs.statuemenus.api.v1.client.gui.screens.StatueRotationsScreen;
 import fuzs.statuemenus.api.v1.client.gui.screens.StatueScreenFactory;
 import fuzs.statuemenus.api.v1.client.gui.screens.StatueStyleScreen;
@@ -21,21 +22,21 @@ import fuzs.strawstatues.client.gui.screens.StrawStatueModelPartsScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatuePositionScreen;
 import fuzs.strawstatues.client.gui.screens.StrawStatueTexturesScreen;
 import fuzs.strawstatues.client.model.geom.ModModelLayers;
+import fuzs.strawstatues.client.renderer.entity.StrawStatueRenderer;
 import fuzs.strawstatues.init.ModRegistry;
-import fuzs.strawstatues.services.ClientAbstractions;
 import fuzs.strawstatues.world.entity.decoration.StrawStatue;
 import fuzs.strawstatues.world.inventory.data.StrawStatuePosePartMutators;
 import fuzs.strawstatues.world.inventory.data.StrawStatueScreenTypes;
 import fuzs.strawstatues.world.inventory.data.StrawStatueStyleOptions;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerCapeModel;
-import net.minecraft.client.model.PlayerEarsModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.LayerDefinitions;
 import net.minecraft.client.model.geom.builders.CubeDeformation;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.player.PlayerCapeModel;
+import net.minecraft.client.model.player.PlayerEarsModel;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.resources.model.EquipmentAssetManager;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.core.component.DataComponents;
@@ -50,8 +51,13 @@ import net.minecraft.world.item.equipment.Equippable;
 
 import java.util.List;
 
+/**
+ * Some lambdas / method references in this class are problematic for javac and / or Mercury. They need to be kept as
+ * they are.
+ */
 public class StrawStatuesClient implements ClientModConstructor {
 
+    @SuppressWarnings("Convert2Lambda")
     @Override
     public void onClientSetup() {
         ItemTooltipRegistry.ITEM.registerItemTooltip(ModRegistry.STRAW_STATUE_ITEM.value(),
@@ -59,71 +65,73 @@ public class StrawStatuesClient implements ClientModConstructor {
         StatueScreenFactory.register(StrawStatueScreenTypes.MODEL_PARTS, StrawStatueModelPartsScreen::new);
         StatueScreenFactory.register(StrawStatueScreenTypes.POSITION, StrawStatuePositionScreen::new);
         StatueScreenFactory.register(StrawStatueScreenTypes.TEXTURES, StrawStatueTexturesScreen::new);
-        StatueScreenFactory.register(StrawStatueScreenTypes.ROTATIONS,
-                (StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) -> {
-                    return new StatueRotationsScreen(holder, inventory, component, dataSyncHandler) {
-                        @Override
-                        public List<PosePartMutator> getPosePartMutators() {
-                            return StrawStatuePosePartMutators.TYPES;
-                        }
+        StatueScreenFactory.register(StrawStatueScreenTypes.ROTATIONS, new StatueScreenFactory<AbstractStatueScreen>() {
+            @Override
+            public AbstractStatueScreen create(StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
+                return new StatueRotationsScreen(holder, inventory, component, dataSyncHandler) {
+                    @Override
+                    public List<PosePartMutator> getPosePartMutators() {
+                        return StrawStatuePosePartMutators.TYPES;
+                    }
 
-                        @Override
-                        protected StatuePose setupRandomPose(StatuePose statuePose) {
-                            return statuePose;
-                        }
+                    @Override
+                    protected StatuePose setupRandomPose(StatuePose statuePose) {
+                        return statuePose;
+                    }
 
-                        @Override
-                        protected boolean isPosePartMutatorActive(PosePartMutator posePartMutator, LivingEntity livingEntity) {
-                            if (posePartMutator == StrawStatuePosePartMutators.CAPE) {
-                                if (livingEntity instanceof ClientStrawStatue strawStatue
-                                        && strawStatue.isModelPartShown(PlayerModelPart.CAPE)
-                                        && strawStatue.getSkin().cape() != null) {
-                                    ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
-                                    return !this.hasLayer(itemStack, EquipmentClientInfo.LayerType.WINGS);
-                                } else {
-                                    return false;
-                                }
-                            } else {
-                                return super.isPosePartMutatorActive(posePartMutator, livingEntity);
-                            }
-                        }
-
-                        /**
-                         * @see net.minecraft.client.renderer.entity.layers.CapeLayer#hasLayer(ItemStack, EquipmentClientInfo.LayerType)
-                         */
-                        private boolean hasLayer(ItemStack itemStack, EquipmentClientInfo.LayerType layer) {
-                            Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
-                            if (equippable != null && !equippable.assetId().isEmpty()) {
-                                EquipmentAssetManager equipmentAssets = Minecraft.getInstance()
-                                        .getEntityRenderDispatcher().equipmentAssets;
-                                EquipmentClientInfo equipmentClientInfo = equipmentAssets.get(equippable.assetId()
-                                        .get());
-                                return !equipmentClientInfo.getLayers(layer).isEmpty();
+                    @Override
+                    protected boolean isPosePartMutatorActive(PosePartMutator posePartMutator, LivingEntity livingEntity) {
+                        if (posePartMutator == StrawStatuePosePartMutators.CAPE) {
+                            if (livingEntity instanceof ClientStrawStatue strawStatue && strawStatue.isModelPartShown(
+                                    PlayerModelPart.CAPE) && strawStatue.getSkin().cape() != null) {
+                                ItemStack itemStack = livingEntity.getItemBySlot(EquipmentSlot.CHEST);
+                                return !this.hasLayer(itemStack, EquipmentClientInfo.LayerType.WINGS);
                             } else {
                                 return false;
                             }
+                        } else {
+                            return super.isPosePartMutatorActive(posePartMutator, livingEntity);
                         }
+                    }
 
-                        @Override
-                        public StatueScreenType getScreenType() {
-                            return StrawStatueScreenTypes.ROTATIONS;
+                    /**
+                     * @see net.minecraft.client.renderer.entity.layers.CapeLayer#hasLayer(ItemStack, EquipmentClientInfo.LayerType)
+                     */
+                    private boolean hasLayer(ItemStack itemStack, EquipmentClientInfo.LayerType layer) {
+                        Equippable equippable = itemStack.get(DataComponents.EQUIPPABLE);
+                        if (equippable != null && !equippable.assetId().isEmpty()) {
+                            EquipmentAssetManager equipmentAssets = Minecraft.getInstance()
+                                    .getEntityRenderDispatcher().equipmentAssets;
+                            EquipmentClientInfo equipmentClientInfo = equipmentAssets.get(equippable.assetId().get());
+                            return !equipmentClientInfo.getLayers(layer).isEmpty();
+                        } else {
+                            return false;
                         }
-                    };
-                });
-        StatueScreenFactory.register(StrawStatueScreenTypes.STYLE,
-                (StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) -> {
-                    return new StatueStyleScreen<StrawStatue>(holder, inventory, component, dataSyncHandler) {
-                        @Override
-                        protected List<StatueStyleOption<? super StrawStatue>> getStyleOptions() {
-                            return StrawStatueStyleOptions.TYPES;
-                        }
+                    }
 
-                        @Override
-                        public StatueScreenType getScreenType() {
-                            return StrawStatueScreenTypes.STYLE;
-                        }
-                    };
-                });
+                    @Override
+                    public StatueScreenType getScreenType() {
+                        return StrawStatueScreenTypes.ROTATIONS;
+                    }
+                };
+            }
+        });
+        StatueScreenFactory.register(StrawStatueScreenTypes.STYLE, new StatueScreenFactory<AbstractStatueScreen>() {
+            @Override
+            public AbstractStatueScreen create(StatueHolder holder, Inventory inventory, Component component, DataSyncHandler dataSyncHandler) {
+                return new StatueStyleScreen<StrawStatue>(holder, inventory, component, dataSyncHandler) {
+                    @Override
+                    protected List<StatueStyleOption<? super StrawStatue>> getStyleOptions() {
+                        return StrawStatueStyleOptions.TYPES;
+                    }
+
+                    @Override
+                    public StatueScreenType getScreenType() {
+                        return StrawStatueScreenTypes.STYLE;
+                    }
+                };
+            }
+        });
     }
 
     @SuppressWarnings("Convert2MethodRef")
@@ -139,7 +147,7 @@ public class StrawStatuesClient implements ClientModConstructor {
     @Override
     public void onRegisterEntityRenderers(EntityRenderersContext context) {
         context.registerEntityRenderer((EntityType<ClientStrawStatue>) (EntityType<?>) ModRegistry.STRAW_STATUE_ENTITY_TYPE.value(),
-                ClientAbstractions.INSTANCE::createStrawStatueRenderer);
+                StrawStatueRenderer::new);
     }
 
     @Override
@@ -148,7 +156,7 @@ public class StrawStatuesClient implements ClientModConstructor {
             return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, false), 64, 64);
         });
         context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_ARMOR,
-                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                () -> PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
                         LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
                     return LayerDefinition.create(meshDefinition, 64, 32);
                 }));
@@ -156,7 +164,7 @@ public class StrawStatuesClient implements ClientModConstructor {
             return LayerDefinition.create(PlayerModel.createMesh(CubeDeformation.NONE, true), 64, 64);
         });
         context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_SLIM_ARMOR,
-                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                () -> PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
                         LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
                     return LayerDefinition.create(meshDefinition, 64, 32);
                 }));
@@ -167,7 +175,7 @@ public class StrawStatuesClient implements ClientModConstructor {
                     .apply(HumanoidModel.BABY_TRANSFORMER);
         });
         context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_BABY_ARMOR,
-                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                () -> PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
                         LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
                     return LayerDefinition.create(meshDefinition, 64, 32);
                 }).map((LayerDefinition layerDefinition) -> {
@@ -178,7 +186,7 @@ public class StrawStatuesClient implements ClientModConstructor {
                     .apply(HumanoidModel.BABY_TRANSFORMER);
         });
         context.registerArmorDefinition(ModModelLayers.STRAW_STATUE_BABY_SLIM_ARMOR,
-                PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
+                () -> PlayerModel.createArmorMeshSet(LayerDefinitions.INNER_ARMOR_DEFORMATION,
                         LayerDefinitions.OUTER_ARMOR_DEFORMATION).map((MeshDefinition meshDefinition) -> {
                     return LayerDefinition.create(meshDefinition, 64, 32);
                 }).map((LayerDefinition layerDefinition) -> {

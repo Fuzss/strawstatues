@@ -10,9 +10,9 @@ import fuzs.strawstatues.client.model.geom.ModModelLayers;
 import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
 import net.minecraft.client.model.AdultAndBabyModelPair;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.player.PlayerModel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -22,13 +22,14 @@ import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.AvatarRenderer;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.PlayerModelType;
 
 import java.util.Map;
 
-public abstract class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
-    protected final Map<PlayerModelType, AdultAndBabyModelPair<StrawStatueModel>> models;
+public class StrawStatueRenderer extends AvatarRenderer<ClientStrawStatue> {
+    private final Map<PlayerModelType, AdultAndBabyModelPair<StrawStatueModel>> models;
 
     public StrawStatueRenderer(EntityRendererProvider.Context context) {
         super(context, false);
@@ -94,6 +95,12 @@ public abstract class StrawStatueRenderer extends AvatarRenderer<ClientStrawStat
                 }
             }
         });
+    }
+
+    @Override
+    public void submit(AvatarRenderState renderState, PoseStack poseStack, SubmitNodeCollector nodeCollector, CameraRenderState cameraRenderState) {
+        this.model = this.models.get(renderState.skin.model()).getModel(renderState.isBaby);
+        super.submit(renderState, poseStack, nodeCollector, cameraRenderState);
     }
 
     @Override

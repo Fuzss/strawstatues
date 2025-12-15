@@ -1,8 +1,8 @@
 package fuzs.strawstatues.client.model;
 
 import fuzs.strawstatues.client.renderer.entity.state.StrawStatueRenderState;
-import net.minecraft.client.model.PlayerCapeModel;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.player.PlayerCapeModel;
 import net.minecraft.client.renderer.entity.state.AvatarRenderState;
 import net.minecraft.util.Mth;
 

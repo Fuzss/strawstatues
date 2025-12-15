@@ -24,7 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.ProfileResolver;
 import net.minecraft.sounds.SoundEvent;
@@ -51,14 +51,14 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 public class StrawStatue extends Mannequin implements StatueEntity {
-    public static final ResourceLocation STRAW_STATUE_LOCATION = StrawStatues.id("entity/straw_statue");
+    public static final Identifier STRAW_STATUE_LOCATION = StrawStatues.id("entity/straw_statue");
     public static final PlayerSkin DEFAULT_SKIN = new PlayerSkin(new ClientAsset.ResourceTexture(STRAW_STATUE_LOCATION),
             null,
             null,

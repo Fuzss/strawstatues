@@ -1,0 +1,69 @@
+{
+    "mod": {
+        "id": "strawstatues",
+        "group": "fuzs.strawstatues",
+        "name": "Straw Statues",
+        "version": "21.11.0",
+        "authors": [
+            "Fuzs"
+        ],
+        "description": "Bring some life to your builds with player statues of your favorite Minecrafters!",
+        "license": "MPL-2.0"
+    },
+    "dependencies": [
+        {
+            "name": "statuemenus",
+            "type": "embedded",
+            "platforms": [
+                "fabric",
+                "neoforge"
+            ]
+        },
+        {
+            "name": "fabricapi",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "forgeconfigapiport",
+            "type": "required",
+            "platforms": [
+                "fabric"
+            ]
+        },
+        {
+            "name": "puzzleslib",
+            "type": "required",
+            "platforms": [
+                "fabric",
+                "neoforge"
+            ]
+        }
+    ],
+    "links": [
+        {
+            "name": "github",
+            "slug": "strawstatues"
+        },
+        {
+            "name": "curseforge",
+            "slug": "straw-statues",
+            "id": "682564"
+        },
+        {
+            "name": "modrinth",
+            "slug": "straw-statues",
+            "id": "2fltysAl"
+        }
+    ],
+    "environments": {
+        "client": "required",
+        "server": "required"
+    },
+    "platforms": [
+        "fabric",
+        "neoforge"
+    ]
+}

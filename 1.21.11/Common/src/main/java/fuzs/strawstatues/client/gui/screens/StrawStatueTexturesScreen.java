@@ -18,7 +18,7 @@ import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -141,13 +141,13 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
                     0,
                     getArmorStandWidgetsLocation(),
                     (Button button) -> {
-                        ResourceLocation resourceLocation = ResourceLocation.tryParse(this.editBox.getValue());
-                        if (resourceLocation != null) {
+                        Identifier identifier = Identifier.tryParse(this.editBox.getValue());
+                        if (identifier != null) {
                             Optional<ClientAsset.ResourceTexture> resourceTexture;
-                            if (resourceLocation.getPath().isEmpty()) {
+                            if (identifier.getPath().isEmpty()) {
                                 resourceTexture = Optional.empty();
                             } else {
-                                resourceTexture = Optional.of(new ClientAsset.ResourceTexture(resourceLocation));
+                                resourceTexture = Optional.of(new ClientAsset.ResourceTexture(identifier));
                             }
 
                             MessageSender.broadcast(new ServerboundStrawStatueSkinPatchMessage(this.dataType,
@@ -170,8 +170,8 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
             };
             this.editBox.setMaxLength(256);
             this.editBox.setResponder((String string) -> {
-                ResourceLocation resourceLocation = ResourceLocation.tryParse(string);
-                if (resourceLocation != null) {
+                Identifier identifier = Identifier.tryParse(string);
+                if (identifier != null) {
                     checkmarkButton.active = true;
                     this.editBox.setTextColor(EditBox.DEFAULT_TEXT_COLOR);
                 } else {
@@ -179,8 +179,8 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
                     this.editBox.setTextColor(ARGB.opaque(ChatFormatting.RED.getColor()));
                 }
 
-                if (resourceLocation != null && !resourceLocation.getPath().isEmpty()) {
-                    String texturePath = new ClientAsset.ResourceTexture(resourceLocation).texturePath().toString();
+                if (identifier != null && !identifier.getPath().isEmpty()) {
+                    String texturePath = new ClientAsset.ResourceTexture(identifier).texturePath().toString();
                     this.editBox.setTooltip(Tooltip.create(Component.literal(texturePath)));
                 } else {
                     this.editBox.setTooltip(null);
@@ -190,7 +190,7 @@ public class StrawStatueTexturesScreen extends StatuePositionScreen {
                     .getEntity()).getSkinPatch();
             this.editBox.setValue(this.dataType.getTexturePath(skinPatch)
                     .map(ClientAsset.ResourceTexture::id)
-                    .map(ResourceLocation::toString)
+                    .map(Identifier::toString)
                     .orElse(""));
             this.addRenderableWidget(this.editBox);
         }

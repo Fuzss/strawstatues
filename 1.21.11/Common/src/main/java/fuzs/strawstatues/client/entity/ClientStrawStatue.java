@@ -13,12 +13,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Parrot;
+import net.minecraft.world.entity.animal.parrot.Parrot;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.PlayerSkin;
 import net.minecraft.world.item.component.ResolvableProfile;
 import net.minecraft.world.level.Level;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -179,9 +179,8 @@ public class ClientStrawStatue extends StrawStatue implements ClientAvatarEntity
         return this.getDescription();
     }
 
-    @Nullable
     @Override
-    public Parrot.Variant getParrotVariantOnShoulder(boolean left) {
+    public Parrot.@Nullable Variant getParrotVariantOnShoulder(boolean left) {
         return null;
     }
 
